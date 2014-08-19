@@ -33,14 +33,6 @@ public class Macaroons {
     this.identifier = identifier;
   }
 
-  public String getLocation() {
-    return location;
-  }
-
-  public String getSignature() throws NoSuchAlgorithmException, InvalidKeyException {
-    return getM().signature;
-  }
-
   private M getM() throws InvalidKeyException, NoSuchAlgorithmException {
     byte[] key = generate_derived_key(this.secretKey);
     return macaroon_create_raw(this.location, key, this.identifier);
@@ -67,7 +59,4 @@ public class Macaroons {
     return sha256_HMAC.doFinal(text.getBytes(UTF8));
   }
 
-  public String getIdentifier() {
-    return identifier;
-  }
 }
