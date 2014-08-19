@@ -10,25 +10,37 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class MacaroonsTest {
 
-
-
-  private String publicKey;
+  private String identifier;
   private String secret;
   private String location;
 
   @BeforeMethod
   public void setUp() throws Exception {
-    location = "http://mybank";
+    location = "http://mybank/";
     secret = "this is our super secret key; only we should know it";
-    publicKey = "we used out secret key";
+    identifier = "we used our secret key";
   }
 
   @Test
-  public void create_a_Macaroon_and_verify_signature() throws InvalidKeyException, NoSuchAlgorithmException {
-    Macaroons macaroons = Macaroons.create(location, secret, publicKey);
+  public void create_a_Macaroon_and_verify_signature_location_and_identfier() throws InvalidKeyException, NoSuchAlgorithmException {
+    M macaroons = Macaroons.create(location, secret, identifier);
 
-    assertThat(macaroons.getLocation()).isEqualTo(location);
-    assertThat(macaroons.getSignature()).isEqualTo("270f5305f178ae1451f253416ade32c6774297059a6af3882d2cf4859b702e2e");
+    assertThat(macaroons.location).isEqualTo(location);
+    assertThat(macaroons.identifier).isEqualTo(identifier);
+    assertThat(macaroons.signature).isEqualTo("e3d9e02908526c4c0039ae15114115d97fdd68bf2ba379b342aaf0f617d0552f");
+  }
+
+  @Test
+  public void create_a_Macaroon_and_inspect() throws InvalidKeyException, NoSuchAlgorithmException {
+    M macaroons = Macaroons.create(location, secret, identifier);
+
+    String inspect = macaroons.inspect();
+
+    assertThat(inspect).isEqualTo(
+        "location http://mybank/\n" +
+            "identifier we used our secret key\n" +
+            "signature e3d9e02908526c4c0039ae15114115d97fdd68bf2ba379b342aaf0f617d0552f\n"
+    );
   }
 
 }

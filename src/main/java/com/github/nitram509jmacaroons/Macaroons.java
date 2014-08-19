@@ -15,16 +15,22 @@ public class Macaroons {
 
   private String location;
   private String secretKey;
-  private String publicKey;
+  private String identifier;
 
-  public static Macaroons create(String location, String secretKey, String publicKey) {
-    return new Macaroons(location, secretKey, publicKey);
+  public static M create(String location, String secretKey, String publicKey) {
+    try {
+      return new Macaroons(location, secretKey, publicKey).getM();
+    } catch (InvalidKeyException e) {
+      throw new RuntimeException(e);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  public Macaroons(String location, String secretKey, String publicKey) {
+  public Macaroons(String location, String secretKey, String identifier) {
     this.location = location;
     this.secretKey = secretKey;
-    this.publicKey = publicKey;
+    this.identifier = identifier;
   }
 
   public String getLocation() {
@@ -32,8 +38,12 @@ public class Macaroons {
   }
 
   public String getSignature() throws NoSuchAlgorithmException, InvalidKeyException {
+    return getM().signature;
+  }
+
+  private M getM() throws InvalidKeyException, NoSuchAlgorithmException {
     byte[] key = generate_derived_key(this.secretKey);
-    return macaroon_create_raw(this.location, key, this.publicKey).signature;
+    return macaroon_create_raw(this.location, key, this.identifier);
   }
 
   private byte[] generate_derived_key(String variableKey) throws InvalidKeyException, NoSuchAlgorithmException {
@@ -57,4 +67,7 @@ public class Macaroons {
     return sha256_HMAC.doFinal(text.getBytes(UTF8));
   }
 
+  public String getIdentifier() {
+    return identifier;
+  }
 }
