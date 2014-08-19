@@ -11,11 +11,11 @@ public interface MacaroonConstants {
 
   /* more internal use ... */
 
-  static transient final String LOCATION = "location";
-  static transient final String IDENTIFIER = "identifier";
-  static transient final String SIGNATURE = "signature";
-  static transient final String CID = "cid";
-  static transient final String VID = "vid";
-  static transient final String CL = "cl";
+  static final String LOCATION = "location";
+  static final String IDENTIFIER = "identifier";
+  static final String SIGNATURE = "signature";
+  static final String CID = "cid";
+  static final String VID = "vid";
+  static final String CL = "cl";
 
 }
