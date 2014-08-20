@@ -1,4 +1,4 @@
-package com.github.nitram509jmacaroons;
+package com.github.nitram509.jmacaroons;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-public class Macaroons {
+public class MacaroonBuilder {
 
   private static final String MAGIC_KEY = "macaroons-key-generator";
 
@@ -17,9 +17,9 @@ public class Macaroons {
   private String secretKey;
   private String identifier;
 
-  public static M create(String location, String secretKey, String publicKey) {
+  public static Macaroon create(String location, String secretKey, String publicKey) {
     try {
-      return new Macaroons(location, secretKey, publicKey).getM();
+      return new MacaroonBuilder(location, secretKey, publicKey).getM();
     } catch (InvalidKeyException e) {
       throw new RuntimeException(e);
     } catch (NoSuchAlgorithmException e) {
@@ -27,13 +27,13 @@ public class Macaroons {
     }
   }
 
-  public Macaroons(String location, String secretKey, String identifier) {
+  public MacaroonBuilder(String location, String secretKey, String identifier) {
     this.location = location;
     this.secretKey = secretKey;
     this.identifier = identifier;
   }
 
-  private M getM() throws InvalidKeyException, NoSuchAlgorithmException {
+  private Macaroon getM() throws InvalidKeyException, NoSuchAlgorithmException {
     byte[] key = generate_derived_key(this.secretKey);
     return macaroon_create_raw(this.location, key, this.identifier);
   }
@@ -42,14 +42,14 @@ public class Macaroons {
     return macaroon_hmac(MAGIC_KEY.getBytes(ASCII), variableKey);
   }
 
-  private M macaroon_create_raw(String location, byte[] key, String id) throws InvalidKeyException, NoSuchAlgorithmException {
-    assert location.length() < MacaroonConstants.MACAROON_MAX_STRLEN;
-    assert id.length() < MacaroonConstants.MACAROON_MAX_STRLEN;
-    assert key.length == MacaroonConstants.MACAROON_SUGGESTED_SECRET_LENGTH;
+  private Macaroon macaroon_create_raw(String location, byte[] key, String id) throws InvalidKeyException, NoSuchAlgorithmException {
+    assert location.length() < MacaroonsConstants.MACAROON_MAX_STRLEN;
+    assert id.length() < MacaroonsConstants.MACAROON_MAX_STRLEN;
+    assert key.length == MacaroonsConstants.MACAROON_SUGGESTED_SECRET_LENGTH;
 
     byte[] hash = macaroon_hmac(key, id);
 
-    return new M(location, id, hash);
+    return new Macaroon(location, id, hash);
   }
 
   private byte[] macaroon_hmac(byte[] key, String text) throws NoSuchAlgorithmException, InvalidKeyException {

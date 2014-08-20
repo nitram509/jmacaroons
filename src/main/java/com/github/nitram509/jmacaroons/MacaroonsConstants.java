@@ -1,6 +1,6 @@
-package com.github.nitram509jmacaroons;
+package com.github.nitram509.jmacaroons;
 
-public interface MacaroonConstants {
+public interface MacaroonsConstants {
 
   /* public constanst ... copied from libmacaroons */
 

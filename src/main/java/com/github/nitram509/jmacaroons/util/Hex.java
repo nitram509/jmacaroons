@@ -1,4 +1,4 @@
-package util;
+package com.github.nitram509.jmacaroons.util;
 
 public class Hex {
 
