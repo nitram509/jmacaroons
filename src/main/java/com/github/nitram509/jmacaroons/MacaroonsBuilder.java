@@ -17,6 +17,12 @@ public class MacaroonsBuilder {
   private String secretKey;
   private String identifier;
 
+  public MacaroonsBuilder(String location, String secretKey, String identifier) {
+    this.location = location;
+    this.secretKey = secretKey;
+    this.identifier = identifier;
+  }
+
   public static Macaroon create(String location, String secretKey, String publicKey) {
     try {
       return new MacaroonsBuilder(location, secretKey, publicKey).getM();
@@ -27,11 +33,6 @@ public class MacaroonsBuilder {
     }
   }
 
-  public MacaroonsBuilder(String location, String secretKey, String identifier) {
-    this.location = location;
-    this.secretKey = secretKey;
-    this.identifier = identifier;
-  }
 
   private Macaroon getM() throws InvalidKeyException, NoSuchAlgorithmException {
     byte[] key = generate_derived_key(this.secretKey);
