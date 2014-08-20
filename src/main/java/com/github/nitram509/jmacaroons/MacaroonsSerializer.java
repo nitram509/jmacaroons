@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 
-public class MacaroonsSerializer {
+class MacaroonsSerializer {
 
   private static final char[] HEX = "0123456789abcdef".toCharArray();
 
