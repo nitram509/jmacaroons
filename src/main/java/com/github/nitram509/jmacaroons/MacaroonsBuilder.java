@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-public class MacaroonBuilder {
+public class MacaroonsBuilder {
 
   private static final String MAGIC_KEY = "macaroons-key-generator";
 
@@ -19,7 +19,7 @@ public class MacaroonBuilder {
 
   public static Macaroon create(String location, String secretKey, String publicKey) {
     try {
-      return new MacaroonBuilder(location, secretKey, publicKey).getM();
+      return new MacaroonsBuilder(location, secretKey, publicKey).getM();
     } catch (InvalidKeyException e) {
       throw new RuntimeException(e);
     } catch (NoSuchAlgorithmException e) {
@@ -27,7 +27,7 @@ public class MacaroonBuilder {
     }
   }
 
-  public MacaroonBuilder(String location, String secretKey, String identifier) {
+  public MacaroonsBuilder(String location, String secretKey, String identifier) {
     this.location = location;
     this.secretKey = secretKey;
     this.identifier = identifier;
