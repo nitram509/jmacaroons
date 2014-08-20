@@ -1,4 +1,4 @@
-package jmacaroons;
+package com.github.nitram509.jmacaroons;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
