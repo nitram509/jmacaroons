@@ -43,4 +43,12 @@ public class MacaroonsBuilderTest {
     );
   }
 
+  @Test
+  public void different_locations_doesnt_change_the_signatures() throws InvalidKeyException, NoSuchAlgorithmException {
+    Macaroon m1 = MacaroonsBuilder.create("http://location_ONE", secret, identifier);
+    Macaroon m2 = MacaroonsBuilder.create("http://location_TWO", secret, identifier);
+
+    assertThat(m1.signature).isEqualTo(m2.signature);
+  }
+
 }
