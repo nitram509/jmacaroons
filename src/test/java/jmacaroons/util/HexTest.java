@@ -1,4 +1,4 @@
-package com.github.nitram509.jmacaroons.util;
+package jmacaroons.util;
 
 import org.testng.annotations.Test;
 
