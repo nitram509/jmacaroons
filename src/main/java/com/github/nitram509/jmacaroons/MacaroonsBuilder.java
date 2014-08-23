@@ -15,12 +15,10 @@ public class MacaroonsBuilder {
     this.identifier = identifier;
   }
 
-  public static Macaroon create(String location, String secretKey, String publicKey) {
+  public static Macaroon create(String location, String secretKey, String identifier) {
     try {
-      return new MacaroonsBuilder(location, secretKey, publicKey).getM();
-    } catch (InvalidKeyException e) {
-      throw new RuntimeException(e);
-    } catch (NoSuchAlgorithmException e) {
+      return new MacaroonsBuilder(location, secretKey, identifier).getM();
+    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }
   }

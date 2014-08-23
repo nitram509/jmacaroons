@@ -6,11 +6,13 @@ public class Hex {
 
   public static String toHex(byte... bytes) {
     if (bytes == null) return null;
-    StringBuilder sb = new StringBuilder(bytes.length * 2);
+    char[] hex = new char[bytes.length * 2];
+    int counter = 0;
     for (byte b : bytes) {
-      sb.append(ALPHABET[(b & 0xff) >> 4]).append(ALPHABET[(b & 0xff) & 0xf]);
+      hex[counter++] = ALPHABET[(b & 0xff) >> 4];
+      hex[counter++] = ALPHABET[(b & 0xff) & 0xf];
     }
-    return sb.toString();
+    return new String(hex);
   }
 
 }
