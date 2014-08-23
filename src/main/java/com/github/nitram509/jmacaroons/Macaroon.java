@@ -10,12 +10,18 @@ public class Macaroon implements Serializable {
   public final String location;
   public final String identifier;
   public final String signature;
+  public final String[] caveats;
 
   final byte[] signatureBytes;
 
   Macaroon(String location, String identifier, byte[] signature) {
+    this(location, identifier, new String[0], signature);
+  }
+
+  Macaroon(String location, String identifier, String[] caveats, byte[] signature) {
     this.location = location;
     this.identifier = identifier;
+    this.caveats = caveats;
     this.signature = toHex(signature);
     this.signatureBytes = signature;
   }
@@ -23,6 +29,7 @@ public class Macaroon implements Serializable {
   public String inspect() {
     return createLocationPacket(location)
         + createIdentifierPacket(identifier)
+        + createCaveatsPackets(this.caveats)
         + createSignaturePacket(signature);
   }
 
@@ -32,6 +39,14 @@ public class Macaroon implements Serializable {
 
   private String createIdentifierPacket(String identifier) {
     return createKeyValuePacket(MacaroonsConstants.IDENTIFIER, identifier);
+  }
+
+  private String createCaveatsPackets(String[] caveats) {
+    StringBuilder sb = new StringBuilder();
+    for (String caveat : caveats) {
+      sb.append(createKeyValuePacket(CID, caveat));
+    }
+    return sb.toString();
   }
 
   private String createSignaturePacket(String signature) {

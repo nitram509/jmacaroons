@@ -4,8 +4,18 @@ public interface MacaroonsConstants {
 
   /* public constants ... copied from libmacaroons */
 
+  /**
+   *  All byte strings must be less than this length.
+   *  Enforced via "assert" internally.
+   */
   public static final int MACAROON_MAX_STRLEN = 32768;
+  /**
+   *  Place a sane limit on the number of caveats
+   */
   public static final int MACAROON_MAX_CAVEATS = 65536;
+  /**
+   *  Recommended secret length
+   */
   public static final int MACAROON_SUGGESTED_SECRET_LENGTH = 32;
   public static final int MACAROON_HASH_BYTES = 32;
 
