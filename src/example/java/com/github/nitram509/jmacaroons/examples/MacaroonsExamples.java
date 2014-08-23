@@ -49,6 +49,15 @@ public class MacaroonsExamples {
     System.out.println(macaroon.inspect());
   }
 
+  private void addCaveat_modify() throws InvalidKeyException, NoSuchAlgorithmException {
+    Macaroon macaroon = create();
+    String secretKey = "this is our super secret key; only we should know it";
+    macaroon = MacaroonsBuilder.modify(macaroon, secretKey)
+        .add_first_party_caveat("account = 3735928559")
+        .getMacaroon();
+    System.out.println(macaroon.inspect());
+  }
+
   public static void main(String[] args) {
     MacaroonsExamples examples = new MacaroonsExamples();
     try {

@@ -56,11 +56,22 @@ System.out.println("Macaroon is " + (valid ? "Valid" : "Invalid"));
 Adding Caveats
 -----------------------------------
 
+When creating a new macaroon, you can add a caveat to our macaroon that
+restricts it to just the account number 3735928559.
 ````java
 String location = "http://www.example.org";
 String secretKey = "this is our super secret key; only we should know it";
 String identifier = "we used our secret key";
 Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
+    .add_first_party_caveat("account = 3735928559")
+    .getMacaroon();
+````
+
+Even existing macaroons can be modified.
+````java
+Macaroon macaroon = create();
+String secretKey = "this is our super secret key; only we should know it";
+macaroon = MacaroonsBuilder.modify(macaroon, secretKey)
     .add_first_party_caveat("account = 3735928559")
     .getMacaroon();
 System.out.println(macaroon.inspect());
@@ -72,6 +83,7 @@ identifier we used our secret key
 cid account = 3735928559
 signature 1efe4763f290dbce0c1d08477367e11f4eee456a64933cf662d79772dbb82128
 ````
+
 
 Build Status
 --------------------
