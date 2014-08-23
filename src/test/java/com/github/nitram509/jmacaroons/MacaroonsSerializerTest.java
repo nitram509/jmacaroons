@@ -27,6 +27,16 @@ public class MacaroonsSerializerTest {
   }
 
   @Test
+  public void Macaroon_with_caveat_can_be_serialized() {
+    Macaroon m = new MacaroonsBuilder(location, secret, identifier)
+        .add_first_party_caveat("account = 3735928559")
+        .getMacaroon();
+
+    assertThat(MacaroonsSerializer.serialize(m)).isEqualTo("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDJmc2lnbmF0dXJlIB7+R2PykNvODB0IR3Nn4R9O7kVqZJM89mLXl3LbuCEoCg==");
+    assertThat(MacaroonsSerializer.serialize(m)).isEqualTo(m.serialize());
+  }
+
+  @Test
   public void convert_bytes_to_String_and_back_to_bytes_will_NOT_change_the_code_points() {
     byte[] bytes = new byte[256];
     for (int i = 0; i < bytes.length; i++) {

@@ -20,27 +20,27 @@ public class MacaroonsBuilder {
   }
 
   public static Macaroon create(String location, String secretKey, String identifier) {
+    return new MacaroonsBuilder(location, secretKey, identifier).getMacaroon();
+  }
+
+  public Macaroon getMacaroon() {
     try {
-      return new MacaroonsBuilder(location, secretKey, identifier).getMacaroon();
+      byte[] key = CryptoTools.generate_derived_key(this.secretKey);
+      byte[] signature = CryptoTools.macaroon_create_raw(this.location, key, this.identifier).signatureBytes;
+      for (String caveat : this.caveats) {
+        signature = CryptoTools.macaroon_hmac(signature, caveat);
+      }
+      return new Macaroon(location, identifier, caveats, signature);
     } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  public Macaroon getMacaroon() throws InvalidKeyException, NoSuchAlgorithmException {
-    byte[] key = CryptoTools.generate_derived_key(this.secretKey);
-    byte[] signature = CryptoTools.macaroon_create_raw(this.location, key, this.identifier).signatureBytes;
-    for (String caveat : this.caveats) {
-      signature = CryptoTools.macaroon_hmac(signature, caveat);
-    }
-    return new Macaroon(location, identifier, caveats, signature);
   }
 
   public static MacaroonsBuilder modify(Macaroon m, String secretKey) {
     return new MacaroonsBuilder(m.location, secretKey, m.identifier);
   }
 
-  public MacaroonsBuilder add_first_party_caveat(String predicate) throws NoSuchAlgorithmException, InvalidKeyException {
+  public MacaroonsBuilder add_first_party_caveat(String predicate) {
     if (predicate == null) return this;
     assert predicate.length() < MACAROON_MAX_STRLEN;
     if (caveats.length + 1 > MACAROON_MAX_CAVEATS) {

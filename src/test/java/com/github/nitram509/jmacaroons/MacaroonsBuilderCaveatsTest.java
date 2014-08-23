@@ -3,9 +3,6 @@ package com.github.nitram509.jmacaroons;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
 import static org.fest.assertions.Assertions.assertThat;
 
 public class MacaroonsBuilderCaveatsTest {
@@ -23,7 +20,7 @@ public class MacaroonsBuilderCaveatsTest {
   }
 
   @Test
-  public void add_first_party_caveat() throws NoSuchAlgorithmException, InvalidKeyException {
+  public void add_first_party_caveat() {
     m = MacaroonsBuilder.create(location, secret, identifier);
 
     Macaroon macaroon = MacaroonsBuilder.modify(m, secret)
@@ -37,7 +34,7 @@ public class MacaroonsBuilderCaveatsTest {
   }
 
   @Test
-  public void add_first_party_caveat_3_times() throws NoSuchAlgorithmException, InvalidKeyException {
+  public void add_first_party_caveat_3_times() {
     m = MacaroonsBuilder.create(location, secret, identifier);
 
     Macaroon macaroon = MacaroonsBuilder.modify(m, secret)
@@ -53,7 +50,7 @@ public class MacaroonsBuilderCaveatsTest {
   }
 
   @Test
-  public void add_first_party_caveat_German_umlauts_using_UTF8_encoding() throws NoSuchAlgorithmException, InvalidKeyException {
+  public void add_first_party_caveat_German_umlauts_using_UTF8_encoding() {
     m = MacaroonsBuilder.create(location, secret, identifier);
 
     Macaroon macaroon = MacaroonsBuilder.modify(m, secret)
@@ -69,7 +66,7 @@ public class MacaroonsBuilderCaveatsTest {
   }
 
   @Test
-  public void add_first_party_caveat_null_save() throws NoSuchAlgorithmException, InvalidKeyException {
+  public void add_first_party_caveat_null_save() {
     m = MacaroonsBuilder.create(location, secret, identifier);
 
     Macaroon macaroon = MacaroonsBuilder.modify(m, secret)
@@ -82,7 +79,7 @@ public class MacaroonsBuilderCaveatsTest {
   }
 
   @Test
-  public void add_first_party_caveat_inspect() throws NoSuchAlgorithmException, InvalidKeyException {
+  public void add_first_party_caveat_inspect() {
     m = new MacaroonsBuilder(location, secret, identifier)
         .add_first_party_caveat("account = 3735928559")
         .getMacaroon();

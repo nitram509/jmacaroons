@@ -3,9 +3,6 @@ package com.github.nitram509.jmacaroons;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
 import static org.fest.assertions.Assertions.assertThat;
 
 public class MacaroonsBuilderTest {
@@ -23,7 +20,7 @@ public class MacaroonsBuilderTest {
   }
 
   @Test
-  public void create_a_Macaroon_and_verify_signature_location_and_identfier() throws InvalidKeyException, NoSuchAlgorithmException {
+  public void create_a_Macaroon_and_verify_signature_location_and_identfier() {
     m = MacaroonsBuilder.create(location, secret, identifier);
 
     assertThat(m.location).isEqualTo(location);
@@ -32,7 +29,7 @@ public class MacaroonsBuilderTest {
   }
 
   @Test
-  public void create_a_Macaroon_and_inspect() throws InvalidKeyException, NoSuchAlgorithmException {
+  public void create_a_Macaroon_and_inspect() {
     m = MacaroonsBuilder.create(location, secret, identifier);
 
     String inspect = m.inspect();
@@ -45,7 +42,7 @@ public class MacaroonsBuilderTest {
   }
 
   @Test
-  public void different_locations_doesnt_change_the_signatures() throws InvalidKeyException, NoSuchAlgorithmException {
+  public void different_locations_doesnt_change_the_signatures() {
     Macaroon m1 = MacaroonsBuilder.create("http://location_ONE", secret, identifier);
     Macaroon m2 = MacaroonsBuilder.create("http://location_TWO", secret, identifier);
 
