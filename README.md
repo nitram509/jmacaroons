@@ -10,19 +10,22 @@ holders' actions are authorized.  But macaroons are better than cookies!
 Creating Your First Macaroon
 ----------------------------------
 
-Lets create a simple macaroon:
+Lets create a simple macaroon
 ````java
 String location = "http://www.example.org";
 String secretKey = "this is our super secret key; only we should know it";
 String identifier = "we used our secret key";
 Macaroon macaroon = MacaroonsBuilder.create(location, secretKey, identifier);
-System.out.println(macaroon.inspect());
 ````
 
+Of course, this macaroon can be displayed in a more human-readable form
+for easy debugging
 ````
-location http://www.example.org
-identifier we used our secret key
-signature e3d9e02908526c4c0039ae15114115d97fdd68bf2ba379b342aaf0f617d0552f
+System.out.println(macaroon.inspect());
+
+> location http://www.example.org
+> identifier we used our secret key
+> signature e3d9e02908526c4c0039ae15114115d97fdd68bf2ba379b342aaf0f617d0552f
 ````
 
 
