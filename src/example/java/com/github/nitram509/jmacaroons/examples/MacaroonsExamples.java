@@ -39,12 +39,23 @@ public class MacaroonsExamples {
     System.out.println("Macaroon is " + (valid ? "Valid" : "Invalid"));
   }
 
+  private void addCaveat() throws InvalidKeyException, NoSuchAlgorithmException {
+    String location = "http://www.example.org";
+    String secretKey = "this is our super secret key; only we should know it";
+    String identifier = "we used our secret key";
+    Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
+        .add_first_party_caveat("account = 3735928559")
+        .getMacaroon();
+    System.out.println(macaroon.inspect());
+  }
+
   public static void main(String[] args) {
     MacaroonsExamples examples = new MacaroonsExamples();
     try {
       examples.create();
       examples.serialize();
       examples.verify();
+      examples.addCaveat();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
