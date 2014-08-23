@@ -7,8 +7,32 @@
   <groupId>com.github.nitram509</groupId>
   <artifactId>jmacaroons</artifactId>
   <version>0.1.0-SNAPSHOT</version>
-  <name>Pure Java implementation of Macaroons: Cookies with Contextual Caveats for Decentralized Authorization in the Cloud</name>
   <packaging>jar</packaging>
+
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Pure Java implementation of Macaroons: Cookies with Contextual Caveats for Decentralized Authorization in the Cloud</description>
+  <url>https://github.com/nitram509/jmacaroons</url>
+
+  <scm>
+    <url>https://github.com/nitram509/jmacaroons</url>
+    <connection>scm:git:git@github.com:nitram509/jmacaroons.git</connection>
+    <developerConnection>scm:git:git@github.com:nitram509/jmacaroons.git</developerConnection>
+  </scm>
+
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Martin W. Kirst</name>
+      <email>maki@bitkings.de</email>
+      <url>https://github.com/nitram509</url>
+    </developer>
+  </developers>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -75,13 +99,19 @@
         <version>2.3.2</version>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.3</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.9.1</version>
+      </plugin>
+
     </plugins>
   </build>
-
-  <scm>
-    <url>https://github.com/nitram509/jmacaroons</url>
-    <connection>scm:git:https://github.com/nitram509/jmacaroons.git</connection>
-    <developerConnection>scm:git:git@github.com:nitram509/jmacaroons.git</developerConnection>
-  </scm>
 
 </project>
