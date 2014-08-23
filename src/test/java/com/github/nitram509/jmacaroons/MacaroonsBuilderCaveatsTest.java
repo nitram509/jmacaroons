@@ -39,14 +39,14 @@ public class MacaroonsBuilderCaveatsTest {
 
     Macaroon macaroon = MacaroonsBuilder.modify(m, secret)
         .add_first_party_caveat("account = 3735928559")
-        .add_first_party_caveat("terminal = c64")
-        .add_first_party_caveat("moon phase: blue")
+        .add_first_party_caveat("time < 2015-01-01T00:00")
+        .add_first_party_caveat("email = alice@example.org")
         .getMacaroon();
 
     assertThat(macaroon.identifier).isEqualTo(m.identifier);
     assertThat(macaroon.location).isEqualTo(m.location);
-    assertThat(macaroon.caveats).isEqualTo(new String[]{"account = 3735928559", "terminal = c64", "moon phase: blue"});
-    assertThat(macaroon.signature).isEqualTo("0e12b91c2067664e8b592f5779028df41a8ed52255332065e8f92bda73827d85");
+    assertThat(macaroon.caveats).isEqualTo(new String[]{"account = 3735928559", "time < 2015-01-01T00:00", "email = alice@example.org"});
+    assertThat(macaroon.signature).isEqualTo("882e6d59496ed5245edb7ab5b8839ecd63e5d504e54839804f164070d8eed952");
   }
 
   @Test
