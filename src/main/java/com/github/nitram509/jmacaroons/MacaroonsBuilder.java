@@ -3,6 +3,8 @@ package com.github.nitram509.jmacaroons;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
+import static com.github.nitram509.jmacaroons.CryptoTools.generate_derived_key;
+import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_hmac;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_CAVEATS;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_STRLEN;
 
@@ -24,13 +26,15 @@ public class MacaroonsBuilder {
   }
 
   public Macaroon getMacaroon() {
+    assert this.location.length() < MACAROON_MAX_STRLEN;
+    assert this.identifier.length() < MACAROON_MAX_STRLEN;
     try {
-      byte[] key = CryptoTools.generate_derived_key(this.secretKey);
-      byte[] signature = CryptoTools.macaroon_create_raw(this.location, key, this.identifier).signatureBytes;
+      byte[] key = generate_derived_key(this.secretKey);
+      byte[] hmac = macaroon_hmac(key, this.identifier);
       for (String caveat : this.caveats) {
-        signature = CryptoTools.macaroon_hmac(signature, caveat);
+        hmac = macaroon_hmac(hmac, caveat);
       }
-      return new Macaroon(location, identifier, caveats, signature);
+      return new Macaroon(location, identifier, caveats, hmac);
     } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }

@@ -3,9 +3,6 @@ package com.github.nitram509.jmacaroons;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
 import static org.fest.assertions.Assertions.assertThat;
 
 public class MacaroonsVerifierTest {
@@ -23,10 +20,21 @@ public class MacaroonsVerifierTest {
   }
 
   @Test
-  public void verification() throws InvalidKeyException, NoSuchAlgorithmException {
+  public void verification() {
     m = MacaroonsBuilder.create(location, secret, identifier);
 
     MacaroonsVerifier verifier = new MacaroonsVerifier();
+    assertThat(verifier.verify(m, secret)).isTrue();
+  }
+
+  @Test
+  public void verification_with_first_party_caveat() {
+    m = new MacaroonsBuilder(location, secret, identifier)
+        .add_first_party_caveat("account = 3735928559")
+        .getMacaroon();
+
+    MacaroonsVerifier verifier = new MacaroonsVerifier();
+
     assertThat(verifier.verify(m, secret)).isTrue();
   }
 
