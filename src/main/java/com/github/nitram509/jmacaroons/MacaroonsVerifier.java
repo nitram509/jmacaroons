@@ -9,6 +9,11 @@ import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_hmac;
 
 public class MacaroonsVerifier {
 
+  /**
+   * @param macaroon
+   * @param secret
+   * @return
+   */
   public boolean verify(Macaroon macaroon, String secret) {
     try {
       byte[] key = generate_derived_key(secret);

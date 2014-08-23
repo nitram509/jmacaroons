@@ -8,6 +8,15 @@ import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_hmac;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_CAVEATS;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_STRLEN;
 
+/**
+ * Used to build Macaroons
+ * <pre>
+ * String location = "http://www.example.org";
+ * String secretKey = "this is our super secret key; only we should know it";
+ * String identifier = "we used our secret key";
+ * Macaroon macaroon = MacaroonsBuilder.create(location, secretKey, identifier);
+ * </pre>
+ */
 public class MacaroonsBuilder {
 
   private String location;
@@ -15,16 +24,32 @@ public class MacaroonsBuilder {
   private String identifier;
   private String[] caveats = new String[0];
 
+  /**
+   *
+   * @param location
+   * @param secretKey
+   * @param identifier
+   */
   public MacaroonsBuilder(String location, String secretKey, String identifier) {
     this.location = location;
     this.secretKey = secretKey;
     this.identifier = identifier;
   }
 
+  /**
+   * @param location
+   * @param secretKey
+   * @param identifier
+   * @return
+   */
   public static Macaroon create(String location, String secretKey, String identifier) {
     return new MacaroonsBuilder(location, secretKey, identifier).getMacaroon();
   }
 
+  /**
+   *
+   * @return
+   */
   public Macaroon getMacaroon() {
     assert this.location.length() < MACAROON_MAX_STRLEN;
     assert this.identifier.length() < MACAROON_MAX_STRLEN;
@@ -40,17 +65,28 @@ public class MacaroonsBuilder {
     }
   }
 
-  public static MacaroonsBuilder modify(Macaroon m, String secretKey) {
-    return new MacaroonsBuilder(m.location, secretKey, m.identifier);
+  /**
+   *
+   * @param macaroon
+   * @param secretKey
+   * @return
+   */
+  public static MacaroonsBuilder modify(Macaroon macaroon, String secretKey) {
+    return new MacaroonsBuilder(macaroon.location, secretKey, macaroon.identifier);
   }
 
-  public MacaroonsBuilder add_first_party_caveat(String predicate) {
-    if (predicate == null) return this;
-    assert predicate.length() < MACAROON_MAX_STRLEN;
-    if (caveats.length + 1 > MACAROON_MAX_CAVEATS) {
+  /**
+   *
+   * @param caveats
+   * @return
+   */
+  public MacaroonsBuilder add_first_party_caveat(String caveats) {
+    if (caveats == null) return this;
+    assert caveats.length() < MACAROON_MAX_STRLEN;
+    if (this.caveats.length + 1 > MACAROON_MAX_CAVEATS) {
       throw new IllegalStateException("Too many caveats. There are max. " + MACAROON_MAX_CAVEATS + " caveats allowed.");
     }
-    this.caveats = append(this.caveats, predicate);
+    this.caveats = append(this.caveats, caveats);
     return this;
   }
 

@@ -5,6 +5,15 @@ import java.io.Serializable;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 import static com.github.nitram509.jmacaroons.util.Hex.toHex;
 
+/**
+ * Macaroons: Cookies with Contextual Caveats for Decentralized Authorization in the Cloud
+ *
+ * This is an immutable and serializable object.
+ * Use {@link com.github.nitram509.jmacaroons.MacaroonsBuilder} to modify it.
+ * Use {@link com.github.nitram509.jmacaroons.MacaroonsVerifier} to verify it.
+ *
+ * @see <a href="http://research.google.com/pubs/pub41892.html">http://research.google.com/pubs/pub41892.html</a>
+ */
 public class Macaroon implements Serializable {
 
   public final String location;

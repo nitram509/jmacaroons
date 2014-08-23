@@ -12,6 +12,10 @@ class MacaroonsSerializer {
 
   static final Charset ISO8859 = Charset.forName("ISO8859-1");
 
+  /**
+   * @param macaroon
+   * @return
+   */
   public static String serialize(Macaroon macaroon) {
     String serializedPackets = serialize_packet(createKeyValuePacket(LOCATION, macaroon.location))
         + serialize_packet(createKeyValuePacket(MacaroonsConstants.IDENTIFIER, macaroon.identifier))
