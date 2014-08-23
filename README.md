@@ -1,12 +1,12 @@
 Macaroons are Better Than Cookies!
 ==================================
 
-This Java library provides an implementation of macaroons[1](http://research.google.com/pubs/pub41892.html),
+This Java library provides an implementation of macaroons[[1]](http://research.google.com/pubs/pub41892.html),
 which are flexible authorization tokens that work great in distributed systems.
 Like cookies, macaroons are bearer tokens that enable applications to ascertain whether their
 holders' actions are authorized.  But macaroons are better than cookies!
 
-This project started as a port of libmacaroons[2](https://github.com/rescrv/libmacaroons) library.
+This project started as a port of libmacaroons[[2]](https://github.com/rescrv/libmacaroons) library.
 The primary goals are
    * being compatible to libmacaroons
    * having no external dependencies, except the Java Runtime v7
