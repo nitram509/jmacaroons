@@ -29,6 +29,8 @@ public class MacaroonsVerifier {
    * @param macaroon
    * @param secret
    * @return
+   * @throws java.security.InvalidKeyException (wrapped within a RuntimeException)
+   * @throws java.security.NoSuchAlgorithmException (wrapped within a RuntimeException)
    */
   public boolean verify(Macaroon macaroon, String secret) {
     try {
