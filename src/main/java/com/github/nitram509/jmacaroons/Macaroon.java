@@ -17,6 +17,7 @@
 package com.github.nitram509.jmacaroons;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 import static com.github.nitram509.jmacaroons.util.Hex.toHex;
@@ -84,5 +85,29 @@ public class Macaroon implements Serializable {
 
   public String serialize() {
     return MacaroonsSerializer.serialize(this);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    Macaroon macaroon = (Macaroon) o;
+
+    if (!Arrays.equals(caveats, macaroon.caveats)) return false;
+    if (identifier != null ? !identifier.equals(macaroon.identifier) : macaroon.identifier != null) return false;
+    if (location != null ? !location.equals(macaroon.location) : macaroon.location != null) return false;
+    if (signature != null ? !signature.equals(macaroon.signature) : macaroon.signature != null) return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = location != null ? location.hashCode() : 0;
+    result = 31 * result + (identifier != null ? identifier.hashCode() : 0);
+    result = 31 * result + (signature != null ? signature.hashCode() : 0);
+    result = 31 * result + (caveats != null ? Arrays.hashCode(caveats) : 0);
+    return result;
   }
 }
