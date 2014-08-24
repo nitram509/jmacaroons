@@ -72,9 +72,9 @@ Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
     .getMacaroon();
 ````
 
-Even existing macaroons can be modified.
+Because macaroon objects are immutable, they have to be modified
+via MacaroonsBuilder. Thus, a new macaroon object will be created.
 ````java
-Macaroon macaroon = create();
 String secretKey = "this is our super secret key; only we should know it";
 macaroon = MacaroonsBuilder.modify(macaroon, secretKey)
     .add_first_party_caveat("account = 3735928559")
