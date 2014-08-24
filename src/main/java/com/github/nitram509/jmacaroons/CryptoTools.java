@@ -23,6 +23,8 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_HASH_BYTES;
+
 class CryptoTools {
 
   private static final String MAGIC_KEY = "macaroons-key-generator";
@@ -35,6 +37,7 @@ class CryptoTools {
   }
 
   static byte[] macaroon_hmac(byte[] key, String text) throws NoSuchAlgorithmException, InvalidKeyException {
+    assert key.length == MACAROON_HASH_BYTES;
     Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
     SecretKeySpec secret_key = new SecretKeySpec(key, "HmacSHA256");
     sha256_HMAC.init(secret_key);
