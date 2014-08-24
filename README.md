@@ -68,6 +68,8 @@ MacaroonsVerifier verifier = new MacaroonsVerifier();
 String secret = "this is our super secret key; only we should know it";
 boolean valid = verifier.verify(macaroon, secret);
 System.out.println("Macaroon is " + (valid ? "Valid" : "Invalid"));
+
+// > Valid
 ````
 
 
@@ -93,13 +95,11 @@ macaroon = MacaroonsBuilder.modify(macaroon, secretKey)
     .add_first_party_caveat("account = 3735928559")
     .getMacaroon();
 System.out.println(macaroon.inspect());
-````
 
-````
-location http://www.example.org
-identifier we used our secret key
-cid account = 3735928559
-signature 1efe4763f290dbce0c1d08477367e11f4eee456a64933cf662d79772dbb82128
+// > location http://www.example.org
+// > identifier we used our secret key
+// > cid account = 3735928559
+// > signature 1efe4763f290dbce0c1d08477367e11f4eee456a64933cf662d79772dbb82128
 ````
 
 
