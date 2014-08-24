@@ -37,7 +37,6 @@ class CryptoTools {
   }
 
   static byte[] macaroon_hmac(byte[] key, String text) throws NoSuchAlgorithmException, InvalidKeyException {
-    assert key.length == MACAROON_HASH_BYTES;
     Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
     SecretKeySpec secret_key = new SecretKeySpec(key, "HmacSHA256");
     sha256_HMAC.init(secret_key);
