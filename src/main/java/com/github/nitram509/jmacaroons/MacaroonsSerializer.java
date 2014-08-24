@@ -28,10 +28,6 @@ class MacaroonsSerializer {
 
   static final Charset ISO8859 = Charset.forName("ISO8859-1");
 
-  /**
-   * @param macaroon
-   * @return
-   */
   public static String serialize(Macaroon macaroon) {
     String serializedPackets = serialize_packet(createKeyValuePacket(LOCATION, macaroon.location))
         + serialize_packet(createKeyValuePacket(MacaroonsConstants.IDENTIFIER, macaroon.identifier))
@@ -50,7 +46,7 @@ class MacaroonsSerializer {
   }
 
   private static String serialize_packet(String data) {
-    return packet_header(data.length() + PACKET_PREFIX + LINE_SEPARATOR.length()) + data + LINE_SEPARATOR;
+    return packet_header(data.length() + PACKET_PREFIX_LENGTH + LINE_SEPARATOR.length()) + data + LINE_SEPARATOR;
   }
 
   private static String createKeyValuePacket(String key, String value) {
@@ -60,7 +56,7 @@ class MacaroonsSerializer {
   private static String packet_header(int size) {
     assert (size < 65536);
     size = (size & 0xffff);
-    assert PACKET_PREFIX == 4; /* modify this method on failure */
+    assert PACKET_PREFIX_LENGTH == 4; /* modify this method on failure */
     return "" + HEX[(size >> 12) & 15]
         + HEX[(size >> 8) & 15]
         + HEX[(size >> 4) & 15]

@@ -46,6 +46,13 @@ public class MacaroonsExamples {
     System.out.println("Serialized: " + serialized);
   }
 
+  private void deserialize() {
+    String serialized = create().serialize();
+
+    Macaroon macaroon = MacaroonsBuilder.deserialize(serialized);
+    System.out.println(macaroon.inspect());
+  }
+
   private void verify() throws InvalidKeyException, NoSuchAlgorithmException {
     Macaroon macaroon = create();
 
@@ -79,6 +86,7 @@ public class MacaroonsExamples {
     try {
       examples.create();
       examples.serialize();
+      examples.deserialize();
       examples.verify();
       examples.addCaveat();
     } catch (Exception e) {

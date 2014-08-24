@@ -16,32 +16,43 @@
 
 package com.github.nitram509.jmacaroons;
 
+import java.nio.charset.Charset;
+
 public interface MacaroonsConstants {
 
   /* public constants ... copied from libmacaroons */
 
   /**
-   *  All byte strings must be less than this length.
-   *  Enforced via "assert" internally.
+   * All byte strings must be less than this length.
+   * Enforced via "assert" internally.
    */
   public static final int MACAROON_MAX_STRLEN = 32768;
   /**
-   *  Place a sane limit on the number of caveats
+   * Place a sane limit on the number of caveats
    */
   public static final int MACAROON_MAX_CAVEATS = 65536;
   /**
-   *  Recommended secret length
+   * Recommended secret length
    */
   public static final int MACAROON_SUGGESTED_SECRET_LENGTH = 32;
   public static final int MACAROON_HASH_BYTES = 32;
 
   /* more internal use ... */
-  static final int PACKET_PREFIX = 4;
+  static final int PACKET_PREFIX_LENGTH = 4;
+  static final int PACKET_MAX_SIZE = 65535;
 
   static final String LOCATION = "location";
+  static final byte[] LOCATION_BYTES = LOCATION.getBytes(Charset.forName("ASCII"));
+
   static final String IDENTIFIER = "identifier";
+  static final byte[] IDENTIFIER_BYTES = IDENTIFIER.getBytes(Charset.forName("ASCII"));
+
   static final String SIGNATURE = "signature";
+  static final byte[] SIGNATURE_BYTES = SIGNATURE.getBytes(Charset.forName("ASCII"));
+
   static final String CID = "cid";
+  static final byte[] CID_BYTES = CID.getBytes(Charset.forName("ASCII"));
+
   static final String VID = "vid";
   static final String CL = "cl";
 

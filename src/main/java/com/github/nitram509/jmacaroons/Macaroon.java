@@ -24,7 +24,7 @@ import static com.github.nitram509.jmacaroons.util.Hex.toHex;
 
 /**
  * Macaroons: Cookies with Contextual Caveats for Decentralized Authorization in the Cloud
- *
+ * <p/>
  * This is an immutable and serializable object.
  * Use {@link com.github.nitram509.jmacaroons.MacaroonsBuilder} to modify it.
  * Use {@link com.github.nitram509.jmacaroons.MacaroonsVerifier} to verify it.
@@ -68,6 +68,7 @@ public class Macaroon implements Serializable {
   }
 
   private String createCaveatsPackets(String[] caveats) {
+    if (caveats == null) return "";
     StringBuilder sb = new StringBuilder();
     for (String caveat : caveats) {
       sb.append(createKeyValuePacket(CID, caveat));
@@ -80,7 +81,7 @@ public class Macaroon implements Serializable {
   }
 
   private String createKeyValuePacket(String key, String value) {
-    return key + KEY_VALUE_SEPARATOR + value + LINE_SEPARATOR;
+    return value != null ? key + KEY_VALUE_SEPARATOR + value + LINE_SEPARATOR : "";
   }
 
   public String serialize() {

@@ -35,4 +35,22 @@ public class MacaroonTest {
     assertThat(m1.hashCode()).isEqualTo(m2.hashCode());
   }
 
+  @Test
+  public void inspect_null_safe() {
+    Macaroon macaroon = new Macaroon(null, null, null, null);
+
+    macaroon.inspect();
+
+    // no exception
+  }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void serialize_throws_NPE() {
+    Macaroon macaroon = new Macaroon(null, null, null, null);
+
+    macaroon.serialize();
+
+    // NullPointerException
+  }
+
 }

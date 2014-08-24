@@ -16,13 +16,15 @@
 
 package com.github.nitram509.jmacaroons;
 
+import com.github.nitram509.jmacaroons.util.Base64;
+
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.IllegalFormatException;
 
 import static com.github.nitram509.jmacaroons.CryptoTools.generate_derived_key;
 import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_hmac;
-import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_CAVEATS;
-import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_STRLEN;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 
 /**
  * Used to build Macaroons
@@ -41,7 +43,6 @@ public class MacaroonsBuilder {
   private String[] caveats = new String[0];
 
   /**
-   *
    * @param location
    * @param secretKey
    * @param identifier
@@ -63,9 +64,17 @@ public class MacaroonsBuilder {
   }
 
   /**
-   *
+   * @param serializedMacaroon
    * @return
-   * @throws java.security.InvalidKeyException (wrapped within a RuntimeException)
+   * @throws com.github.nitram509.jmacaroons.NotDeSerializableException when serialized macaroon is not valid base64, length is to short or contains invalid packet data
+   */
+  public static Macaroon deserialize(String serializedMacaroon) throws IllegalArgumentException {
+    return MacaroonsDeSerializer.deserialize(serializedMacaroon);
+  }
+
+  /**
+   * @return
+   * @throws java.security.InvalidKeyException      (wrapped within a RuntimeException)
    * @throws java.security.NoSuchAlgorithmException (wrapped within a RuntimeException)
    */
   public Macaroon getMacaroon() {
@@ -84,7 +93,6 @@ public class MacaroonsBuilder {
   }
 
   /**
-   *
    * @param macaroon
    * @param secretKey
    * @return
@@ -94,17 +102,29 @@ public class MacaroonsBuilder {
   }
 
   /**
-   *
-   * @param caveats
+   * @param caveat
    * @return
    */
-  public MacaroonsBuilder add_first_party_caveat(String caveats) {
-    if (caveats == null) return this;
-    assert caveats.length() < MACAROON_MAX_STRLEN;
-    if (this.caveats.length + 1 > MACAROON_MAX_CAVEATS) {
-      throw new IllegalStateException("Too many caveats. There are max. " + MACAROON_MAX_CAVEATS + " caveats allowed.");
+  public MacaroonsBuilder add_first_party_caveat(String caveat) {
+    if (caveat != null) {
+      assert caveat.length() < MACAROON_MAX_STRLEN;
+      if (this.caveats.length + 1 > MACAROON_MAX_CAVEATS) {
+        throw new IllegalStateException("Too many caveats. There are max. " + MACAROON_MAX_CAVEATS + " caveats allowed.");
+      }
+      this.caveats = append(this.caveats, caveat);
     }
-    this.caveats = append(this.caveats, caveats);
+    return this;
+  }
+
+  /**
+   * @param caveat
+   * @return
+   */
+  // TODO: implement and make public
+  private MacaroonsBuilder add_third_party_caveat(String caveat) {
+    if (caveat != null) {
+      throw new UnsupportedOperationException("not yet implemented");
+    }
     return this;
   }
 

@@ -25,12 +25,12 @@ Macaroon macaroon = MacaroonsBuilder.create(location, secretKey, identifier);
 
 Of course, this macaroon can be displayed in a more human-readable form
 for easy debugging
-````
+````java
 System.out.println(macaroon.inspect());
 
-> location http://www.example.org
-> identifier we used our secret key
-> signature e3d9e02908526c4c0039ae15114115d97fdd68bf2ba379b342aaf0f617d0552f
+// > location http://www.example.org
+// > identifier we used our secret key
+// > signature e3d9e02908526c4c0039ae15114115d97fdd68bf2ba379b342aaf0f617d0552f
 ````
 
 
@@ -44,6 +44,19 @@ System.out.println("Serialized: " + serialized);
 
 ````
 Serialized: MDAyNGxvY2F0aW9uIGh0dHA6Ly93d3cuZXhhbXBsZS5vcmcKMDAyNmlkZW50aWZpZXIgd2UgdXNlZCBvdXIgc2VjcmV0IGtleQowMDJmc2lnbmF0dXJlIOPZ4CkIUmxMADmuFRFBFdl/3Wi/K6N5s0Kq8PYX0FUvCg==
+````
+
+
+De-Serializing
+----------------------------------
+
+````java
+Macaroon macaroon = MacaroonsBuilder.deserialize(serialized);
+System.out.println(macaroon.inspect());
+
+// > location http://www.example.org
+// > identifier we used our secret key
+// > signature e3d9e02908526c4c0039ae15114115d97fdd68bf2ba379b342aaf0f617d0552f
 ````
 
 
