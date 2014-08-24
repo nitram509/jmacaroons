@@ -16,15 +16,13 @@
 
 package com.github.nitram509.jmacaroons;
 
-import com.github.nitram509.jmacaroons.util.Base64;
-
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.IllegalFormatException;
 
 import static com.github.nitram509.jmacaroons.CryptoTools.generate_derived_key;
 import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_hmac;
-import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_CAVEATS;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_STRLEN;
 
 /**
  * Used to build Macaroons

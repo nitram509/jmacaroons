@@ -16,8 +16,6 @@
 
 package com.github.nitram509.jmacaroons;
 
-import java.io.Serializable;
-
 public class NotDeSerializableException extends RuntimeException {
 
   public NotDeSerializableException() {
