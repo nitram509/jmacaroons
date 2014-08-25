@@ -13,7 +13,7 @@
   <url>https://github.com/nitram509/jmacaroons</url>
 
   <scm>
-    <url>https://github.com/nitram509/jmacaroons</url>
+    <url>scm:git:git@github.com:nitram509/jmacaroons.git</url>
     <connection>scm:git:git@github.com:nitram509/jmacaroons.git</connection>
     <developerConnection>scm:git:git@github.com:nitram509/jmacaroons.git</developerConnection>
     <tag>HEAD</tag>
