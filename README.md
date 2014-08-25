@@ -12,6 +12,27 @@ The primary goals are
    * having no external dependencies, except the Java Runtime v7
    * being the reference implementation in the Java community ;-)
 
+
+Usage/Import In Your Project
+----------------------------------
+
+This library jmacaroons is available via Maven Central.
+
+Maven
+````xml
+<dependency>
+  <groupId>com.github.nitram509</groupId>
+  <artifactId>jmacaroons</artifactId>
+  <version>0.1.4</version>
+</dependency>
+````
+
+Gradle
+````groovy
+  compile 'com.github.nitram509:jmacaroons:0.1.4'
+````
+
+
 Creating Your First Macaroon
 ----------------------------------
 
