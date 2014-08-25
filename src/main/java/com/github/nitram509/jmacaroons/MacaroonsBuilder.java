@@ -71,9 +71,9 @@ public class MacaroonsBuilder {
   }
 
   /**
+   * throws java.security.InvalidKeyException      (wrapped within a RuntimeException)
+   * throws java.security.NoSuchAlgorithmException (wrapped within a RuntimeException)
    * @return
-   * @throws java.security.InvalidKeyException      (wrapped within a RuntimeException)
-   * @throws java.security.NoSuchAlgorithmException (wrapped within a RuntimeException)
    */
   public Macaroon getMacaroon() {
     assert this.location.length() < MACAROON_MAX_STRLEN;

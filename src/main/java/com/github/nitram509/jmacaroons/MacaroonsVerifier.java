@@ -26,11 +26,11 @@ import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_hmac;
 public class MacaroonsVerifier {
 
   /**
+   * throws java.security.InvalidKeyException (wrapped within a RuntimeException)
+   * throws java.security.NoSuchAlgorithmException (wrapped within a RuntimeException)
    * @param macaroon
    * @param secret
    * @return
-   * @throws java.security.InvalidKeyException (wrapped within a RuntimeException)
-   * @throws java.security.NoSuchAlgorithmException (wrapped within a RuntimeException)
    */
   public boolean verify(Macaroon macaroon, String secret) {
     try {

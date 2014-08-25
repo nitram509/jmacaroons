@@ -23,8 +23,9 @@ import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 import static com.github.nitram509.jmacaroons.util.Hex.toHex;
 
 /**
+ * <p>
  * Macaroons: Cookies with Contextual Caveats for Decentralized Authorization in the Cloud
- * <p/>
+ * </p>
  * This is an immutable and serializable object.
  * Use {@link com.github.nitram509.jmacaroons.MacaroonsBuilder} to modify it.
  * Use {@link com.github.nitram509.jmacaroons.MacaroonsVerifier} to verify it.
