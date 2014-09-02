@@ -33,6 +33,13 @@ Gradle
 ````
 
 
+Build Status
+--------------------
+
+[![Build Status](https://travis-ci.org/nitram509/jmacaroons.svg?branch=master)](https://travis-ci.org/nitram509/jmacaroons)
+
+
+
 Creating Your First Macaroon
 ----------------------------------
 
@@ -165,10 +172,4 @@ verifier.satisfyExcact("browser = Chrome')");
 verifier.isValid(secretKey);
 // > True
 ````
-
-
-Build Status
---------------------
-
-[![Build Status](https://travis-ci.org/nitram509/jmacaroons.svg?branch=master)](https://travis-ci.org/nitram509/jmacaroons)
 
