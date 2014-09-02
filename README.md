@@ -29,7 +29,7 @@ Maven
 
 Gradle
 ````groovy
-  compile 'com.github.nitram509:jmacaroons:0.1.4'
+compile 'com.github.nitram509:jmacaroons:0.1.4'
 ````
 
 
