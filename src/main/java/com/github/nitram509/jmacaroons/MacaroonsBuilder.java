@@ -42,9 +42,9 @@ public class MacaroonsBuilder {
   private String[] caveats = new String[0];
 
   /**
-   * @param location
-   * @param secretKey
-   * @param identifier
+   * @param location   location
+   * @param secretKey  secretKey
+   * @param identifier identifier
    */
   public MacaroonsBuilder(String location, String secretKey, String identifier) {
     this.location = location;
@@ -53,18 +53,18 @@ public class MacaroonsBuilder {
   }
 
   /**
-   * @param location
-   * @param secretKey
-   * @param identifier
-   * @return
+   * @param location   location
+   * @param secretKey  secretKey
+   * @param identifier identifier
+   * @return {@link com.github.nitram509.jmacaroons.Macaroon}
    */
   public static Macaroon create(String location, String secretKey, String identifier) {
     return new MacaroonsBuilder(location, secretKey, identifier).getMacaroon();
   }
 
   /**
-   * @param serializedMacaroon
-   * @return
+   * @param serializedMacaroon serializedMacaroon
+   * @return {@link com.github.nitram509.jmacaroons.Macaroon}
    * @throws com.github.nitram509.jmacaroons.NotDeSerializableException when serialized macaroon is not valid base64, length is to short or contains invalid packet data
    */
   public static Macaroon deserialize(String serializedMacaroon) throws IllegalArgumentException {
@@ -74,7 +74,8 @@ public class MacaroonsBuilder {
   /**
    * throws java.security.InvalidKeyException      (wrapped within a RuntimeException)
    * throws java.security.NoSuchAlgorithmException (wrapped within a RuntimeException)
-   * @return
+   *
+   * @return {@link com.github.nitram509.jmacaroons.Macaroon}
    */
   public Macaroon getMacaroon() {
     assert this.location.length() < MACAROON_MAX_STRLEN;
@@ -92,17 +93,17 @@ public class MacaroonsBuilder {
   }
 
   /**
-   * @param macaroon
-   * @param secretKey
-   * @return
+   * @param macaroon  macaroon
+   * @param secretKey secretKey
+   * @return {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
    */
   public static MacaroonsBuilder modify(Macaroon macaroon, String secretKey) {
     return new MacaroonsBuilder(macaroon.location, secretKey, macaroon.identifier);
   }
 
   /**
-   * @param caveat
-   * @return
+   * @param caveat caveat
+   * @return this {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
    */
   public MacaroonsBuilder add_first_party_caveat(String caveat) {
     if (caveat != null) {
@@ -116,8 +117,8 @@ public class MacaroonsBuilder {
   }
 
   /**
-   * @param caveat
-   * @return
+   * @param caveat caveat
+   * @return this {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
    */
   // TODO: implement and make public
   private MacaroonsBuilder add_third_party_caveat(String caveat) {
