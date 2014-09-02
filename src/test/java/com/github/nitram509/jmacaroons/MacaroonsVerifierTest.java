@@ -39,19 +39,61 @@ public class MacaroonsVerifierTest {
   public void verification() {
     m = MacaroonsBuilder.create(location, secret, identifier);
 
-    MacaroonsVerifier verifier = new MacaroonsVerifier();
-    assertThat(verifier.isValid(m, secret)).isTrue();
+    MacaroonsVerifier verifier = new MacaroonsVerifier(m);
+    assertThat(verifier.isValid(secret)).isTrue();
+  }
+
+  @Test(expectedExceptions = MacaroonValidationException.class)
+  public void verification_assertion() {
+    m = MacaroonsBuilder.create(location, secret, identifier);
+
+    MacaroonsVerifier verifier = new MacaroonsVerifier(m);
+    verifier.assertIsValid("wrong secret");
+
+    // expect MacaroonValidationException
   }
 
   @Test
-  public void verification_with_first_party_caveat() {
+  public void verification_satisfy_exact_first_party_caveat() {
     m = new MacaroonsBuilder(location, secret, identifier)
         .add_first_party_caveat("account = 3735928559")
         .getMacaroon();
 
-    MacaroonsVerifier verifier = new MacaroonsVerifier();
+    MacaroonsVerifier verifier = new MacaroonsVerifier(m);
+    assertThat(verifier.isValid(secret)).isFalse();
 
-    assertThat(verifier.isValid(m, secret)).isTrue();
+    verifier.satisfyExcact("account = 3735928559");
+    assertThat(verifier.isValid(secret)).isTrue();
+  }
+
+  @Test
+  public void verification_satisfy_exact_required_first_party_caveat_() {
+    m = new MacaroonsBuilder(location, secret, identifier)
+        .add_first_party_caveat("account = 3735928559")
+        .add_first_party_caveat("credit_allowed = true")
+        .getMacaroon();
+
+    MacaroonsVerifier verifier = new MacaroonsVerifier(m);
+    assertThat(verifier.isValid(secret)).isFalse();
+
+    verifier.satisfyExcact("account = 3735928559");
+    assertThat(verifier.isValid(secret)).isFalse();
+  }
+
+  @Test
+  public void verification_satisfy_exact_attenuate_with_additional_caveats() {
+    m = new MacaroonsBuilder(location, secret, identifier)
+        .add_first_party_caveat("account = 3735928559")
+        .getMacaroon();
+
+    MacaroonsVerifier verifier = new MacaroonsVerifier(m);
+    assertThat(verifier.isValid(secret)).isFalse();
+
+    verifier.satisfyExcact("account = 3735928559");
+    verifier.satisfyExcact("IP = 127.0.0.1')");
+    verifier.satisfyExcact("browser = Chrome')");
+    verifier.satisfyExcact("action = deposit");
+    assertThat(verifier.isValid(secret)).isTrue();
   }
 
 }

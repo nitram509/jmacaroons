@@ -22,38 +22,69 @@ import java.util.Arrays;
 
 import static com.github.nitram509.jmacaroons.CryptoTools.generate_derived_key;
 import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_hmac;
+import static com.github.nitram509.jmacaroons.util.ArrayTools.appendToArray;
+import static com.github.nitram509.jmacaroons.util.ArrayTools.containsElement;
 
 public class MacaroonsVerifier {
 
+  private String[] exactCaveats = new String[0];
+  private final Macaroon macaroon;
+
+  public MacaroonsVerifier(Macaroon macaroon) {
+    this.macaroon = macaroon;
+  }
+
   /**
-   * @param macaroon
    * @param secret
    * @return
    * @throws com.github.nitram509.jmacaroons.MacaroonValidationException     when the macaroon isn't valid
    * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
-  public void assertIsValid(Macaroon macaroon, String secret) throws MacaroonValidationException, GeneralSecurityRuntimeException {
-    if (!isValid(macaroon, secret)) {
+  public void assertIsValid(String secret) throws MacaroonValidationException, GeneralSecurityRuntimeException {
+    if (!isValid(secret)) {
       throw new MacaroonValidationException("This macaroon isn't valid.", macaroon);
     }
   }
 
   /**
-   * @param macaroon
    * @param secret
    * @return
    * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
-  public boolean isValid(Macaroon macaroon, String secret) throws GeneralSecurityRuntimeException {
+  public boolean isValid(String secret) throws GeneralSecurityRuntimeException {
     try {
       byte[] key = generate_derived_key(secret);
       byte[] hmac = macaroon_hmac(key, macaroon.identifier);
-      for (String caveat : macaroon.caveats) {
-        hmac = macaroon_hmac(hmac, caveat);
+      for (String caveat : exactCaveats) {
+        if (containsElement(macaroon.caveats, caveat)) {
+          hmac = macaroon_hmac(hmac, caveat);
+        }
       }
       return Arrays.equals(hmac, macaroon.signatureBytes);
     } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
+  }
+
+  /**
+   * Caveats like these are called "exact caveats" because there is exactly one way
+   * to satisfy them.  Either the given caveat matches, or it doesn't.  At
+   * verification time, the verifier will check each caveat in the macaroon against
+   * the list of satisfied caveats provided to {@link #satisfyExcact(String)}.
+   * When it finds a match, it knows that the caveat holds and it can move onto the next caveat in
+   * the macaroon.
+   *
+   * @param caveat
+   * @return
+   */
+  public MacaroonsVerifier satisfyExcact(String caveat) {
+    if (caveat != null) {
+      this.exactCaveats = appendToArray(this.exactCaveats, caveat);
+    }
+    return this;
+  }
+
+  public Macaroon getMacaroon() {
+    return macaroon;
   }
 }

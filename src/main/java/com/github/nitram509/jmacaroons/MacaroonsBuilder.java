@@ -23,6 +23,7 @@ import static com.github.nitram509.jmacaroons.CryptoTools.generate_derived_key;
 import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_hmac;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_CAVEATS;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_STRLEN;
+import static com.github.nitram509.jmacaroons.util.ArrayTools.appendToArray;
 
 /**
  * Used to build Macaroons
@@ -109,7 +110,7 @@ public class MacaroonsBuilder {
       if (this.caveats.length + 1 > MACAROON_MAX_CAVEATS) {
         throw new IllegalStateException("Too many caveats. There are max. " + MACAROON_MAX_CAVEATS + " caveats allowed.");
       }
-      this.caveats = append(this.caveats, caveat);
+      this.caveats = appendToArray(this.caveats, caveat);
     }
     return this;
   }
@@ -124,13 +125,6 @@ public class MacaroonsBuilder {
       throw new UnsupportedOperationException("not yet implemented");
     }
     return this;
-  }
-
-  private static String[] append(String[] stringArray, String predicate) {
-    String[] tmp = new String[stringArray.length + 1];
-    System.arraycopy(stringArray, 0, tmp, 0, stringArray.length);
-    tmp[stringArray.length] = predicate;
-    return tmp;
   }
 
 }

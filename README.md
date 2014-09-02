@@ -84,13 +84,14 @@ System.out.println(macaroon.inspect());
 Verifying Your Macaroon
 ----------------------------------
 
+A verifier can only ever successfully verify a macaroon
+when provided with the macaroon and its corresponding secret - no secret, no authorization.
 ````java
-MacaroonsVerifier verifier = new MacaroonsVerifier();
+MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
 String secret = "this is our super secret key; only we should know it";
-boolean valid = verifier.isValid(macaroon, secret);
-System.out.println("Macaroon is " + (valid ? "Valid" : "Invalid"));
+boolean valid = verifier.isValid(secret);
 
-// > Valid
+// > True
 ````
 
 
@@ -121,6 +122,48 @@ System.out.println(macaroon.inspect());
 // > identifier we used our secret key
 // > cid account = 3735928559
 // > signature 1efe4763f290dbce0c1d08477367e11f4eee456a64933cf662d79772dbb82128
+````
+
+Verifying Macaroons With Caveats
+--------------------------------
+
+The verifier should say that this macaroon is unauthorized because
+the verifier cannot prove that the caveat (account = 3735928559) is satisfied.
+We can see that it fails just as we would expect.
+````java
+String location = "http://www.example.org";
+String secretKey = "this is our super secret key; only we should know it";
+String identifier = "we used our secret key";
+Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
+    .add_first_party_caveat("account = 3735928559")
+    .getMacaroon();
+MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
+verifier.isValid(secretKey);
+// > False
+````
+
+Caveats like these are called "exact caveats" because there is exactly one way
+to satisfy them.  Either the account number is 3735928559, or it isn't.  At
+verification time, the verifier will check each caveat in the macaroon against
+the list of satisfied caveats provided to "satisfyExcact()".  When it finds a
+match, it knows that the caveat holds and it can move onto the next caveat in
+the macaroon.
+````java
+verifier.satisfyExcact("account = 3735928559");
+verifier.isValid(secretKey);
+// > True
+````
+
+The verifier can be made more general, and be "future-proofed",
+so that it will still function correctly even if somehow the authorization
+policy changes; for example, by adding the three following facts,
+the verifier will continue to work even if someone decides to
+self-attenuate itself macaroons to be only usable from IP address and browser:
+````java
+verifier.satisfyExcact("IP = 127.0.0.1')");
+verifier.satisfyExcact("browser = Chrome')");
+verifier.isValid(secretKey);
+// > True
 ````
 
 

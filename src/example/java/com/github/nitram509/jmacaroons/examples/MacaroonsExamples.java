@@ -56,10 +56,11 @@ public class MacaroonsExamples {
   private void verify() throws InvalidKeyException, NoSuchAlgorithmException {
     Macaroon macaroon = create();
 
-    MacaroonsVerifier verifier = new MacaroonsVerifier();
+    MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
     String secret = "this is our super secret key; only we should know it";
-    boolean valid = verifier.isValid(macaroon, secret);
-    System.out.println("Macaroon is " + (valid ? "Valid" : "Invalid"));
+    boolean valid = verifier.isValid(secret);
+
+    // > True
   }
 
   private void addCaveat() throws InvalidKeyException, NoSuchAlgorithmException {
@@ -81,6 +82,28 @@ public class MacaroonsExamples {
     System.out.println(macaroon.inspect());
   }
 
+  private void verify_required_caveats() throws InvalidKeyException, NoSuchAlgorithmException {
+    String location = "http://www.example.org";
+    String secretKey = "this is our super secret key; only we should know it";
+    String identifier = "we used our secret key";
+    Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
+        .add_first_party_caveat("account = 3735928559")
+        .getMacaroon();
+    MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
+    verifier.isValid(secretKey);
+    // > False
+
+    verifier.satisfyExcact("account = 3735928559");
+    verifier.isValid(secretKey);
+    // > True
+
+    verifier.satisfyExcact("IP = 127.0.0.1')");
+    verifier.satisfyExcact("browser = Chrome')");
+    verifier.satisfyExcact("action = deposit");
+    verifier.isValid(secretKey);
+    // > True
+  }
+
   public static void main(String[] args) {
     MacaroonsExamples examples = new MacaroonsExamples();
     try {
@@ -89,6 +112,8 @@ public class MacaroonsExamples {
       examples.deserialize();
       examples.verify();
       examples.addCaveat();
+      examples.addCaveat_modify();
+      examples.verify_required_caveats();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
