@@ -26,13 +26,25 @@ import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_hmac;
 public class MacaroonsVerifier {
 
   /**
-   * throws java.security.InvalidKeyException (wrapped within a RuntimeException)
-   * throws java.security.NoSuchAlgorithmException (wrapped within a RuntimeException)
    * @param macaroon
    * @param secret
    * @return
+   * @throws com.github.nitram509.jmacaroons.MacaroonValidationException     when the macaroon isn't valid
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
-  public boolean verify(Macaroon macaroon, String secret) {
+  public void assertIsValid(Macaroon macaroon, String secret) throws MacaroonValidationException, GeneralSecurityRuntimeException {
+    if (!isValid(macaroon, secret)) {
+      throw new MacaroonValidationException("This macaroon isn't valid.", macaroon);
+    }
+  }
+
+  /**
+   * @param macaroon
+   * @param secret
+   * @return
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   */
+  public boolean isValid(Macaroon macaroon, String secret) throws GeneralSecurityRuntimeException {
     try {
       byte[] key = generate_derived_key(secret);
       byte[] hmac = macaroon_hmac(key, macaroon.identifier);
@@ -41,7 +53,7 @@ public class MacaroonsVerifier {
       }
       return Arrays.equals(hmac, macaroon.signatureBytes);
     } catch (InvalidKeyException | NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
+      throw new GeneralSecurityRuntimeException(e);
     }
   }
 }

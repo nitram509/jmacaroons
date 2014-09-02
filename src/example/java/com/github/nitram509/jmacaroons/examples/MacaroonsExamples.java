@@ -58,7 +58,7 @@ public class MacaroonsExamples {
 
     MacaroonsVerifier verifier = new MacaroonsVerifier();
     String secret = "this is our super secret key; only we should know it";
-    boolean valid = verifier.verify(macaroon, secret);
+    boolean valid = verifier.isValid(macaroon, secret);
     System.out.println("Macaroon is " + (valid ? "Valid" : "Invalid"));
   }
 

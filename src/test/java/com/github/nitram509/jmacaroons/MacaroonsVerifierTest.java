@@ -40,7 +40,7 @@ public class MacaroonsVerifierTest {
     m = MacaroonsBuilder.create(location, secret, identifier);
 
     MacaroonsVerifier verifier = new MacaroonsVerifier();
-    assertThat(verifier.verify(m, secret)).isTrue();
+    assertThat(verifier.isValid(m, secret)).isTrue();
   }
 
   @Test
@@ -51,7 +51,7 @@ public class MacaroonsVerifierTest {
 
     MacaroonsVerifier verifier = new MacaroonsVerifier();
 
-    assertThat(verifier.verify(m, secret)).isTrue();
+    assertThat(verifier.isValid(m, secret)).isTrue();
   }
 
 }
