@@ -2,7 +2,7 @@
 Changelog jmacaroons
 =====================
 
-Version 0.?.?
+Version 0.1.5 (2014-09-02)
 --------------------------
 
    + Improved MacaroonsVerifier (API changed)
