@@ -18,6 +18,8 @@ Usage/Import In Your Project
 
 This library jmacaroons is available via Maven Central.
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.nitram509/jmacaroons/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.nitram509/jmacaroons)
+
 Maven
 ````xml
 <dependency>
