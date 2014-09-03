@@ -12,6 +12,9 @@ The primary goals are
    * having no external dependencies, except the Java Runtime v7
    * being the reference implementation in the Java community ;-)
 
+##### License
+
+[![License](https://img.shields.io/:license-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 Usage/Import In Your Project
 ----------------------------------
