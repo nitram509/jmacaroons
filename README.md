@@ -11,6 +11,7 @@ The primary goals are
    * being compatible to libmacaroons
    * having no external dependencies, except the Java Runtime v6
    * being the reference implementation in the Java community ;-)
+   * Being Android compatible, while using Java6
 
 ##### License
 
