@@ -60,7 +60,9 @@ public class MacaroonsVerifier {
         }
       }
       return Arrays.equals(hmac, macaroon.signatureBytes);
-    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
+    } catch (InvalidKeyException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    } catch (NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
   }

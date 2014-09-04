@@ -34,7 +34,7 @@ class MacaroonsDeSerializer {
 
   private String location = null;
   private String identifier = null;
-  private List<String> caveats = new ArrayList<>(3);
+  private List<String> caveats = new ArrayList<String>(3);
   private byte[] signature = null;
 
   public static Macaroon deserialize(String serializedMacaroon) throws NotDeSerializableException {

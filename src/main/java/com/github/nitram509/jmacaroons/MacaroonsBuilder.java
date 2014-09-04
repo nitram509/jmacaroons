@@ -87,7 +87,9 @@ public class MacaroonsBuilder {
         hmac = macaroon_hmac(hmac, caveat);
       }
       return new Macaroon(location, identifier, caveats, hmac);
-    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
+    } catch (InvalidKeyException e) {
+      throw new RuntimeException(e);
+    } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }
   }
