@@ -5,6 +5,12 @@ Changelog jmacaroons
 Version 0.1.6 (2014-09-03)
 --------------------------
 
+   + Lowered the required runtime to JRE 1.6
+
+
+Version 0.1.6 (2014-09-03)
+--------------------------
+
    + Improved MacaroonsVerifier (API changed)
 
 
