@@ -9,7 +9,7 @@ holders' actions are authorized.  But macaroons are better than cookies!
 This project started as a port of libmacaroons[[2]](https://github.com/rescrv/libmacaroons) library.
 The primary goals are
    * being compatible to libmacaroons
-   * having no external dependencies, except the Java Runtime v7
+   * having no external dependencies, except the Java Runtime v6
    * being the reference implementation in the Java community ;-)
 
 ##### License
