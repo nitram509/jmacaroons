@@ -23,6 +23,7 @@ Usage/Import In Your Project
 This library jmacaroons is available via Maven Central.
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.nitram509/jmacaroons/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.nitram509/jmacaroons)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-jmacaroons-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/914)
 
 Maven
 ````xml
