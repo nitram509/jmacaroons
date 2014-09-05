@@ -28,13 +28,13 @@ Maven
 <dependency>
   <groupId>com.github.nitram509</groupId>
   <artifactId>jmacaroons</artifactId>
-  <version>0.1.6</version>
+  <version>0.1.7</version>
 </dependency>
 ````
 
 Gradle
 ````groovy
-compile 'com.github.nitram509:jmacaroons:0.1.6'
+compile 'com.github.nitram509:jmacaroons:0.1.7'
 ````
 
 
