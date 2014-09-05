@@ -51,6 +51,8 @@ Community & Badges
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-jmacaroons-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/914)
 
+[![endorse](https://api.coderwall.com/nitram509/endorsecount.png)](https://coderwall.com/nitram509)
+
 Creating Your First Macaroon
 ----------------------------------
 
