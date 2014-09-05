@@ -9,7 +9,8 @@ holders' actions are authorized.  But macaroons are better than cookies!
 This project started as a port of libmacaroons[[2]](https://github.com/rescrv/libmacaroons) library.
 The primary goals are
    * being compatible to libmacaroons
-   * having no external dependencies, except the Java Runtime v6
+   * having no external dependencies, except the Java Runtime
+   * being Android compatible, while using Java6
    * being the reference implementation in the Java community ;-)
 
 ##### License
@@ -22,6 +23,7 @@ Usage/Import In Your Project
 This library jmacaroons is available via Maven Central.
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.nitram509/jmacaroons/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.nitram509/jmacaroons)
+
 
 Maven
 ````xml
@@ -44,6 +46,12 @@ Build Status
 [![Build Status](https://travis-ci.org/nitram509/jmacaroons.svg?branch=master)](https://travis-ci.org/nitram509/jmacaroons)
 
 
+Community & Badges
+--------------------
+
+Listed on Android Arsenal: [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-jmacaroons-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/914)
+
+If you like this project, endorse please: [![endorse](https://api.coderwall.com/nitram509/endorsecount.png)](https://coderwall.com/nitram509)
 
 Creating Your First Macaroon
 ----------------------------------
