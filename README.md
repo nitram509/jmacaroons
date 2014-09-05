@@ -10,7 +10,7 @@ This project started as a port of libmacaroons[[2]](https://github.com/rescrv/li
 The primary goals are
    * being compatible to libmacaroons
    * having no external dependencies, except the Java Runtime
-   * being Android compatible, while using Java6
+   * being Android compatible, while using Java6 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-jmacaroons-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/914)
    * being the reference implementation in the Java community ;-)
 
 ##### License
@@ -23,7 +23,7 @@ Usage/Import In Your Project
 This library jmacaroons is available via Maven Central.
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.nitram509/jmacaroons/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.nitram509/jmacaroons)
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-jmacaroons-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/914)
+
 
 Maven
 ````xml
