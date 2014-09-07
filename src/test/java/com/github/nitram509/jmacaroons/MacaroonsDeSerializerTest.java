@@ -37,7 +37,7 @@ public class MacaroonsDeSerializerTest {
 
   @Test
   public void Macaroon_can_be_deserialized() {
-    m = MacaroonsBuilder.create(location, secret, identifier);
+    m = new MacaroonsBuilder(location, secret, identifier).getMacaroon();
     String serialized = m.serialize();
 
     Macaroon deserialized = MacaroonsDeSerializer.deserialize(serialized);

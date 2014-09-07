@@ -5,6 +5,13 @@ Changelog jmacaroons
 Version 0.1.7 (2014-09-06)
 --------------------------
 
+   + Added feature for verifying general caveats constrains
+   + Added TimestampCaveatVerifier
+
+
+Version 0.1.7 (2014-09-06)
+--------------------------
+
    + Lowered the required runtime to JRE 1.6
 
 

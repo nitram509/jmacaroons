@@ -36,7 +36,7 @@ public class MacaroonsSerializerTest {
 
   @Test
   public void Macaroon_can_be_serialized() {
-    Macaroon m = MacaroonsBuilder.create(location, secret, identifier);
+    Macaroon m = new MacaroonsBuilder(location, secret, identifier).getMacaroon();
 
     assertThat(MacaroonsSerializer.serialize(m)).isEqualTo("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAyZnNpZ25hdHVyZSDj2eApCFJsTAA5rhURQRXZf91ovyujebNCqvD2F9BVLwo=");
     assertThat(MacaroonsSerializer.serialize(m)).isEqualTo(m.serialize());

@@ -37,7 +37,7 @@ public class MacaroonsBuilderTest {
 
   @Test
   public void create_a_Macaroon_and_verify_signature_location_and_identfier() {
-    m = MacaroonsBuilder.create(location, secret, identifier);
+    m = new MacaroonsBuilder(location, secret, identifier).getMacaroon();
 
     assertThat(m.location).isEqualTo(location);
     assertThat(m.identifier).isEqualTo(identifier);
@@ -46,7 +46,7 @@ public class MacaroonsBuilderTest {
 
   @Test
   public void create_a_Macaroon_and_inspect() {
-    m = MacaroonsBuilder.create(location, secret, identifier);
+    m = new MacaroonsBuilder(location, secret, identifier).getMacaroon();
 
     String inspect = m.inspect();
 
@@ -59,15 +59,15 @@ public class MacaroonsBuilderTest {
 
   @Test
   public void different_locations_doesnt_change_the_signatures() {
-    Macaroon m1 = MacaroonsBuilder.create("http://location_ONE", secret, identifier);
-    Macaroon m2 = MacaroonsBuilder.create("http://location_TWO", secret, identifier);
+    Macaroon m1 = new MacaroonsBuilder("http://location_ONE", secret, identifier).getMacaroon();
+    Macaroon m2 = new MacaroonsBuilder("http://location_TWO", secret, identifier).getMacaroon();
 
     assertThat(m1.signature).isEqualTo(m2.signature);
   }
 
   @Test
   public void Macaroon_can_be_serialized() {
-    m = MacaroonsBuilder.create(location, secret, identifier);
+    m = new MacaroonsBuilder(location, secret, identifier).getMacaroon();
 
     assertThat(m.serialize()).isEqualTo("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAyZnNpZ25hdHVyZSDj2eApCFJsTAA5rhURQRXZf91ovyujebNCqvD2F9BVLwo=");
   }

@@ -16,6 +16,7 @@
 
 package com.github.nitram509.jmacaroons;
 
+import com.github.nitram509.jmacaroons.verifier.TimestampCaveatVerifier;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -43,7 +44,7 @@ public class MacaroonsVerifierTest {
 
   @Test
   public void verification() {
-    m = MacaroonsBuilder.create(location, secret, identifier);
+    m = new MacaroonsBuilder(location, secret, identifier).getMacaroon();
 
     MacaroonsVerifier verifier = new MacaroonsVerifier(m);
     assertThat(verifier.isValid(secret)).isTrue();
@@ -51,7 +52,7 @@ public class MacaroonsVerifierTest {
 
   @Test(expectedExceptions = MacaroonValidationException.class)
   public void verification_assertion() {
-    m = MacaroonsBuilder.create(location, secret, identifier);
+    m = new MacaroonsBuilder(location, secret, identifier).getMacaroon();
 
     MacaroonsVerifier verifier = new MacaroonsVerifier(m);
     verifier.assertIsValid("wrong secret");
@@ -111,7 +112,7 @@ public class MacaroonsVerifierTest {
     MacaroonsVerifier verifier = new MacaroonsVerifier(m);
     assertThat(verifier.isValid(secret)).isFalse();
 
-    verifier.satisfyGeneral(new NaiveTimeVerifier());
+    verifier.satisfyGeneral(new TimestampCaveatVerifier());
     assertThat(verifier.isValid(secret)).isTrue();
   }
 
@@ -119,15 +120,4 @@ public class MacaroonsVerifierTest {
     return ISO_DateFormat.format(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 24 * 7)));
   }
 
-  private static class NaiveTimeVerifier implements GeneralCaveatVerifier {
-    @Override
-    public boolean verifyCaveat(String caveat) {
-      if (caveat.startsWith("time < ")) {
-        Date now = new Date();
-        Date parsedDate = ISO_DateFormat.parse(caveat.substring("time < ".length()), new ParsePosition(0));
-        return now.compareTo(parsedDate) < 0;
-      }
-      return false;
-    }
-  }
 }

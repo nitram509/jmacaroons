@@ -16,16 +16,13 @@
 
 package com.github.nitram509.jmacaroons.examples;
 
-import com.github.nitram509.jmacaroons.GeneralCaveatVerifier;
 import com.github.nitram509.jmacaroons.Macaroon;
 import com.github.nitram509.jmacaroons.MacaroonsBuilder;
 import com.github.nitram509.jmacaroons.MacaroonsVerifier;
+import com.github.nitram509.jmacaroons.verifier.TimestampCaveatVerifier;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * These are examples, for copy&paste into README.md.
@@ -120,17 +117,7 @@ public class MacaroonsExamples {
     verifier.isValid(secretKey);
     // > False
 
-    verifier.satisfyGeneral(new GeneralCaveatVerifier() {
-      public boolean verifyCaveat(String caveat) {
-        if (caveat.startsWith("time < ")) {
-          Date now = new Date();
-          SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-          Date parsedDate = dateFormat.parse(caveat.substring("time < ".length()), new ParsePosition(0));
-          return now.compareTo(parsedDate) < 0;
-        }
-        return false;
-      }
-    });
+    verifier.satisfyGeneral(new TimestampCaveatVerifier());
     verifier.isValid(secretKey);
     // > True
   }
