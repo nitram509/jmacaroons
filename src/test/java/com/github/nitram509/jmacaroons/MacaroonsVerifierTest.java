@@ -119,9 +119,9 @@ public class MacaroonsVerifierTest {
     return ISO_DateFormat.format(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 24 * 7)));
   }
 
-  private static class NaiveTimeVerifier implements GeneralVerifier {
+  private static class NaiveTimeVerifier implements GeneralCaveatVerifier {
     @Override
-    public boolean verify(String caveat) {
+    public boolean verifyCaveat(String caveat) {
       if (caveat.startsWith("time < ")) {
         Date now = new Date();
         Date parsedDate = ISO_DateFormat.parse(caveat.substring("time < ".length()), new ParsePosition(0));

@@ -16,7 +16,7 @@
 
 package com.github.nitram509.jmacaroons.examples;
 
-import com.github.nitram509.jmacaroons.GeneralVerifier;
+import com.github.nitram509.jmacaroons.GeneralCaveatVerifier;
 import com.github.nitram509.jmacaroons.Macaroon;
 import com.github.nitram509.jmacaroons.MacaroonsBuilder;
 import com.github.nitram509.jmacaroons.MacaroonsVerifier;
@@ -120,8 +120,8 @@ public class MacaroonsExamples {
     verifier.isValid(secretKey);
     // > False
 
-    verifier.satisfyGeneral(new GeneralVerifier() {
-      public boolean verify(String caveat) {
+    verifier.satisfyGeneral(new GeneralCaveatVerifier() {
+      public boolean verifyCaveat(String caveat) {
         if (caveat.startsWith("time < ")) {
           Date now = new Date();
           SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");

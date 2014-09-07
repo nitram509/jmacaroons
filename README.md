@@ -197,8 +197,8 @@ MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
 verifier.isValid(secretKey);
 // > False
 
-verifier.satisfyGeneral(new GeneralVerifier() {
-  public boolean verify(String caveat) {
+verifier.satisfyGeneral(new GeneralCaveatVerifier() {
+  public boolean verifyCaveat(String caveat) {
     if (caveat.startsWith("time < ")) {
       Date now = new Date();
       SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");

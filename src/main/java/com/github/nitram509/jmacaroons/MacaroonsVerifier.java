@@ -28,7 +28,7 @@ import static com.github.nitram509.jmacaroons.util.ArrayTools.containsElement;
 public class MacaroonsVerifier {
 
   private String[] predicates = new String[0];
-  private GeneralVerifier[] generalVerifiers = new GeneralVerifier[0];
+  private GeneralCaveatVerifier[] generalCaveatVerifiers = new GeneralCaveatVerifier[0];
   private final Macaroon macaroon;
 
   public MacaroonsVerifier(Macaroon macaroon) {
@@ -74,8 +74,8 @@ public class MacaroonsVerifier {
 
   private boolean verifiesGeneral(String caveat) {
     boolean found = false;
-    for (GeneralVerifier verifier : this.generalVerifiers) {
-      found |= verifier.verify(caveat);
+    for (GeneralCaveatVerifier verifier : this.generalCaveatVerifiers) {
+      found |= verifier.verifyCaveat(caveat);
     }
     return found;
   }
@@ -111,9 +111,9 @@ public class MacaroonsVerifier {
    * @param verifier verifier
    * @return this {@link com.github.nitram509.jmacaroons.MacaroonsVerifier}
    */
-  public MacaroonsVerifier satisfyGeneral(GeneralVerifier verifier) {
+  public MacaroonsVerifier satisfyGeneral(GeneralCaveatVerifier verifier) {
     if (verifier != null) {
-      this.generalVerifiers = appendToArray(this.generalVerifiers, verifier);
+      this.generalCaveatVerifiers = appendToArray(this.generalCaveatVerifiers, verifier);
     }
     return this;
   }

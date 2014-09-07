@@ -16,11 +16,11 @@
 
 package com.github.nitram509.jmacaroons;
 
-public interface GeneralVerifier {
+public interface GeneralCaveatVerifier {
 
   /**
    * @param caveat caveat
    * @return True, if this caveat is satisfies the applications requirements. False otherwise.
    */
-  boolean verify(String caveat);
+  boolean verifyCaveat(String caveat);
 }
