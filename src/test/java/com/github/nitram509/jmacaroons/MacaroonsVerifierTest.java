@@ -19,9 +19,15 @@ package com.github.nitram509.jmacaroons;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class MacaroonsVerifierTest {
+
+  private static SimpleDateFormat ISO_DateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
 
   private String identifier;
   private String secret;
@@ -96,4 +102,32 @@ public class MacaroonsVerifierTest {
     assertThat(verifier.isValid(secret)).isTrue();
   }
 
+  @Test
+  public void verification_general() {
+    m = new MacaroonsBuilder(location, secret, identifier)
+        .add_first_party_caveat("time < " + createTimeStamp1WeekInFuture())
+        .getMacaroon();
+
+    MacaroonsVerifier verifier = new MacaroonsVerifier(m);
+    assertThat(verifier.isValid(secret)).isFalse();
+
+    verifier.satisfyGeneral(new NaiveTimeVerifier());
+    assertThat(verifier.isValid(secret)).isTrue();
+  }
+
+  private String createTimeStamp1WeekInFuture() {
+    return ISO_DateFormat.format(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 24 * 7)));
+  }
+
+  private static class NaiveTimeVerifier implements GeneralVerifier {
+    @Override
+    public boolean verify(String caveat) {
+      if (caveat.startsWith("time < ")) {
+        Date now = new Date();
+        Date parsedDate = ISO_DateFormat.parse(caveat.substring("time < ".length()), new ParsePosition(0));
+        return now.compareTo(parsedDate) <= 0;
+      }
+      return false;
+    }
+  }
 }

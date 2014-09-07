@@ -16,9 +16,13 @@
 
 package com.github.nitram509.jmacaroons.util;
 
+import java.lang.reflect.Array;
+
 public class ArrayTools {
-  public static String[] appendToArray(String[] elements, String newElement) {
-    String[] tmp = new String[elements.length + 1];
+
+  public static <T extends Object> T[] appendToArray(T[] elements, T newElement) {
+    assert newElement != null;
+    T[] tmp = (T[]) Array.newInstance(newElement.getClass(), elements.length + 1);
     System.arraycopy(elements, 0, tmp, 0, elements.length);
     tmp[elements.length] = newElement;
     return tmp;

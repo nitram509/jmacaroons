@@ -27,7 +27,8 @@ import static com.github.nitram509.jmacaroons.util.ArrayTools.containsElement;
 
 public class MacaroonsVerifier {
 
-  private String[] exactCaveats = new String[0];
+  private String[] predicates = new String[0];
+  private GeneralVerifier[] generalVerifiers = new GeneralVerifier[0];
   private final Macaroon macaroon;
 
   public MacaroonsVerifier(Macaroon macaroon) {
@@ -54,9 +55,13 @@ public class MacaroonsVerifier {
     try {
       byte[] key = generate_derived_key(secret);
       byte[] hmac = macaroon_hmac(key, macaroon.identifier);
-      for (String caveat : exactCaveats) {
-        if (containsElement(macaroon.caveats, caveat)) {
-          hmac = macaroon_hmac(hmac, caveat);
+      if (macaroon.caveats != null) {
+        for (String caveat : macaroon.caveats) {
+          if (caveat != null) {
+            if (containsElement(predicates, caveat) || verifiesGeneral(caveat)) {
+              hmac = macaroon_hmac(hmac, caveat);
+            }
+          }
         }
       }
       return Arrays.equals(hmac, macaroon.signatureBytes);
@@ -65,6 +70,14 @@ public class MacaroonsVerifier {
     } catch (NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
+  }
+
+  private boolean verifiesGeneral(String caveat) {
+    boolean found = false;
+    for (GeneralVerifier verifier : this.generalVerifiers) {
+      found |= verifier.verify(caveat);
+    }
+    return found;
   }
 
   /**
@@ -80,7 +93,27 @@ public class MacaroonsVerifier {
    */
   public MacaroonsVerifier satisfyExcact(String caveat) {
     if (caveat != null) {
-      this.exactCaveats = appendToArray(this.exactCaveats, caveat);
+      this.predicates = appendToArray(this.predicates, caveat);
+    }
+    return this;
+  }
+
+  /**
+   * Another technique for informing the verifier that a caveat is satisfied
+   * allows for expressive caveats. Whereas exact caveats are checked
+   * by simple byte-wise equality, general caveats are checked using
+   * an application-provided callback that returns true if and only if the caveat
+   * is true within the context of the request.
+   * There's no limit on the contents of a general caveat,
+   * so long as the callback understands how to determine whether it is satisfied.
+   * This technique is called "general caveats".
+   *
+   * @param verifier verifier
+   * @return this {@link com.github.nitram509.jmacaroons.MacaroonsVerifier}
+   */
+  public MacaroonsVerifier satisfyGeneral(GeneralVerifier verifier) {
+    if (verifier != null) {
+      this.generalVerifiers = appendToArray(this.generalVerifiers, verifier);
     }
     return this;
   }
