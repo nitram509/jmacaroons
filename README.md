@@ -22,7 +22,7 @@ Usage/Import In Your Project
 
 This library jmacaroons is available via Maven Central.
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.nitram509/jmacaroons/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.nitram509/jmacaroons)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.nitram509/jmacaroons.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.github.nitram509%22%20AND%20a%3A%22jmacaroons%22)
 
 
 Maven
