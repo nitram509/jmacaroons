@@ -16,13 +16,13 @@
 
 package com.github.nitram509.jmacaroons;
 
+import com.github.nitram509.jmacaroons.util.Base64;
+
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-import static com.github.nitram509.jmacaroons.CryptoTools.generate_derived_key;
-import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_hmac;
-import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_CAVEATS;
-import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_STRLEN;
+import static com.github.nitram509.jmacaroons.CryptoTools.*;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 import static com.github.nitram509.jmacaroons.util.ArrayTools.appendToArray;
 
 /**
@@ -72,12 +72,10 @@ public class MacaroonsBuilder {
   }
 
   /**
-   * throws java.security.InvalidKeyException      (wrapped within a RuntimeException)
-   * throws java.security.NoSuchAlgorithmException (wrapped within a RuntimeException)
-   *
    * @return {@link com.github.nitram509.jmacaroons.Macaroon}
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
-  public Macaroon getMacaroon() {
+  public Macaroon getMacaroon() throws GeneralSecurityRuntimeException {
     assert this.location.length() < MACAROON_MAX_STRLEN;
     assert this.identifier.length() < MACAROON_MAX_STRLEN;
     try {
@@ -88,9 +86,9 @@ public class MacaroonsBuilder {
       }
       return new Macaroon(location, identifier, caveats, hmac);
     } catch (InvalidKeyException e) {
-      throw new RuntimeException(e);
+      throw new GeneralSecurityRuntimeException(e);
     } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
+      throw new GeneralSecurityRuntimeException(e);
     }
   }
 
@@ -123,15 +121,51 @@ public class MacaroonsBuilder {
   }
 
   /**
-   * @param caveat caveat
+   * @param location   location
+   * @param secret     secret
+   * @param identifier identifier
    * @return this {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
-  // TODO: implement and make public
-  private MacaroonsBuilder add_third_party_caveat(String caveat) {
-    if (caveat != null) {
-      throw new UnsupportedOperationException("not yet implemented");
+  public MacaroonsBuilder add_third_party_caveat(String location, String secret, String identifier) throws GeneralSecurityRuntimeException {
+    assert location.length() < MACAROON_MAX_STRLEN;
+    assert identifier.length() < MACAROON_MAX_STRLEN;
+
+    this.add_first_party_caveat(identifier);
+
+    try {
+      byte[] enc_key = generate_derived_key(secret);
+
+
+      macaroon_add_third_party_caveat_raw(location, enc_key, identifier);
+
+    } catch (InvalidKeyException e) {
+      throw new RuntimeException(e);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
     }
     return this;
+  }
+
+  void macaroon_add_third_party_caveat_raw(String location, byte[] key, String identifier) {
+    // return macaroon_add_third_party_caveat_raw(N, location, location_sz, derived_key, MACAROON_HASH_BYTES, id, id_sz, err)
+
+    byte[] enc_plaintext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
+    byte[] enc_key = new byte[MACAROON_SECRET_KEY_BYTES];
+    byte[] enc_nonce = new byte[MACAROON_SECRET_NONCE_BYTES];
+    byte[] enc_ciphertext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
+    byte[] vid = new byte[VID_NONCE_KEY_SZ * 3];
+
+    byte[] old_key = getMacaroon().signatureBytes;
+    System.arraycopy(key, 0, enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, MACAROON_HASH_BYTES);
+
+    macaroon_secretbox(enc_key, enc_nonce, enc_plaintext, enc_ciphertext);
+
+    System.arraycopy(enc_nonce, 0, vid, 0, MACAROON_SECRET_NONCE_BYTES);
+    System.arraycopy(enc_ciphertext, MACAROON_SECRET_BOX_ZERO_BYTES, vid, MACAROON_SECRET_NONCE_BYTES, VID_NONCE_KEY_SZ - MACAROON_SECRET_NONCE_BYTES);
+    byte[] vidAsBase64 = Base64.encodeToByte(vid, 0, VID_NONCE_KEY_SZ, false);
+    System.arraycopy(vidAsBase64, 0, vid, VID_NONCE_KEY_SZ, 2 * VID_NONCE_KEY_SZ);
+
   }
 
 }

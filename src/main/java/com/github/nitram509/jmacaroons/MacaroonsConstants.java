@@ -41,6 +41,13 @@ public interface MacaroonsConstants {
   static final int PACKET_PREFIX_LENGTH = 4;
   static final int PACKET_MAX_SIZE = 65535;
 
+  static final int MACAROON_SECRET_KEY_BYTES = 32;
+  static final int MACAROON_SECRET_NONCE_BYTES = 24;
+  static final int MACAROON_SECRET_TEXT_ZERO_BYTES = 32;
+  static final int MACAROON_SECRET_BOX_ZERO_BYTES = 16;
+
+  static final int VID_NONCE_KEY_SZ = MACAROON_SECRET_NONCE_BYTES + MACAROON_HASH_BYTES + MACAROON_SECRET_TEXT_ZERO_BYTES - MACAROON_SECRET_BOX_ZERO_BYTES;
+
   static final String LOCATION = "location";
   static final byte[] LOCATION_BYTES = LOCATION.getBytes(Charset.forName("ASCII"));
 
