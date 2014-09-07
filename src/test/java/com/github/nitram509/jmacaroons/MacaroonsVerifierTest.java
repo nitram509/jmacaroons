@@ -125,7 +125,7 @@ public class MacaroonsVerifierTest {
       if (caveat.startsWith("time < ")) {
         Date now = new Date();
         Date parsedDate = ISO_DateFormat.parse(caveat.substring("time < ".length()), new ParsePosition(0));
-        return now.compareTo(parsedDate) <= 0;
+        return now.compareTo(parsedDate) < 0;
       }
       return false;
     }

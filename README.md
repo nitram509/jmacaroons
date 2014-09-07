@@ -186,3 +186,30 @@ verifier.isValid(secretKey);
 // > True
 ````
 
+There is also a more general way to check caveats, via callbacks.
+When providing such a callback to the verifier,
+it is able to check if the caveat satisfies special constrains. 
+````java
+Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
+    .add_first_party_caveat("time < 2042-01-01T00:00")
+    .getMacaroon();
+MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
+verifier.isValid(secretKey);
+// > False
+
+verifier.satisfyGeneral(new GeneralVerifier() {
+  public boolean verify(String caveat) {
+    if (caveat.startsWith("time < ")) {
+      Date now = new Date();
+      SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+      Date parsedDate = dateFormat.parse(caveat.substring("time < ".length()), new ParsePosition(0));
+      return now.compareTo(parsedDate) < 0;
+    }
+    return false;
+  }
+});
+verifier.isValid(secretKey);
+// > True
+````
+    
+

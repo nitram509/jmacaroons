@@ -16,12 +16,16 @@
 
 package com.github.nitram509.jmacaroons.examples;
 
+import com.github.nitram509.jmacaroons.GeneralVerifier;
 import com.github.nitram509.jmacaroons.Macaroon;
 import com.github.nitram509.jmacaroons.MacaroonsBuilder;
 import com.github.nitram509.jmacaroons.MacaroonsVerifier;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * These are examples, for copy&paste into README.md.
@@ -104,6 +108,33 @@ public class MacaroonsExamples {
     // > True
   }
 
+  private void verify_general_caveats() throws InvalidKeyException, NoSuchAlgorithmException {
+    String location = "http://www.example.org";
+    String secretKey = "this is our super secret key; only we should know it";
+    String identifier = "we used our secret key";
+
+    Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
+        .add_first_party_caveat("time < 2042-01-01T00:00")
+        .getMacaroon();
+    MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
+    verifier.isValid(secretKey);
+    // > False
+
+    verifier.satisfyGeneral(new GeneralVerifier() {
+      public boolean verify(String caveat) {
+        if (caveat.startsWith("time < ")) {
+          Date now = new Date();
+          SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+          Date parsedDate = dateFormat.parse(caveat.substring("time < ".length()), new ParsePosition(0));
+          return now.compareTo(parsedDate) < 0;
+        }
+        return false;
+      }
+    });
+    verifier.isValid(secretKey);
+    // > True
+  }
+
   public static void main(String[] args) {
     MacaroonsExamples examples = new MacaroonsExamples();
     try {
@@ -114,6 +145,7 @@ public class MacaroonsExamples {
       examples.addCaveat();
       examples.addCaveat_modify();
       examples.verify_required_caveats();
+      examples.verify_general_caveats();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
