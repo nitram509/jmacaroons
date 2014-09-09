@@ -65,4 +65,6 @@ public interface MacaroonsConstants {
 
   static final String LINE_SEPARATOR = "\n";
   static final String KEY_VALUE_SEPARATOR = " ";
+
+  static final Charset IDENTIFIER_CHARSET = Charset.forName("UTF-8");
 }
