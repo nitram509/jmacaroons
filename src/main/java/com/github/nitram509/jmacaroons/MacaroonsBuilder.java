@@ -18,6 +18,7 @@ package com.github.nitram509.jmacaroons;
 
 import com.github.nitram509.jmacaroons.util.Base64;
 
+import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -36,9 +37,12 @@ import static com.github.nitram509.jmacaroons.util.ArrayTools.appendToArray;
  */
 public class MacaroonsBuilder {
 
+  public static final Charset UTF8 = Charset.forName("UTF-8");
   private String location;
   private String secretKey;
   private String identifier;
+  private String vid;
+  private String cl;
   private String[] caveats = new String[0];
 
   /**
@@ -76,12 +80,20 @@ public class MacaroonsBuilder {
    * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
   public Macaroon getMacaroon() throws GeneralSecurityRuntimeException {
-    assert this.location.length() < MACAROON_MAX_STRLEN;
-    assert this.identifier.length() < MACAROON_MAX_STRLEN;
+    assert location.length() < MACAROON_MAX_STRLEN;
+    assert identifier.length() < MACAROON_MAX_STRLEN;
+    assert vid == null || vid.length() < MACAROON_MAX_STRLEN;
+    assert cl == null || cl.length() < MACAROON_MAX_STRLEN;
     try {
-      byte[] key = generate_derived_key(this.secretKey);
-      byte[] hmac = macaroon_hmac(key, this.identifier);
-      for (String caveat : this.caveats) {
+      byte[] key = generate_derived_key(secretKey);
+      byte[] hmac = macaroon_hmac(key, identifier);
+      if (vid != null) {
+        hmac = macaroon_hmac(hmac, vid);
+      }
+      if (cl != null) {
+        hmac = macaroon_hmac(hmac, cl);
+      }
+      for (String caveat : caveats) {
         hmac = macaroon_hmac(hmac, caveat);
       }
       return new Macaroon(location, identifier, caveats, hmac);
@@ -127,32 +139,31 @@ public class MacaroonsBuilder {
     assert location.length() < MACAROON_MAX_STRLEN;
     assert identifier.length() < MACAROON_MAX_STRLEN;
 
-    this.add_first_party_caveat(identifier);
-
     try {
-      byte[] enc_key = generate_derived_key(secret);
+      byte[] derived_key = generate_derived_key(secret);
 
 
-      macaroon_add_third_party_caveat_raw(location, enc_key, identifier);
+      macaroon_add_third_party_caveat_raw(location, derived_key, identifier);
 
     } catch (InvalidKeyException e) {
-      throw new RuntimeException(e);
+      throw new GeneralSecurityRuntimeException(e);
     } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
+      throw new GeneralSecurityRuntimeException(e);
     }
     return this;
   }
 
-  void macaroon_add_third_party_caveat_raw(String location, byte[] key, String identifier) {
+  void macaroon_add_third_party_caveat_raw(String location, byte[] key, String identifier) throws InvalidKeyException, NoSuchAlgorithmException {
     // return macaroon_add_third_party_caveat_raw(N, location, location_sz, derived_key, MACAROON_HASH_BYTES, id, id_sz, err)
 
     byte[] enc_plaintext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
     byte[] enc_key = new byte[MACAROON_SECRET_KEY_BYTES];
     byte[] enc_nonce = new byte[MACAROON_SECRET_NONCE_BYTES];
     byte[] enc_ciphertext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
-    byte[] vid = new byte[VID_NONCE_KEY_SZ * 3];
+    byte[] vid = new byte[VID_NONCE_KEY_SZ];
 
     byte[] old_key = getMacaroon().signatureBytes;
+    System.arraycopy(old_key, 0, enc_key, 0, MACAROON_HASH_BYTES);
     System.arraycopy(key, 0, enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, MACAROON_HASH_BYTES);
 
     macaroon_secretbox(enc_key, enc_nonce, enc_plaintext, enc_ciphertext);
@@ -160,8 +171,13 @@ public class MacaroonsBuilder {
     System.arraycopy(enc_nonce, 0, vid, 0, MACAROON_SECRET_NONCE_BYTES);
     System.arraycopy(enc_ciphertext, MACAROON_SECRET_BOX_ZERO_BYTES, vid, MACAROON_SECRET_NONCE_BYTES, VID_NONCE_KEY_SZ - MACAROON_SECRET_NONCE_BYTES);
     byte[] vidAsBase64 = Base64.encodeToByte(vid, 0, VID_NONCE_KEY_SZ, false);
-    System.arraycopy(vidAsBase64, 0, vid, VID_NONCE_KEY_SZ, 2 * VID_NONCE_KEY_SZ);
 
+    byte[] hash = macaroon_hash2(old_key, vidAsBase64, identifier.getBytes(UTF8));
+    // hash works :-)
+
+    this.add_first_party_caveat(identifier);
+    this.vid = new String(vid); // TODO charset !!!
+    this.cl = location;
   }
 
 }
