@@ -16,11 +16,10 @@
 
 package com.github.nitram509.jmacaroons;
 
-import com.github.nitram509.jmacaroons.util.Base64;
-
-import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.nitram509.jmacaroons.CryptoTools.*;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
@@ -37,13 +36,10 @@ import static com.github.nitram509.jmacaroons.util.ArrayTools.appendToArray;
  */
 public class MacaroonsBuilder {
 
-  public static final Charset UTF8 = Charset.forName("UTF-8");
   private String location;
   private String secretKey;
   private String identifier;
-  private String vid;
-  private String cl;
-  private String[] caveats = new String[0];
+  private Object[] caveats = new Object[0];
 
   /**
    * @param location   location
@@ -76,27 +72,27 @@ public class MacaroonsBuilder {
   }
 
   /**
-   * @return {@link com.github.nitram509.jmacaroons.Macaroon}
+   * @return a {@link com.github.nitram509.jmacaroons.Macaroon}
    * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
   public Macaroon getMacaroon() throws GeneralSecurityRuntimeException {
     assert location.length() < MACAROON_MAX_STRLEN;
     assert identifier.length() < MACAROON_MAX_STRLEN;
-    assert vid == null || vid.length() < MACAROON_MAX_STRLEN;
-    assert cl == null || cl.length() < MACAROON_MAX_STRLEN;
+    List<String> hack = new ArrayList<String>(); // TODO ... better transport caveats
     try {
       byte[] key = generate_derived_key(secretKey);
-      byte[] hmac = macaroon_hmac(key, identifier);
-      if (vid != null) {
-        hmac = macaroon_hmac(hmac, vid);
+      byte[] hash = macaroon_hmac(key, identifier);
+      for (Object caveat : caveats) {
+        if (caveat instanceof Caveat3rdParty) {
+          Caveat3rdParty c3 = (Caveat3rdParty) caveat;
+          hack.add(c3.identifier);
+          hash = macaroon_add_third_party_caveat_raw(hash, c3.secret, c3.identifier);
+        } else {
+          hash = macaroon_hmac(hash, ((Caveat1stParty) caveat).identifier);
+          hack.add(((Caveat1stParty) caveat).identifier);
+        }
       }
-      if (cl != null) {
-        hmac = macaroon_hmac(hmac, cl);
-      }
-      for (String caveat : caveats) {
-        hmac = macaroon_hmac(hmac, caveat);
-      }
-      return new Macaroon(location, identifier, caveats, hmac);
+      return new Macaroon(location, identifier, hack.toArray(new String[0]), hash);
     } catch (InvalidKeyException e) {
       throw new GeneralSecurityRuntimeException(e);
     } catch (NoSuchAlgorithmException e) {
@@ -127,7 +123,7 @@ public class MacaroonsBuilder {
       if (this.caveats.length + 1 > MACAROON_MAX_CAVEATS) {
         throw new IllegalStateException("Too many caveats. There are max. " + MACAROON_MAX_CAVEATS + " caveats allowed.");
       }
-      this.caveats = appendToArray(this.caveats, caveat);
+      this.caveats = appendToArray(this.caveats, new Caveat1stParty(caveat));
     }
     return this;
   }
@@ -137,51 +133,35 @@ public class MacaroonsBuilder {
    * @param secret     secret
    * @param identifier identifier
    * @return this {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
-   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   * @throws IllegalStateException if there are more than {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_MAX_CAVEATS} caveats.
    */
-  public MacaroonsBuilder add_third_party_caveat(String location, String secret, String identifier) throws GeneralSecurityRuntimeException {
+  public MacaroonsBuilder add_third_party_caveat(String location, String secret, String identifier) throws IllegalStateException {
     assert location.length() < MACAROON_MAX_STRLEN;
     assert identifier.length() < MACAROON_MAX_STRLEN;
 
-    try {
-      byte[] derived_key = generate_derived_key(secret);
-
-
-      macaroon_add_third_party_caveat_raw(location, derived_key, identifier);
-
-    } catch (InvalidKeyException e) {
-      throw new GeneralSecurityRuntimeException(e);
-    } catch (NoSuchAlgorithmException e) {
-      throw new GeneralSecurityRuntimeException(e);
+    if (this.caveats.length + 1 > MACAROON_MAX_CAVEATS) {
+      throw new IllegalStateException("Too many caveats. There are max. " + MACAROON_MAX_CAVEATS + " caveats allowed.");
     }
+    this.caveats = appendToArray(this.caveats, new Caveat3rdParty(location, secret, identifier));
     return this;
   }
 
-  void macaroon_add_third_party_caveat_raw(String location, byte[] key, String identifier) throws InvalidKeyException, NoSuchAlgorithmException {
-    // return macaroon_add_third_party_caveat_raw(N, location, location_sz, derived_key, MACAROON_HASH_BYTES, id, id_sz, err)
+  private static class Caveat1stParty {
+    final String identifier;
 
-    byte[] enc_plaintext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
-    byte[] enc_key = new byte[MACAROON_SECRET_KEY_BYTES];
-    byte[] enc_nonce = new byte[MACAROON_SECRET_NONCE_BYTES];
-    byte[] enc_ciphertext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
-    byte[] vid = new byte[VID_NONCE_KEY_SZ];
-
-    byte[] old_key = getMacaroon().signatureBytes;
-    System.arraycopy(old_key, 0, enc_key, 0, MACAROON_HASH_BYTES);
-    System.arraycopy(key, 0, enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, MACAROON_HASH_BYTES);
-
-    macaroon_secretbox(enc_key, enc_nonce, enc_plaintext, enc_ciphertext);
-
-    System.arraycopy(enc_nonce, 0, vid, 0, MACAROON_SECRET_NONCE_BYTES);
-    System.arraycopy(enc_ciphertext, MACAROON_SECRET_BOX_ZERO_BYTES, vid, MACAROON_SECRET_NONCE_BYTES, VID_NONCE_KEY_SZ - MACAROON_SECRET_NONCE_BYTES);
-    byte[] vidAsBase64 = Base64.encodeToByte(vid, 0, VID_NONCE_KEY_SZ, false);
-
-    byte[] hash = macaroon_hash2(old_key, vidAsBase64, identifier.getBytes(UTF8));
-    // hash works :-)
-
-    this.add_first_party_caveat(identifier);
-    this.vid = new String(vid); // TODO charset !!!
-    this.cl = location;
+    public Caveat1stParty(String caveat) {
+      this.identifier = caveat;
+    }
   }
 
+  private static class Caveat3rdParty extends Caveat1stParty {
+    final String location;
+    final String secret;
+
+    private Caveat3rdParty(String location, String secret, String identifier) {
+      super(identifier);
+      this.location = location;
+      this.secret = secret;
+    }
+  }
 }

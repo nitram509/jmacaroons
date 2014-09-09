@@ -21,7 +21,6 @@ import com.github.nitram509.jmacaroons.util.Base64;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +29,6 @@ import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 class MacaroonsDeSerializer {
 
   private static final String HEX = "0123456789abcdef";
-  private static final Charset UTF8 = Charset.forName("UTF8");
 
   private String location = null;
   private String identifier = null;
@@ -84,7 +82,7 @@ class MacaroonsDeSerializer {
   private static String parsePacket(Packet packet, byte[] header) {
     int headerLen = header.length + KEY_VALUE_SEPARATOR.length();
     int len = packet.data.length - headerLen;
-    String payload = new String(packet.data, headerLen, len, UTF8);
+    String payload = new String(packet.data, headerLen, len, IDENTIFIER_CHARSET);
     if (payload.endsWith(LINE_SEPARATOR)) {
       payload = payload.substring(0, len - LINE_SEPARATOR.length());
     }
