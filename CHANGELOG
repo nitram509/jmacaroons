@@ -2,6 +2,12 @@
 Changelog jmacaroons
 =====================
 
+Version 0.?.?
+--------------------------
+
+   * fixed: modifying macaroons also copies caveats
+
+
 Version 0.1.7 (2014-09-06)
 --------------------------
 

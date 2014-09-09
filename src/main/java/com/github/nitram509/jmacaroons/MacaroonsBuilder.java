@@ -100,7 +100,11 @@ public class MacaroonsBuilder {
    * @return {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
    */
   public static MacaroonsBuilder modify(Macaroon macaroon, String secretKey) {
-    return new MacaroonsBuilder(macaroon.location, secretKey, macaroon.identifier);
+    MacaroonsBuilder builder = new MacaroonsBuilder(macaroon.location, secretKey, macaroon.identifier);
+    if (macaroon.caveats != null && macaroon.caveats.length > 0) {
+      builder.caveats = macaroon.caveats;
+    }
+    return builder;
   }
 
   /**
