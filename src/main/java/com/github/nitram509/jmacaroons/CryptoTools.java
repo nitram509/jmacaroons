@@ -24,6 +24,8 @@ import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_HASH_BYTES;
+
 class CryptoTools {
 
   private static final String MAGIC_KEY = "macaroons-key-generator";
@@ -35,17 +37,21 @@ class CryptoTools {
   }
 
   static byte[] macaroon_hmac(byte[] key, String message) throws NoSuchAlgorithmException, InvalidKeyException {
-    Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-    SecretKeySpec secret_key = new SecretKeySpec(key, "HmacSHA256");
-    sha256_HMAC.init(secret_key);
-    return sha256_HMAC.doFinal(message.getBytes(UTF8));
+    return macaroon_hmac(key, message.getBytes(UTF8));
   }
 
-  static byte[] macaroon_hmac2(byte[] key, String message1, String message2) throws NoSuchAlgorithmException, InvalidKeyException {
+  static byte[] macaroon_hmac(byte[] key, byte[] message) throws NoSuchAlgorithmException, InvalidKeyException {
     Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
     SecretKeySpec secret_key = new SecretKeySpec(key, "HmacSHA256");
     sha256_HMAC.init(secret_key);
-    return sha256_HMAC.doFinal(message.getBytes(UTF8));
+    return sha256_HMAC.doFinal(message);
+  }
+
+  static byte[] macaroon_hash2(byte[] key, byte[] message1, byte[] message2) throws NoSuchAlgorithmException, InvalidKeyException {
+    byte[] tmp = new byte[2 * MACAROON_HASH_BYTES];
+    System.arraycopy(macaroon_hmac(key, message1), 0, tmp, 0, MACAROON_HASH_BYTES);
+    System.arraycopy(macaroon_hmac(key, message2), 0, tmp, MACAROON_HASH_BYTES, MACAROON_HASH_BYTES);
+    return macaroon_hmac(key, tmp);
   }
 
   public static void macaroon_secretbox(byte[] key, byte[] nonce, byte[] plaintext, byte[] ciphertext) throws GeneralSecurityRuntimeException {
