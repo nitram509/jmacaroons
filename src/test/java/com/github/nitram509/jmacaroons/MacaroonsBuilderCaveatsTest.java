@@ -48,6 +48,23 @@ public class MacaroonsBuilderCaveatsTest {
   }
 
   @Test
+  public void modify_also_copies_first_party_caveats() {
+    // given
+    m = new MacaroonsBuilder(location, secret, identifier)
+        .add_first_party_caveat("account = 3735928559")
+        .getMacaroon();
+
+    // when
+    m = MacaroonsBuilder.modify(m, secret)
+        .getMacaroon();
+
+    assertThat(m.identifier).isEqualTo(m.identifier);
+    assertThat(m.location).isEqualTo(m.location);
+    assertThat(m.caveats).isEqualTo(new String[]{"account = 3735928559"});
+    assertThat(m.signature).isEqualTo("1efe4763f290dbce0c1d08477367e11f4eee456a64933cf662d79772dbb82128");
+  }
+
+  @Test
   public void add_first_party_caveat_3_times() {
     m = new MacaroonsBuilder(location, secret, identifier)
         .add_first_party_caveat("account = 3735928559")
