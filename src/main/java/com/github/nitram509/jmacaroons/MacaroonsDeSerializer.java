@@ -28,7 +28,7 @@ import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 
 class MacaroonsDeSerializer {
 
-  private static final String HEX = "0123456789abcdef";
+  private static final String HEX_ALPHABET = "0123456789abcdef";
 
   private String location = null;
   private String identifier = null;
@@ -121,10 +121,10 @@ class MacaroonsDeSerializer {
 
   private static int parse_packet_header(byte[] lengthHeader) {
     int size = 0;
-    size += (HEX.indexOf(lengthHeader[0]) & 15) << 12;
-    size += (HEX.indexOf(lengthHeader[1]) & 15) << 8;
-    size += (HEX.indexOf(lengthHeader[2]) & 15) << 4;
-    size += (HEX.indexOf(lengthHeader[3]) & 15);
+    size += (HEX_ALPHABET.indexOf(lengthHeader[0]) & 15) << 12;
+    size += (HEX_ALPHABET.indexOf(lengthHeader[1]) & 15) << 8;
+    size += (HEX_ALPHABET.indexOf(lengthHeader[2]) & 15) << 4;
+    size += (HEX_ALPHABET.indexOf(lengthHeader[3]) & 15);
     return size;
   }
 

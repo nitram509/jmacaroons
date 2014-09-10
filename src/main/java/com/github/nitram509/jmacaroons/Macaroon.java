@@ -22,7 +22,7 @@ import java.util.Arrays;
 import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.KEY_VALUE_SEPARATOR;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.LINE_SEPARATOR;
-import static com.github.nitram509.jmacaroons.util.Hex.toHex;
+import static com.github.nitram509.jmacaroons.util.BinHex.bin2hex;
 
 /**
  * <p>
@@ -51,7 +51,7 @@ public class Macaroon implements Serializable {
     this.location = location;
     this.identifier = identifier;
     this.caveatPackets = caveats;
-    this.signature = toHex(signature);
+    this.signature = bin2hex(signature);
     this.signatureBytes = signature;
   }
 
