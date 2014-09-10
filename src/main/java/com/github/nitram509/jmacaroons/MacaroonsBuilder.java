@@ -110,7 +110,7 @@ public class MacaroonsBuilder {
    */
   public static MacaroonsBuilder modify(Macaroon macaroon, String secretKey) {
     MacaroonsBuilder builder = new MacaroonsBuilder(macaroon.location, secretKey, macaroon.identifier);
-    if (macaroon.caveats != null && macaroon.caveats.length > 0) {
+    if (macaroon.caveatPackets != null && macaroon.caveatPackets.length > 0) {
 //      builder.caveats = macaroon.caveats;
     }
     return builder;

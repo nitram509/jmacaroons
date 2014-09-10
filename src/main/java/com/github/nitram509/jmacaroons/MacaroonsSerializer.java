@@ -32,7 +32,7 @@ class MacaroonsSerializer {
   public static String serialize(Macaroon macaroon) {
     String serializedPackets = serialize_packet(createKeyValuePacket(Type.location, macaroon.location))
         + serialize_packet(createKeyValuePacket(Type.identifier, macaroon.identifier))
-        + serialize_caveats_packets(macaroon.caveats)
+        + serialize_caveats_packets(macaroon.caveatPackets)
         + serialize_packet(createKeyValuePacket(Type.signature, new String(macaroon.signatureBytes, ISO8859)));
     byte[] serializePacketBytes = serializedPackets.getBytes(ISO8859);
     return Base64.encodeToString(serializePacketBytes, false);

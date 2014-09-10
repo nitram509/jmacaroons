@@ -42,7 +42,7 @@ public class MacaroonsBuilder3rdPartyCaveatsTest {
 
     assertThat(m.identifier).isEqualTo(m.identifier);
     assertThat(m.location).isEqualTo(m.location);
-    assertThat(m.caveats).isEqualTo(new CaveatPacket[]{
+    assertThat(m.caveatPackets).isEqualTo(new CaveatPacket[]{
         new CaveatPacket(Type.cid, "account = 3735928559"),
         new CaveatPacket(Type.cid, identifier),
         new CaveatPacket(Type.vid, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA027FAuBYhtHwJ58FX6UlVNFtFsGxQHS7uD/w/dedwv4Jjw7UorCREw5rXbRqIKhr"),
