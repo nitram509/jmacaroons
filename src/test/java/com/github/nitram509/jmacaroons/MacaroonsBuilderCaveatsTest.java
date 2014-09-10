@@ -44,7 +44,7 @@ public class MacaroonsBuilderCaveatsTest {
 
     assertThat(m.identifier).isEqualTo(m.identifier);
     assertThat(m.location).isEqualTo(m.location);
-    assertThat(m.caveats).isEqualTo(new CaveatPacket[]{new CaveatPacket(Type.cid, "account = 3735928559")});
+    assertThat(m.caveatPackets).isEqualTo(new CaveatPacket[]{new CaveatPacket(Type.cid, "account = 3735928559")});
     assertThat(m.signature).isEqualTo("1efe4763f290dbce0c1d08477367e11f4eee456a64933cf662d79772dbb82128");
   }
 
@@ -61,7 +61,7 @@ public class MacaroonsBuilderCaveatsTest {
 
     assertThat(m.identifier).isEqualTo(m.identifier);
     assertThat(m.location).isEqualTo(m.location);
-    assertThat(m.caveats).isEqualTo(new CaveatPacket[]{new CaveatPacket(Type.cid, "account = 3735928559")});
+    assertThat(m.caveatPackets).isEqualTo(new CaveatPacket[]{new CaveatPacket(Type.cid, "account = 3735928559")});
     assertThat(m.signature).isEqualTo("1efe4763f290dbce0c1d08477367e11f4eee456a64933cf662d79772dbb82128");
   }
 
@@ -75,7 +75,7 @@ public class MacaroonsBuilderCaveatsTest {
 
     assertThat(m.identifier).isEqualTo(m.identifier);
     assertThat(m.location).isEqualTo(m.location);
-    assertThat(m.caveats).isEqualTo(new CaveatPacket[]{
+    assertThat(m.caveatPackets).isEqualTo(new CaveatPacket[]{
         new CaveatPacket(Type.cid, "account = 3735928559"),
         new CaveatPacket(Type.cid, "time < 2015-01-01T00:00"),
         new CaveatPacket(Type.cid, "email = alice@example.org")
@@ -93,7 +93,7 @@ public class MacaroonsBuilderCaveatsTest {
 
     assertThat(m.identifier).isEqualTo(m.identifier);
     assertThat(m.location).isEqualTo(m.location);
-    assertThat(m.caveats).isEqualTo(new CaveatPacket[]{
+    assertThat(m.caveatPackets).isEqualTo(new CaveatPacket[]{
         new CaveatPacket(Type.cid, "ä"),
         new CaveatPacket(Type.cid, "ü"),
         new CaveatPacket(Type.cid, "ö")

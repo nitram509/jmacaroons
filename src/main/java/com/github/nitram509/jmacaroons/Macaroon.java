@@ -20,7 +20,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
-import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.KEY_VALUE_SEPARATOR;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.LINE_SEPARATOR;
 import static com.github.nitram509.jmacaroons.util.Hex.toHex;
 
 /**
@@ -37,8 +38,6 @@ public class Macaroon implements Serializable {
 
   public final String location;
   public final String identifier;
-  public final String vid;
-  public final String cl;
   public final String signature;
   public final CaveatPacket[] caveatPackets;
 
@@ -49,34 +48,18 @@ public class Macaroon implements Serializable {
   }
 
   Macaroon(String location, String identifier, CaveatPacket[] caveats, byte[] signature) {
-    this(location, identifier, caveats, null, null, signature);
-  }
-
-  Macaroon(String location, String identifier, CaveatPacket[] caveats, String vid, String cl, byte[] signature) {
     this.location = location;
     this.identifier = identifier;
     this.caveatPackets = caveats;
     this.signature = toHex(signature);
     this.signatureBytes = signature;
-    this.vid = vid;
-    this.cl = cl;
   }
 
   public String inspect() {
-    return createLocationPacket(location)
-        + createIdentifierPacket(identifier)
+    return createKeyValuePacket(Type.location, location)
+        + createKeyValuePacket(Type.identifier, identifier)
         + createCaveatsPackets(this.caveatPackets)
-        + createVidPacket(vid)
-        + createClPacket(vid)
-        + createSignaturePacket(signature);
-  }
-
-  private String createLocationPacket(String location) {
-    return createKeyValuePacket(Type.location, location);
-  }
-
-  private String createIdentifierPacket(String identifier) {
-    return createKeyValuePacket(Type.identifier, identifier);
+        + createKeyValuePacket(Type.signature, signature);
   }
 
   private String createCaveatsPackets(CaveatPacket[] caveats) {
@@ -86,18 +69,6 @@ public class Macaroon implements Serializable {
       sb.append(createKeyValuePacket(packet.type, packet.value));
     }
     return sb.toString();
-  }
-
-  private String createVidPacket(String value) {
-    return createKeyValuePacket(Type.vid, value);
-  }
-
-  private String createClPacket(String value) {
-    return createKeyValuePacket(Type.cl, value);
-  }
-
-  private String createSignaturePacket(String value) {
-    return createKeyValuePacket(Type.signature, value);
   }
 
   private String createKeyValuePacket(Type type, String value) {
@@ -116,11 +87,9 @@ public class Macaroon implements Serializable {
     Macaroon macaroon = (Macaroon) o;
 
     if (!Arrays.equals(caveatPackets, macaroon.caveatPackets)) return false;
-    if (cl != null ? !cl.equals(macaroon.cl) : macaroon.cl != null) return false;
     if (identifier != null ? !identifier.equals(macaroon.identifier) : macaroon.identifier != null) return false;
     if (location != null ? !location.equals(macaroon.location) : macaroon.location != null) return false;
     if (signature != null ? !signature.equals(macaroon.signature) : macaroon.signature != null) return false;
-    if (vid != null ? !vid.equals(macaroon.vid) : macaroon.vid != null) return false;
 
     return true;
   }
@@ -129,8 +98,6 @@ public class Macaroon implements Serializable {
   public int hashCode() {
     int result = location != null ? location.hashCode() : 0;
     result = 31 * result + (identifier != null ? identifier.hashCode() : 0);
-    result = 31 * result + (vid != null ? vid.hashCode() : 0);
-    result = 31 * result + (cl != null ? cl.hashCode() : 0);
     result = 31 * result + (signature != null ? signature.hashCode() : 0);
     result = 31 * result + (caveatPackets != null ? Arrays.hashCode(caveatPackets) : 0);
     return result;
