@@ -111,6 +111,7 @@ public class MacaroonsBuilder {
   public static MacaroonsBuilder modify(Macaroon macaroon, String secretKey) {
     MacaroonsBuilder builder = new MacaroonsBuilder(macaroon.location, secretKey, macaroon.identifier);
     if (macaroon.caveatPackets != null && macaroon.caveatPackets.length > 0) {
+      // TODO ... rework the whole builder ...
 //      builder.caveats = macaroon.caveats;
     }
     return builder;
