@@ -56,10 +56,10 @@ public class MacaroonsVerifier {
       byte[] key = generate_derived_key(secret);
       byte[] hmac = macaroon_hmac(key, macaroon.identifier);
       if (macaroon.caveats != null) {
-        for (String caveat : macaroon.caveats) {
+        for (CaveatPacket caveat : macaroon.caveats) {
           if (caveat != null) {
-            if (containsElement(predicates, caveat) || verifiesGeneral(caveat)) {
-              hmac = macaroon_hmac(hmac, caveat);
+            if (containsElement(predicates, caveat.value) || verifiesGeneral(caveat.value)) {
+              hmac = macaroon_hmac(hmac, caveat.value);
             }
           }
         }

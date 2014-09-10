@@ -20,6 +20,7 @@ import com.github.nitram509.jmacaroons.util.Base64;
 
 import java.nio.charset.Charset;
 
+import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 
 class MacaroonsSerializer {
@@ -29,18 +30,18 @@ class MacaroonsSerializer {
   static final Charset ISO8859 = Charset.forName("ISO8859-1");
 
   public static String serialize(Macaroon macaroon) {
-    String serializedPackets = serialize_packet(createKeyValuePacket(LOCATION, macaroon.location))
-        + serialize_packet(createKeyValuePacket(MacaroonsConstants.IDENTIFIER, macaroon.identifier))
+    String serializedPackets = serialize_packet(createKeyValuePacket(Type.location, macaroon.location))
+        + serialize_packet(createKeyValuePacket(Type.identifier, macaroon.identifier))
         + serialize_caveats_packets(macaroon.caveats)
-        + serialize_packet(createKeyValuePacket(SIGNATURE, new String(macaroon.signatureBytes, ISO8859)));
+        + serialize_packet(createKeyValuePacket(Type.signature, new String(macaroon.signatureBytes, ISO8859)));
     byte[] serializePacketBytes = serializedPackets.getBytes(ISO8859);
     return Base64.encodeToString(serializePacketBytes, false);
   }
 
-  private static String serialize_caveats_packets(String[] caveats) {
+  private static String serialize_caveats_packets(CaveatPacket[] caveats) {
     StringBuilder sb = new StringBuilder();
-    for (String caveat : caveats) {
-      sb.append(serialize_packet(createKeyValuePacket(CID, caveat)));
+    for (CaveatPacket caveat : caveats) {
+      sb.append(serialize_packet(createKeyValuePacket(Type.cid, caveat.value)));
     }
     return sb.toString();
   }
@@ -49,8 +50,8 @@ class MacaroonsSerializer {
     return packet_header(data.length() + PACKET_PREFIX_LENGTH + LINE_SEPARATOR.length()) + data + LINE_SEPARATOR;
   }
 
-  private static String createKeyValuePacket(String key, String value) {
-    return key + KEY_VALUE_SEPARATOR + value;
+  private static String createKeyValuePacket(Type type, String value) {
+    return type.name() + KEY_VALUE_SEPARATOR + value;
   }
 
   private static String packet_header(int size) {
