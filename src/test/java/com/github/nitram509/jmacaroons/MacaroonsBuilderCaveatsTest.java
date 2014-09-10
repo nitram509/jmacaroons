@@ -56,7 +56,7 @@ public class MacaroonsBuilderCaveatsTest {
         .getMacaroon();
 
     // when
-    m = MacaroonsBuilder.modify(m, secret)
+    m = MacaroonsBuilder.modify(m)
         .getMacaroon();
 
     assertThat(m.identifier).isEqualTo(m.identifier);

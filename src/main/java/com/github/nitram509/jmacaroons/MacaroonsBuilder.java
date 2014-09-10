@@ -16,10 +16,10 @@
 
 package com.github.nitram509.jmacaroons;
 
+import com.github.nitram509.jmacaroons.util.ArrayTools;
+
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.github.nitram509.jmacaroons.CryptoTools.*;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_CAVEATS;
@@ -36,20 +36,24 @@ import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_ST
  */
 public class MacaroonsBuilder {
 
-  private String location;
-  private String secretKey;
-  private String identifier;
-  private List<Caveat1stParty> caveats = new ArrayList<Caveat1stParty>(8);
+  private Macaroon macaroon = null;
 
   /**
    * @param location   location
    * @param secretKey  secretKey
    * @param identifier identifier
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
-  public MacaroonsBuilder(String location, String secretKey, String identifier) {
-    this.location = location;
-    this.secretKey = secretKey;
-    this.identifier = identifier;
+  public MacaroonsBuilder(String location, String secretKey, String identifier) throws GeneralSecurityRuntimeException {
+    this.macaroon = computetMacaroon(location, secretKey, identifier);
+  }
+
+  /**
+   * @param macaroon macaroon to modify
+   */
+  public MacaroonsBuilder(Macaroon macaroon) {
+    assert macaroon != null;
+    this.macaroon = macaroon;
   }
 
   /**
@@ -59,7 +63,15 @@ public class MacaroonsBuilder {
    * @return {@link com.github.nitram509.jmacaroons.Macaroon}
    */
   public static Macaroon create(String location, String secretKey, String identifier) {
-    return new MacaroonsBuilder(location, secretKey, identifier).getMacaroon();
+    return computetMacaroon(location, secretKey, identifier);
+  }
+
+  /**
+   * @param macaroon macaroon
+   * @return {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
+   */
+  public static MacaroonsBuilder modify(Macaroon macaroon) {
+    return new MacaroonsBuilder(macaroon);
   }
 
   /**
@@ -73,62 +85,32 @@ public class MacaroonsBuilder {
 
   /**
    * @return a {@link com.github.nitram509.jmacaroons.Macaroon}
-   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
-  public Macaroon getMacaroon() throws GeneralSecurityRuntimeException {
-    assert location.length() < MACAROON_MAX_STRLEN;
-    assert identifier.length() < MACAROON_MAX_STRLEN;
-    List<CaveatPacket> packets = new ArrayList<CaveatPacket>(caveats.size() * 3);
-    try {
-      byte[] key = generate_derived_key(secretKey);
-      byte[] hash = macaroon_hmac(key, identifier);
-      for (Caveat1stParty caveat : caveats) {
-        if (caveat instanceof Caveat3rdParty) {
-          Caveat3rdParty c3 = (Caveat3rdParty) caveat;
-          ThirdPartyPacket thirdPartyPacket = macaroon_add_third_party_caveat_raw(hash, c3.secret, c3.identifier);
-          hash = thirdPartyPacket.hash;
-          packets.add(new CaveatPacket(CaveatPacket.Type.cid, c3.identifier));
-          packets.add(new CaveatPacket(CaveatPacket.Type.vid, thirdPartyPacket.vid));
-          packets.add(new CaveatPacket(CaveatPacket.Type.cl, c3.location));
-        } else {
-          hash = macaroon_hmac(hash, caveat.identifier);
-          packets.add(new CaveatPacket(CaveatPacket.Type.cid, caveat.identifier));
-        }
-      }
-      return new Macaroon(location, identifier, packets.toArray(new CaveatPacket[packets.size()]), hash);
-    } catch (InvalidKeyException e) {
-      throw new GeneralSecurityRuntimeException(e);
-    } catch (NoSuchAlgorithmException e) {
-      throw new GeneralSecurityRuntimeException(e);
-    }
-  }
-
-  /**
-   * @param macaroon  macaroon
-   * @param secretKey secretKey
-   * @return {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
-   */
-  public static MacaroonsBuilder modify(Macaroon macaroon, String secretKey) {
-    MacaroonsBuilder builder = new MacaroonsBuilder(macaroon.location, secretKey, macaroon.identifier);
-    if (macaroon.caveatPackets != null && macaroon.caveatPackets.length > 0) {
-      // TODO ... rework the whole builder ...
-//      builder.caveats = macaroon.caveats;
-    }
-    return builder;
+  public Macaroon getMacaroon() {
+    return macaroon;
   }
 
   /**
    * @param caveat caveat
    * @return this {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
-   * @throws IllegalStateException if there are more than {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_MAX_CAVEATS} caveats.
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   * @throws IllegalStateException                                           if there are more than {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_MAX_CAVEATS} caveats.
    */
-  public MacaroonsBuilder add_first_party_caveat(String caveat) throws IllegalStateException {
+  public MacaroonsBuilder add_first_party_caveat(String caveat) throws IllegalStateException, GeneralSecurityRuntimeException {
     if (caveat != null) {
       assert caveat.length() < MACAROON_MAX_STRLEN;
-      if (this.caveats.size() + 1 > MACAROON_MAX_CAVEATS) {
+      if (this.macaroon.caveatPackets.length + 1 > MACAROON_MAX_CAVEATS) {
         throw new IllegalStateException("Too many caveats. There are max. " + MACAROON_MAX_CAVEATS + " caveats allowed.");
       }
-      this.caveats.add(new Caveat1stParty(caveat));
+      try {
+        byte[] hash = macaroon_hmac(macaroon.signatureBytes, caveat);
+        CaveatPacket[] caveatsExtended = ArrayTools.appendToArray(macaroon.caveatPackets, new CaveatPacket(CaveatPacket.Type.cid, caveat));
+        this.macaroon = new Macaroon(macaroon.location, macaroon.identifier, caveatsExtended, hash);
+      } catch (InvalidKeyException e) {
+        throw new GeneralSecurityRuntimeException(e);
+      } catch (NoSuchAlgorithmException e) {
+        throw new GeneralSecurityRuntimeException(e);
+      }
     }
     return this;
   }
@@ -138,35 +120,45 @@ public class MacaroonsBuilder {
    * @param secret     secret
    * @param identifier identifier
    * @return this {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
-   * @throws IllegalStateException if there are more than {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_MAX_CAVEATS} caveats.
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   * @throws IllegalStateException                                           if there are more than {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_MAX_CAVEATS} caveats.
    */
-  public MacaroonsBuilder add_third_party_caveat(String location, String secret, String identifier) throws IllegalStateException {
+  public MacaroonsBuilder add_third_party_caveat(String location, String secret, String identifier) throws IllegalStateException, GeneralSecurityRuntimeException {
     assert location.length() < MACAROON_MAX_STRLEN;
     assert identifier.length() < MACAROON_MAX_STRLEN;
 
-    if (this.caveats.size() + 1 > MACAROON_MAX_CAVEATS) {
+    if (this.macaroon.caveatPackets.length + 1 > MACAROON_MAX_CAVEATS) {
       throw new IllegalStateException("Too many caveats. There are max. " + MACAROON_MAX_CAVEATS + " caveats allowed.");
     }
-    this.caveats.add(new Caveat3rdParty(location, secret, identifier));
+    try {
+      ThirdPartyPacket thirdPartyPacket = macaroon_add_third_party_caveat_raw(macaroon.signatureBytes, secret, identifier);
+      byte[] hash = thirdPartyPacket.hash;
+      CaveatPacket[] caveatsExtended = ArrayTools.appendToArray(macaroon.caveatPackets,
+          new CaveatPacket(CaveatPacket.Type.cid, identifier),
+          new CaveatPacket(CaveatPacket.Type.vid, thirdPartyPacket.vid),
+          new CaveatPacket(CaveatPacket.Type.cl, location)
+      );
+      this.macaroon = new Macaroon(macaroon.location, macaroon.identifier, caveatsExtended, hash);
+    } catch (InvalidKeyException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    } catch (NoSuchAlgorithmException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    }
     return this;
   }
 
-  private static class Caveat1stParty {
-    final String identifier;
-
-    public Caveat1stParty(String caveat) {
-      this.identifier = caveat;
+  private static Macaroon computetMacaroon(String location, String secretKey, String identifier) throws GeneralSecurityRuntimeException {
+    assert location.length() < MACAROON_MAX_STRLEN;
+    assert identifier.length() < MACAROON_MAX_STRLEN;
+    try {
+      byte[] key = generate_derived_key(secretKey);
+      byte[] hash = macaroon_hmac(key, identifier);
+      return new Macaroon(location, identifier, hash);
+    } catch (InvalidKeyException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    } catch (NoSuchAlgorithmException e) {
+      throw new GeneralSecurityRuntimeException(e);
     }
   }
 
-  private static class Caveat3rdParty extends Caveat1stParty {
-    final String location;
-    final String secret;
-
-    private Caveat3rdParty(String location, String secret, String identifier) {
-      super(identifier);
-      this.location = location;
-      this.secret = secret;
-    }
-  }
 }
