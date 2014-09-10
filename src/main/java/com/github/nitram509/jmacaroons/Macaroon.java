@@ -40,7 +40,7 @@ public class Macaroon implements Serializable {
   public final String vid;
   public final String cl;
   public final String signature;
-  public final CaveatPacket[] caveats;
+  public final CaveatPacket[] caveatPackets;
 
   final byte[] signatureBytes;
 
@@ -55,7 +55,7 @@ public class Macaroon implements Serializable {
   Macaroon(String location, String identifier, CaveatPacket[] caveats, String vid, String cl, byte[] signature) {
     this.location = location;
     this.identifier = identifier;
-    this.caveats = caveats;
+    this.caveatPackets = caveats;
     this.signature = toHex(signature);
     this.signatureBytes = signature;
     this.vid = vid;
@@ -65,7 +65,7 @@ public class Macaroon implements Serializable {
   public String inspect() {
     return createLocationPacket(location)
         + createIdentifierPacket(identifier)
-        + createCaveatsPackets(this.caveats)
+        + createCaveatsPackets(this.caveatPackets)
         + createVidPacket(vid)
         + createClPacket(vid)
         + createSignaturePacket(signature);
@@ -115,7 +115,7 @@ public class Macaroon implements Serializable {
 
     Macaroon macaroon = (Macaroon) o;
 
-    if (!Arrays.equals(caveats, macaroon.caveats)) return false;
+    if (!Arrays.equals(caveatPackets, macaroon.caveatPackets)) return false;
     if (cl != null ? !cl.equals(macaroon.cl) : macaroon.cl != null) return false;
     if (identifier != null ? !identifier.equals(macaroon.identifier) : macaroon.identifier != null) return false;
     if (location != null ? !location.equals(macaroon.location) : macaroon.location != null) return false;
@@ -132,7 +132,7 @@ public class Macaroon implements Serializable {
     result = 31 * result + (vid != null ? vid.hashCode() : 0);
     result = 31 * result + (cl != null ? cl.hashCode() : 0);
     result = 31 * result + (signature != null ? signature.hashCode() : 0);
-    result = 31 * result + (caveats != null ? Arrays.hashCode(caveats) : 0);
+    result = 31 * result + (caveatPackets != null ? Arrays.hashCode(caveatPackets) : 0);
     return result;
   }
 }
