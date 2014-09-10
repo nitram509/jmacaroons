@@ -52,7 +52,7 @@ class CryptoTools {
     return macaroon_hmac(key, tmp);
   }
 
-  static byte[] macaroon_add_third_party_caveat_raw(byte[] hash, String key, String identifier) throws InvalidKeyException, NoSuchAlgorithmException {
+  static ThirdPartyPacket macaroon_add_third_party_caveat_raw(byte[] hash, String key, String identifier) throws InvalidKeyException, NoSuchAlgorithmException {
     byte[] derived_key = generate_derived_key(key);
 
     byte[] enc_plaintext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
@@ -67,13 +67,24 @@ class CryptoTools {
     System.arraycopy(enc_ciphertext, MACAROON_SECRET_BOX_ZERO_BYTES, vid, MACAROON_SECRET_NONCE_BYTES, VID_NONCE_KEY_SZ - MACAROON_SECRET_NONCE_BYTES);
     byte[] vidAsBase64 = Base64.encodeToByte(vid, 0, VID_NONCE_KEY_SZ, false);
 
-    return macaroon_hash2(hash, vidAsBase64, identifier.getBytes(IDENTIFIER_CHARSET));
+    byte[] hashNew = macaroon_hash2(hash, vidAsBase64, identifier.getBytes(IDENTIFIER_CHARSET));
+    return new ThirdPartyPacket(hashNew, new String(vidAsBase64,MacaroonsConstants.IDENTIFIER_CHARSET));
   }
 
   private static void macaroon_secretbox(byte[] key, byte[] nonce, byte[] plaintext, byte[] ciphertext) throws GeneralSecurityRuntimeException {
     int err_code = xsalsa20poly1305.crypto_secretbox(ciphertext, plaintext, plaintext.length, nonce, key);
     if (err_code != 0) {
       throw new GeneralSecurityRuntimeException("Error while creating secret box. err_code=" + err_code);
+    }
+  }
+
+  static class ThirdPartyPacket {
+    final byte[] hash;
+    final String vid;
+
+    ThirdPartyPacket(byte[] hash,  String vid) {
+      this.hash = hash;
+      this.vid = vid;
     }
   }
 }

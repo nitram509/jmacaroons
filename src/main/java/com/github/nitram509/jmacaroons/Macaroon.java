@@ -19,6 +19,7 @@ package com.github.nitram509.jmacaroons;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 import static com.github.nitram509.jmacaroons.util.Hex.toHex;
 
@@ -39,19 +40,19 @@ public class Macaroon implements Serializable {
   public final String vid;
   public final String cl;
   public final String signature;
-  public final String[] caveats;
+  public final CaveatPacket[] caveats;
 
   final byte[] signatureBytes;
 
   Macaroon(String location, String identifier, byte[] signature) {
-    this(location, identifier, new String[0], signature);
+    this(location, identifier, new CaveatPacket[0], signature);
   }
 
-  Macaroon(String location, String identifier, String[] caveats, byte[] signature) {
+  Macaroon(String location, String identifier, CaveatPacket[] caveats, byte[] signature) {
     this(location, identifier, caveats, null, null, signature);
   }
 
-  Macaroon(String location, String identifier, String[] caveats, String vid, String cl, byte[] signature) {
+  Macaroon(String location, String identifier, CaveatPacket[] caveats, String vid, String cl, byte[] signature) {
     this.location = location;
     this.identifier = identifier;
     this.caveats = caveats;
@@ -71,36 +72,36 @@ public class Macaroon implements Serializable {
   }
 
   private String createLocationPacket(String location) {
-    return createKeyValuePacket(LOCATION, location);
+    return createKeyValuePacket(Type.location, location);
   }
 
   private String createIdentifierPacket(String identifier) {
-    return createKeyValuePacket(IDENTIFIER, identifier);
+    return createKeyValuePacket(Type.identifier, identifier);
   }
 
-  private String createCaveatsPackets(String[] caveats) {
+  private String createCaveatsPackets(CaveatPacket[] caveats) {
     if (caveats == null) return "";
     StringBuilder sb = new StringBuilder();
-    for (String caveat : caveats) {
-      sb.append(createKeyValuePacket(CID, caveat));
+    for (CaveatPacket packet : caveats) {
+      sb.append(createKeyValuePacket(packet.type, packet.value));
     }
     return sb.toString();
   }
 
   private String createVidPacket(String value) {
-    return createKeyValuePacket(VID, value);
+    return createKeyValuePacket(Type.vid, value);
   }
 
   private String createClPacket(String value) {
-    return createKeyValuePacket(CL, value);
+    return createKeyValuePacket(Type.cl, value);
   }
 
   private String createSignaturePacket(String value) {
-    return createKeyValuePacket(SIGNATURE, value);
+    return createKeyValuePacket(Type.signature, value);
   }
 
-  private String createKeyValuePacket(String key, String value) {
-    return value != null ? key + KEY_VALUE_SEPARATOR + value + LINE_SEPARATOR : "";
+  private String createKeyValuePacket(Type type, String value) {
+    return value != null ? type.name() + KEY_VALUE_SEPARATOR + value + LINE_SEPARATOR : "";
   }
 
   public String serialize() {

@@ -19,6 +19,7 @@ package com.github.nitram509.jmacaroons;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class MacaroonsBuilderCaveatsTest {
@@ -43,7 +44,7 @@ public class MacaroonsBuilderCaveatsTest {
 
     assertThat(m.identifier).isEqualTo(m.identifier);
     assertThat(m.location).isEqualTo(m.location);
-    assertThat(m.caveats).isEqualTo(new String[]{"account = 3735928559"});
+    assertThat(m.caveats).isEqualTo(new CaveatPacket[]{new CaveatPacket(Type.cid, "account = 3735928559")});
     assertThat(m.signature).isEqualTo("1efe4763f290dbce0c1d08477367e11f4eee456a64933cf662d79772dbb82128");
   }
 
@@ -60,7 +61,7 @@ public class MacaroonsBuilderCaveatsTest {
 
     assertThat(m.identifier).isEqualTo(m.identifier);
     assertThat(m.location).isEqualTo(m.location);
-    assertThat(m.caveats).isEqualTo(new String[]{"account = 3735928559"});
+    assertThat(m.caveats).isEqualTo(new CaveatPacket[]{new CaveatPacket(Type.cid, "account = 3735928559")});
     assertThat(m.signature).isEqualTo("1efe4763f290dbce0c1d08477367e11f4eee456a64933cf662d79772dbb82128");
   }
 
@@ -74,7 +75,11 @@ public class MacaroonsBuilderCaveatsTest {
 
     assertThat(m.identifier).isEqualTo(m.identifier);
     assertThat(m.location).isEqualTo(m.location);
-    assertThat(m.caveats).isEqualTo(new String[]{"account = 3735928559", "time < 2015-01-01T00:00", "email = alice@example.org"});
+    assertThat(m.caveats).isEqualTo(new CaveatPacket[]{
+        new CaveatPacket(Type.cid, "account = 3735928559"),
+        new CaveatPacket(Type.cid, "time < 2015-01-01T00:00"),
+        new CaveatPacket(Type.cid, "email = alice@example.org")
+    });
     assertThat(m.signature).isEqualTo("882e6d59496ed5245edb7ab5b8839ecd63e5d504e54839804f164070d8eed952");
   }
 
@@ -88,7 +93,11 @@ public class MacaroonsBuilderCaveatsTest {
 
     assertThat(m.identifier).isEqualTo(m.identifier);
     assertThat(m.location).isEqualTo(m.location);
-    assertThat(m.caveats).isEqualTo(new String[]{"ä", "ü", "ö"});
+    assertThat(m.caveats).isEqualTo(new CaveatPacket[]{
+        new CaveatPacket(Type.cid, "ä"),
+        new CaveatPacket(Type.cid, "ü"),
+        new CaveatPacket(Type.cid, "ö")
+    });
     assertThat(m.signature).isEqualTo("e38cce985a627fbfaea3490ca184fb8c59ec2bd14f0adc3b5035156e94daa111");
   }
 
