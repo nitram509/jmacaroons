@@ -5,7 +5,9 @@ Changelog jmacaroons
 Version 0.?.?
 --------------------------
 
+   + Added: adding third party caveats to macaroons is possible
    * fixed: modifying macaroons also copies caveats
+   * reworked macaroon structure, using caveat packets
 
 
 Version 0.1.7 (2014-09-06)
