@@ -207,4 +207,4 @@ Third Party Caveats
 ---------------------
 
 Work in progress ...
-see git branch [![3rd-party-caveats](https://github.com/nitram509/jmacaroons/tree/3rd-party-caveats)]
+see git branch [3rd-party-caveats](https://github.com/nitram509/jmacaroons/tree/3rd-party-caveats)
