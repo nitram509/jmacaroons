@@ -22,6 +22,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 import static com.github.nitram509.jmacaroons.CryptoTools.*;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_HASH_BYTES;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_CAVEATS;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_STRLEN;
 
@@ -45,7 +46,7 @@ public class MacaroonsBuilder {
    * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
   public MacaroonsBuilder(String location, String secretKey, String identifier) throws GeneralSecurityRuntimeException {
-    this.macaroon = computetMacaroon(location, secretKey, identifier);
+    this.macaroon = computeMacaroon(location, secretKey, identifier);
   }
 
   /**
@@ -63,7 +64,7 @@ public class MacaroonsBuilder {
    * @return {@link com.github.nitram509.jmacaroons.Macaroon}
    */
   public static Macaroon create(String location, String secretKey, String identifier) {
-    return computetMacaroon(location, secretKey, identifier);
+    return computeMacaroon(location, secretKey, identifier);
   }
 
   /**
@@ -134,9 +135,9 @@ public class MacaroonsBuilder {
       ThirdPartyPacket thirdPartyPacket = macaroon_add_third_party_caveat_raw(macaroon.signatureBytes, secret, identifier);
       byte[] hash = thirdPartyPacket.hash;
       CaveatPacket[] caveatsExtended = ArrayTools.appendToArray(macaroon.caveatPackets,
-          new CaveatPacket(CaveatPacket.Type.cid, identifier),
-          new CaveatPacket(CaveatPacket.Type.vid, thirdPartyPacket.vid),
-          new CaveatPacket(CaveatPacket.Type.cl, location)
+              new CaveatPacket(CaveatPacket.Type.cid, identifier),
+              new CaveatPacket(CaveatPacket.Type.vid, thirdPartyPacket.vid),
+              new CaveatPacket(CaveatPacket.Type.cl, location)
       );
       this.macaroon = new Macaroon(macaroon.location, macaroon.identifier, caveatsExtended, hash);
     } catch (InvalidKeyException e) {
@@ -147,7 +148,25 @@ public class MacaroonsBuilder {
     return this;
   }
 
-  private static Macaroon computetMacaroon(String location, String secretKey, String identifier) throws GeneralSecurityRuntimeException {
+  public Macaroon prepare_for_request(Macaroon macaroon) {
+    assert macaroon.signatureBytes.length > 0;
+    assert getMacaroon().signatureBytes.length > 0;
+    byte[] hash = macaroon_bind(getMacaroon().signatureBytes, macaroon.signatureBytes);
+    return new Macaroon(macaroon.location, macaroon.identifier, macaroon.caveatPackets, hash);
+  }
+
+  private static byte[] macaroon_bind(byte[] Msig, byte[] MPsig) {
+    byte[] key = new byte[MACAROON_HASH_BYTES];
+    try {
+      return CryptoTools.macaroon_hash2(key, Msig, MPsig);
+    } catch (NoSuchAlgorithmException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    } catch (InvalidKeyException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    }
+  }
+
+  private static Macaroon computeMacaroon(String location, String secretKey, String identifier) throws GeneralSecurityRuntimeException {
     assert location.length() < MACAROON_MAX_STRLEN;
     assert identifier.length() < MACAROON_MAX_STRLEN;
     try {
