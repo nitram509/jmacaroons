@@ -63,8 +63,8 @@ public class MacaroonsVerifierTest {
   @Test
   public void verification_satisfy_exact_first_party_caveat() {
     m = new MacaroonsBuilder(location, secret, identifier)
-        .add_first_party_caveat("account = 3735928559")
-        .getMacaroon();
+            .add_first_party_caveat("account = 3735928559")
+            .getMacaroon();
 
     MacaroonsVerifier verifier = new MacaroonsVerifier(m);
     assertThat(verifier.isValid(secret)).isFalse();
@@ -76,9 +76,9 @@ public class MacaroonsVerifierTest {
   @Test
   public void verification_satisfy_exact_required_first_party_caveat_() {
     m = new MacaroonsBuilder(location, secret, identifier)
-        .add_first_party_caveat("account = 3735928559")
-        .add_first_party_caveat("credit_allowed = true")
-        .getMacaroon();
+            .add_first_party_caveat("account = 3735928559")
+            .add_first_party_caveat("credit_allowed = true")
+            .getMacaroon();
 
     MacaroonsVerifier verifier = new MacaroonsVerifier(m);
     assertThat(verifier.isValid(secret)).isFalse();
@@ -90,8 +90,8 @@ public class MacaroonsVerifierTest {
   @Test
   public void verification_satisfy_exact_attenuate_with_additional_caveats() {
     m = new MacaroonsBuilder(location, secret, identifier)
-        .add_first_party_caveat("account = 3735928559")
-        .getMacaroon();
+            .add_first_party_caveat("account = 3735928559")
+            .getMacaroon();
 
     MacaroonsVerifier verifier = new MacaroonsVerifier(m);
     assertThat(verifier.isValid(secret)).isFalse();
@@ -106,8 +106,8 @@ public class MacaroonsVerifierTest {
   @Test
   public void verification_general() {
     m = new MacaroonsBuilder(location, secret, identifier)
-        .add_first_party_caveat("time < " + createTimeStamp1WeekInFuture())
-        .getMacaroon();
+            .add_first_party_caveat("time < " + createTimeStamp1WeekInFuture())
+            .getMacaroon();
 
     MacaroonsVerifier verifier = new MacaroonsVerifier(m);
     assertThat(verifier.isValid(secret)).isFalse();

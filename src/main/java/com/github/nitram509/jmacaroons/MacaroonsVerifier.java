@@ -16,6 +16,7 @@
 
 package com.github.nitram509.jmacaroons;
 
+import javax.crypto.Mac;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -121,4 +122,5 @@ public class MacaroonsVerifier {
   public Macaroon getMacaroon() {
     return macaroon;
   }
+
 }
