@@ -24,16 +24,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 
 class MacaroonsDeSerializer {
 
   private static final String HEX_ALPHABET = "0123456789abcdef";
-
-  private String location = null;
-  private String identifier = null;
-  private List<String> caveats = new ArrayList<String>(3);
-  private byte[] signature = null;
 
   public static Macaroon deserialize(String serializedMacaroon) throws NotDeSerializableException {
     assert serializedMacaroon != null;
@@ -47,13 +43,18 @@ class MacaroonsDeSerializer {
     }
     InputStream stream = new ByteArrayInputStream(bytes);
     try {
-      return new MacaroonsDeSerializer().deserializeStream(stream);
+      return deserializeStream(stream);
     } catch (IOException e) {
       throw new NotDeSerializableException(e);
     }
   }
 
-  private Macaroon deserializeStream(InputStream stream) throws IOException {
+  private static Macaroon deserializeStream(InputStream stream) throws IOException {
+    String location = null;
+    String identifier = null;
+    List<CaveatPacket> caveats = new ArrayList<CaveatPacket>(3);
+    byte[] signature = null;
+
     for (Packet packet; (packet = read_packet(stream)) != null; ) {
       if (bytesStartWith(packet.data, LOCATION_BYTES)) {
         location = parsePacket(packet, LOCATION_BYTES);
@@ -62,7 +63,16 @@ class MacaroonsDeSerializer {
         identifier = parsePacket(packet, IDENTIFIER_BYTES);
       }
       if (bytesStartWith(packet.data, CID_BYTES)) {
-        caveats.add(parsePacket(packet, CID_BYTES));
+        String s = parsePacket(packet, CID_BYTES);
+        caveats.add(new CaveatPacket(Type.cid, s));
+      }
+      if (bytesStartWith(packet.data, CL_BYTES)) {
+        String s = parsePacket(packet, CL_BYTES);
+        caveats.add(new CaveatPacket(Type.cl, s));
+      }
+      if (bytesStartWith(packet.data, VID_BYTES)) {
+        String s = parsePacket(packet, VID_BYTES);
+        caveats.add(new CaveatPacket(Type.vid, s));
       }
       if (bytesStartWith(packet.data, SIGNATURE_BYTES)) {
         signature = parseSignature(packet, SIGNATURE_BYTES);

@@ -45,6 +45,36 @@ public class MacaroonsDeSerializerTest {
     assertThat(m).isEqualTo(deserialized);
   }
 
+  @Test
+  public void Macaroon_with_1st_party_caveat_can_be_deserialized() {
+    m = new MacaroonsBuilder(location, secret, identifier)
+            .add_first_party_caveat("account = 3735928559")
+            .getMacaroon();
+    String serialized = m.serialize();
+
+    Macaroon deserialized = MacaroonsDeSerializer.deserialize(serialized);
+
+    assertThat(m).isEqualTo(deserialized);
+  }
+
+  @Test
+  public void Macaroon_with_3rd_party_caveat_can_be_deserialized() {
+    m = new MacaroonsBuilder(location, secret, identifier)
+            .add_first_party_caveat("account = 3735928559")
+            .add_third_party_caveat("http://auth.mybank/", "SECRET for 3rd party caveat", identifier)
+            .getMacaroon();
+    String serialized = m.serialize();
+
+    Macaroon deserialized = MacaroonsDeSerializer.deserialize(serialized);
+
+    assertThat(deserialized.identifier).isEqualTo(m.identifier);
+    assertThat(deserialized.location).isEqualTo(m.location);
+    assertThat(deserialized.signature).isEqualTo(m.signature);
+    assertThat(deserialized.signatureBytes).isEqualTo(m.signatureBytes);
+    assertThat(deserialized.caveatPackets).isEqualTo(m.caveatPackets);
+    assertThat(deserialized).isEqualTo(m);
+  }
+
   @Test(expectedExceptions = NotDeSerializableException.class, expectedExceptionsMessageRegExp = ".*Invalid base64 string representation.*")
   public void invalid_base64_throws_NotDeSerializableException() {
     MacaroonsDeSerializer.deserialize("foobar");
