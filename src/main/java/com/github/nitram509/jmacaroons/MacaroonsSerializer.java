@@ -36,7 +36,7 @@ class MacaroonsSerializer {
   private static final Charset UTF8 = Charset.forName("UTF-8");
 
   public static String serialize(Macaroon macaroon) {
-    List<byte[]> packets = new ArrayList<byte[]>();
+    List<byte[]> packets = new ArrayList<byte[]>(3 + macaroon.caveatPackets.length);
     packets.add(serialize_packet(Type.location, macaroon.location));
     packets.add(serialize_packet(Type.identifier, macaroon.identifier));
     for (CaveatPacket caveatPacket : macaroon.caveatPackets) {
