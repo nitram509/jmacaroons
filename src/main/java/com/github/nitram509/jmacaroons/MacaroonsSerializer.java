@@ -19,49 +19,83 @@ package com.github.nitram509.jmacaroons;
 import com.github.nitram509.jmacaroons.util.Base64;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 
 class MacaroonsSerializer {
 
-  private static final char[] HEX = "0123456789abcdef".toCharArray();
+  private static final byte[] HEX = new byte[]{
+          '0', '1', '2', '3',
+          '4', '5', '6', '7',
+          '8', '9', 'a', 'b',
+          'c', 'd', 'e', 'f'};
 
-  static final Charset ISO8859 = Charset.forName("ISO8859-1");
+  private static final Charset UTF8 = Charset.forName("UTF-8");
 
   public static String serialize(Macaroon macaroon) {
-    String serializedPackets = serialize_packet(createKeyValuePacket(Type.location, macaroon.location))
-        + serialize_packet(createKeyValuePacket(Type.identifier, macaroon.identifier))
-        + serialize_caveats_packets(macaroon.caveatPackets)
-        + serialize_packet(createKeyValuePacket(Type.signature, new String(macaroon.signatureBytes, ISO8859)));
-    byte[] serializePacketBytes = serializedPackets.getBytes(ISO8859);
-    return Base64.encodeToString(serializePacketBytes, false);
-  }
-
-  private static String serialize_caveats_packets(CaveatPacket[] caveats) {
-    StringBuilder sb = new StringBuilder();
-    for (CaveatPacket caveat : caveats) {
-      sb.append(serialize_packet(createKeyValuePacket(Type.cid, caveat.value)));
+    List<byte[]> packets = new ArrayList<byte[]>();
+    packets.add(serialize_packet(Type.location, macaroon.location));
+    packets.add(serialize_packet(Type.identifier, macaroon.identifier));
+    for (CaveatPacket caveatPacket : macaroon.caveatPackets) {
+      packets.add(serialize_packet(caveatPacket.type, caveatPacket.value));
     }
-    return sb.toString();
+    packets.add(serialize_packet(Type.signature, macaroon.signatureBytes));
+    return Base64.encodeToString(flattenByteArray(packets), false);
   }
 
-  private static String serialize_packet(String data) {
-    return packet_header(data.length() + PACKET_PREFIX_LENGTH + LINE_SEPARATOR.length()) + data + LINE_SEPARATOR;
+  private static byte[] serialize_packet(Type type, String data) {
+    return serialize_packet(type, data.getBytes(UTF8));
   }
 
-  private static String createKeyValuePacket(Type type, String value) {
-    return type.name() + KEY_VALUE_SEPARATOR + value;
+  private static byte[] serialize_packet(Type type, byte[] data) {
+    String typname = type.name();
+    int packet_len = PACKET_PREFIX_LENGTH + typname.length() + KEY_VALUE_SEPARATOR.length() + data.length + LINE_SEPARATOR.length();
+    byte[] packet = new byte[packet_len];
+    int offset = 0;
+
+    System.arraycopy(packet_header(packet_len), 0, packet, offset, PACKET_PREFIX_LENGTH);
+    offset += PACKET_PREFIX_LENGTH;
+
+    System.arraycopy(typname.getBytes(), 0, packet, offset, typname.length());
+    offset += typname.length();
+
+    System.arraycopy(KEY_VALUE_SEPARATOR.getBytes(), 0, packet, offset, KEY_VALUE_SEPARATOR.length());
+    offset += KEY_VALUE_SEPARATOR.length();
+
+    System.arraycopy(data, 0, packet, offset, data.length);
+    offset += data.length;
+
+    System.arraycopy(LINE_SEPARATOR.getBytes(), 0, packet, offset, LINE_SEPARATOR.length());
+    offset += LINE_SEPARATOR.length();
+    return packet;
   }
 
-  private static String packet_header(int size) {
+  private static byte[] packet_header(int size) {
     assert (size < 65536);
     size = (size & 0xffff);
-    assert PACKET_PREFIX_LENGTH == 4; /* modify this method on failure */
-    return "" + HEX[(size >> 12) & 15]
-        + HEX[(size >> 8) & 15]
-        + HEX[(size >> 4) & 15]
-        + HEX[(size) & 15];
+    byte[] packet = new byte[PACKET_PREFIX_LENGTH];
+    packet[0] = HEX[(size >> 12) & 15];
+    packet[1] = HEX[(size >> 8) & 15];
+    packet[2] = HEX[(size >> 4) & 15];
+    packet[3] = HEX[(size) & 15];
+    return packet;
+  }
+
+  private static byte[] flattenByteArray(List<byte[]> packets) {
+    int size = 0;
+    for (byte[] packet : packets) {
+      size += packet.length;
+    }
+    byte[] alldata = new byte[size];
+    size = 0;
+    for (byte[] packet : packets) {
+      System.arraycopy(packet, 0, alldata, size, packet.length);
+      size += packet.length;
+    }
+    return alldata;
   }
 
 }

@@ -61,7 +61,10 @@ public interface MacaroonsConstants {
   static final byte[] CID_BYTES = CID.getBytes(Charset.forName("ASCII"));
 
   static final String VID = "vid";
+  static final byte[] VID_BYTES = VID.getBytes(Charset.forName("ASCII"));
+
   static final String CL = "cl";
+  static final byte[] CL_BYTES = CL.getBytes(Charset.forName("ASCII"));
 
   static final String LINE_SEPARATOR = "\n";
   static final String KEY_VALUE_SEPARATOR = " ";
