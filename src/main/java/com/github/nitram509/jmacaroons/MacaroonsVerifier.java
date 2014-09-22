@@ -100,6 +100,16 @@ public class MacaroonsVerifier {
   }
 
   /**
+   * Binds a prepared macaroon.
+   *
+   * @param preparedMacaroon preparedMacaroon
+   * @return this {@link com.github.nitram509.jmacaroons.MacaroonsVerifier}
+   */
+  public MacaroonsVerifier bind(Macaroon preparedMacaroon) {
+    return this;
+  }
+
+  /**
    * Another technique for informing the verifier that a caveat is satisfied
    * allows for expressive caveats. Whereas exact caveats are checked
    * by simple byte-wise equality, general caveats are checked using
@@ -122,5 +132,4 @@ public class MacaroonsVerifier {
   public Macaroon getMacaroon() {
     return macaroon;
   }
-
 }
