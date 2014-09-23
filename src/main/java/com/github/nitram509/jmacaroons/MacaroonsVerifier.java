@@ -25,9 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
-import static com.github.nitram509.jmacaroons.CryptoTools.generate_derived_key;
-import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_hash2;
-import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_hmac;
+import static com.github.nitram509.jmacaroons.CryptoTools.*;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 import static com.github.nitram509.jmacaroons.util.ArrayTools.appendToArray;
 import static com.github.nitram509.jmacaroons.util.ArrayTools.containsElement;
@@ -48,11 +46,19 @@ public class MacaroonsVerifier {
   /**
    * @param secret secret
    * @throws com.github.nitram509.jmacaroons.MacaroonValidationException     when the macaroon isn't valid
-   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException when the runtime doesn't provide sufficient crypto support
    */
   public void assertIsValid(String secret) throws MacaroonValidationException, GeneralSecurityRuntimeException {
-    if (!isValid(secret)) {
-      throw new MacaroonValidationException("This macaroon isn't valid.", macaroon);
+    try {
+      VerificationResult result = isValid_verify_raw(macaroon, secret);
+      if (result.fail) {
+        String msg = result.failMessage != null ? result.failMessage : "This macaroon isn't valid.";
+        throw new MacaroonValidationException(msg, macaroon);
+      }
+    } catch (InvalidKeyException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    } catch (NoSuchAlgorithmException e) {
+      throw new GeneralSecurityRuntimeException(e);
     }
   }
 
@@ -63,8 +69,7 @@ public class MacaroonsVerifier {
    */
   public boolean isValid(String secret) throws GeneralSecurityRuntimeException {
     try {
-      byte[] key = generate_derived_key(secret);
-      return isValid_verify_raw(macaroon, key, this.boundMacaroons.toArray(new Macaroon[boundMacaroons.size()]));
+      return !isValid_verify_raw(macaroon, secret).fail;
     } catch (InvalidKeyException e) {
       throw new GeneralSecurityRuntimeException(e);
     } catch (NoSuchAlgorithmException e) {
@@ -72,16 +77,20 @@ public class MacaroonsVerifier {
     }
   }
 
-  private boolean isValid_verify_raw(Macaroon M, byte[] key, Macaroon[] MS) throws NoSuchAlgorithmException, InvalidKeyException {
-    int MS_sz = MS.length;
-    int[] tree = new int[MS_sz];
-    fill(tree, MS_sz);
-    byte[] hmac = macaroon_verify_inner(M, M, key, MS, tree, 0);
-    return Arrays.equals(hmac, M.signatureBytes);
+  private VerificationResult isValid_verify_raw(Macaroon M, String secret) throws NoSuchAlgorithmException, InvalidKeyException {
+    byte[] key = generate_derived_key(secret);
+    VerificationResult vresult = macaroon_verify_inner(M, key);
+    if (!vresult.fail) {
+      vresult.fail = !Arrays.equals(vresult.csig, getMacaroon().signatureBytes);
+      if (vresult.fail) {
+        vresult = new VerificationResult("Verification failed. Signature doesn't match. Maybe the key was wrong OR some caveats aren't satisfied.");
+      }
+    }
+    return vresult;
   }
 
-  private byte[] macaroon_verify_inner(Macaroon M, Macaroon TM, byte[] key, Macaroon[] MS, int[] tree, int tree_idx) throws NoSuchAlgorithmException, InvalidKeyException {
-    byte[] hmac = macaroon_hmac(key, M.identifier);
+  private VerificationResult macaroon_verify_inner(Macaroon M, byte[] key) throws InvalidKeyException, NoSuchAlgorithmException {
+    byte[] csig = macaroon_hmac(key, M.identifier);
     if (M.caveatPackets != null) {
       CaveatPacket[] caveatPackets = M.caveatPackets;
       for (int i = 0; i < caveatPackets.length; i++) {
@@ -90,87 +99,55 @@ public class MacaroonsVerifier {
         if (caveat.type == Type.cl) continue; // todo: 99.9% yes --> make 100% sure ;-)
         if (!(caveat.type == Type.cid && caveatPackets[Math.min(i + 1, caveatPackets.length - 1)].type == Type.vid)) {
           if (containsElement(predicates, caveat.value) || verifiesGeneral(caveat.value)) {
-            hmac = macaroon_hmac(hmac, caveat.value);
+            csig = macaroon_hmac(csig, caveat.value);
           }
         } else {
           i++;
           CaveatPacket caveat_vid = caveatPackets[i];
-          /*fail |= */macaroon_verify_inner_3rd(caveat, caveat_vid, hmac, TM, MS, tree, tree_idx);
-
-          byte[] tmp = hmac;
-          String data = caveat.value;
-          String vdata = caveat_vid.value;
-          hmac = macaroon_hash2(tmp, vdata.getBytes(IDENTIFIER_CHARSET), data.getBytes(IDENTIFIER_CHARSET));
+          Macaroon boundMacaroon = findBoundMacaroon(caveat.value);
+          if (!macaroon_verify_inner_3rd(boundMacaroon, caveat_vid, csig)) {
+            String msg = "Couldn't verify 3rd party macaroon, " +
+                    "identifier=" + (boundMacaroon != null ? (boundMacaroon.identifier) : "err: no identifier! Most likely you forgot to bind the prepared macaroon to the verifier.");
+            return new VerificationResult(msg);
+          }
+          byte[] data = caveat.value.getBytes(IDENTIFIER_CHARSET);
+          byte[] vdata = caveat_vid.value.getBytes(IDENTIFIER_CHARSET);
+          csig = macaroon_hash2(csig, vdata, data);
         }
       }
     }
-
-    if (tree_idx > 0) {
-      byte[] tmp = hmac;
-      byte[] data = TM.signatureBytes;
-      hmac = macaroon_bind(data, tmp, hmac);
-    }
-
-    return hmac;
+    return new VerificationResult(csig);
   }
 
-  private byte[] macaroon_bind(byte[] Msig, byte[] MPsig, byte[] bound) throws InvalidKeyException, NoSuchAlgorithmException {
-    return macaroon_hash2(bound, MPsig, MPsig);
-  }
-
-  private byte[] macaroon_verify_inner_3rd(CaveatPacket C_cid, CaveatPacket C_vid, byte[] sig, Macaroon TM, Macaroon[] MS, int[] tree, int tree_idx) throws InvalidKeyException, NoSuchAlgorithmException {
-
-
-    byte[] enc_key = new byte[MACAROON_SECRET_KEY_BYTES];
+  private boolean macaroon_verify_inner_3rd(Macaroon M, CaveatPacket C, byte[] sig) throws InvalidKeyException, NoSuchAlgorithmException {
+    if (M == null) return false;
     byte[] enc_nonce = new byte[MACAROON_SECRET_NONCE_BYTES];
     byte[] enc_plaintext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
     byte[] enc_ciphertext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
-    byte[] b64_enc = new byte[VID_NONCE_KEY_SZ * 2 + 1];
-    byte[] b64_dec = new byte[VID_NONCE_KEY_SZ];
+    assert C.value.length() == VID_NONCE_KEY_SZ * 4 / 3;
 
-    int fail = 0;
+    byte[] b64_dec = Base64.decode(C.value);
+    System.arraycopy(b64_dec, 0, enc_nonce, 0, MACAROON_SECRET_NONCE_BYTES);
+    System.arraycopy(b64_dec, MACAROON_SECRET_NONCE_BYTES, enc_ciphertext, MACAROON_SECRET_BOX_ZERO_BYTES, VID_NONCE_KEY_SZ - MACAROON_SECRET_NONCE_BYTES);
+    boolean valid = 0 == macaroon_secretbox_open(sig, enc_nonce, enc_ciphertext, MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES, enc_plaintext);
 
-    String cav = C_cid.value;
+    byte[] key = new byte[MACAROON_HASH_BYTES];
+    System.arraycopy(enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, key, 0, MACAROON_HASH_BYTES);
+    VerificationResult vresult = macaroon_verify_inner(M, key);
 
-    int MS_sz = MS.length;
-    for (int midx = 0; midx < MS_sz; ++midx) {
-      String mac = MS[midx].identifier;
-//      int sz = cav.length() < mac.length() ? cav.length() : mac.length();
-      if (mac.equals(cav)) {
-        tree[tree_idx] = midx;
-      }
-      for (int tidx = 0; tidx < tree_idx; ++tidx) {
-        fail |= (tree[tidx] == tree[tree_idx]) ? 0 : 1; // todo: ord(boolean) -> int ???
+    byte[] data = getMacaroon().signatureBytes;
+    byte[] csig = macaroon_bind(data, vresult.csig);
+
+    return valid && Arrays.equals(csig, M.signatureBytes);
+  }
+
+  private Macaroon findBoundMacaroon(String identifier) {
+    for (int i = 0, len = boundMacaroons.size(); i < len; ++i) {
+      if (identifier.equals(boundMacaroons.get(i).identifier)) {
+        return boundMacaroons.get(i);
       }
     }
-
-    byte[] key = sig;
-    if (tree[tree_idx] < MS_sz) {
-//        /* zero everything */
-      // ...
-//        /* extract VID from base64 */
-
-      String vidData = C_vid.value;
-      assert vidData.length() == VID_NONCE_KEY_SZ * 4 / 3; // todo: how is this possible????
-
-      b64_dec = Base64.decode(vidData);
-      /* fill in the key */
-      System.arraycopy(sig, 0, enc_key, 0, MACAROON_HASH_BYTES);
-      /* fill in the nonce */
-      System.arraycopy(b64_dec, 0, enc_nonce, 0, MACAROON_SECRET_NONCE_BYTES);
-      /* fill in the ciphertext */
-      System.arraycopy(b64_dec, MACAROON_SECRET_NONCE_BYTES, enc_ciphertext, MACAROON_SECRET_BOX_ZERO_BYTES, VID_NONCE_KEY_SZ - MACAROON_SECRET_NONCE_BYTES);
-      /* now get the plaintext */
-      fail |= macaroon_secretbox_open(enc_key, enc_nonce, enc_ciphertext, MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES, enc_plaintext);
-
-      key = new byte[MACAROON_HASH_BYTES];
-      System.arraycopy(enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, key, 0, MACAROON_HASH_BYTES);
-      /*fail |= */macaroon_verify_inner(MS[tree[tree_idx]], TM, key, MS, tree, tree_idx + 1);
-    }
-
-//    assert fail == 0;
-
-    return key;
+    return null;
   }
 
   private static int macaroon_secretbox_open(byte[] enc_key, byte[] enc_nonce, byte[] ciphertext, int ciphertext_sz, byte[] plaintext) {
@@ -238,5 +215,20 @@ public class MacaroonsVerifier {
 
   public Macaroon getMacaroon() {
     return macaroon;
+  }
+
+  private static class VerificationResult {
+    byte[] csig = null;
+    boolean fail = false;
+    String failMessage = null;
+
+    private VerificationResult(byte[] csig) {
+      this.csig = csig;
+    }
+
+    private VerificationResult(String failMessage) {
+      this.failMessage = failMessage;
+      this.fail = true;
+    }
   }
 }
