@@ -16,6 +16,7 @@
 
 package com.github.nitram509.jmacaroons;
 
+import com.github.nitram509.jmacaroons.verifier.TimestampCaveatVerifier;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -82,6 +83,7 @@ public class MacaroonsPrepareRequestAndVerifyTest {
   public void verifying_valid() {
     boolean valid = new MacaroonsVerifier(M)
             .satisfyExcact("account = 3735928559")
+            .satisfyGeneral(new TimestampCaveatVerifier())
             .bind(DP)
             .isValid(secret);
 

@@ -68,7 +68,7 @@ class CryptoTools {
     byte[] vidAsBase64 = Base64.encodeToByte(vid, 0, VID_NONCE_KEY_SZ, false);
 
     byte[] hashNew = macaroon_hash2(hash, vidAsBase64, identifier.getBytes(IDENTIFIER_CHARSET));
-    return new ThirdPartyPacket(hashNew, new String(vidAsBase64,MacaroonsConstants.IDENTIFIER_CHARSET));
+    return new ThirdPartyPacket(hashNew, new String(vidAsBase64, MacaroonsConstants.IDENTIFIER_CHARSET));
   }
 
   private static void macaroon_secretbox(byte[] key, byte[] nonce, byte[] plaintext, byte[] ciphertext) throws GeneralSecurityRuntimeException {
@@ -78,11 +78,16 @@ class CryptoTools {
     }
   }
 
+  static byte[] macaroon_bind(byte[] Msig, byte[] MPsig) throws InvalidKeyException, NoSuchAlgorithmException {
+    byte[] key = new byte[MACAROON_HASH_BYTES];
+    return CryptoTools.macaroon_hash2(key, Msig, MPsig);
+  }
+
   static class ThirdPartyPacket {
     final byte[] hash;
     final String vid;
 
-    ThirdPartyPacket(byte[] hash,  String vid) {
+    ThirdPartyPacket(byte[] hash, String vid) {
       this.hash = hash;
       this.vid = vid;
     }

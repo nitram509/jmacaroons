@@ -22,9 +22,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 import static com.github.nitram509.jmacaroons.CryptoTools.*;
-import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_HASH_BYTES;
-import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_CAVEATS;
-import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_STRLEN;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 
 /**
  * Used to build Macaroons, example:
@@ -148,20 +146,20 @@ public class MacaroonsBuilder {
     return this;
   }
 
-  public Macaroon prepare_for_request(Macaroon macaroon) {
+  /**
+   * @param macaroon macaroon used for preparing a request
+   * @return the prepared macaroon
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   */
+  public Macaroon prepare_for_request(Macaroon macaroon) throws GeneralSecurityRuntimeException {
     assert macaroon.signatureBytes.length > 0;
     assert getMacaroon().signatureBytes.length > 0;
-    byte[] hash = macaroon_bind(getMacaroon().signatureBytes, macaroon.signatureBytes);
-    return new Macaroon(macaroon.location, macaroon.identifier, macaroon.caveatPackets, hash);
-  }
-
-  private static byte[] macaroon_bind(byte[] Msig, byte[] MPsig) {
-    byte[] key = new byte[MACAROON_HASH_BYTES];
     try {
-      return CryptoTools.macaroon_hash2(key, Msig, MPsig);
-    } catch (NoSuchAlgorithmException e) {
-      throw new GeneralSecurityRuntimeException(e);
+      byte[] hash = macaroon_bind(getMacaroon().signatureBytes, macaroon.signatureBytes);
+      return new Macaroon(macaroon.location, macaroon.identifier, macaroon.caveatPackets, hash);
     } catch (InvalidKeyException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    } catch (NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
   }
