@@ -81,6 +81,7 @@ public class MacaroonsPrepareRequestAndVerifyTest {
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")
   public void verifying_valid() {
     boolean valid = new MacaroonsVerifier(M)
+            .satisfyExcact("account = 3735928559")
             .bind(DP)
             .isValid(secret);
 
