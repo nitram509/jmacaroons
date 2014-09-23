@@ -25,7 +25,8 @@ import java.util.Date;
 
 /**
  * <p>
- * A verifier that is able to verify timestamps.
+ * A verifier that is able to verify timestamps against current time.
+ * Thus, it only supports general caveats i.e. 'time < 2085-12-31T00:00'.
  * In general, ISO8601 timestamp format with optional parts is allowed. Supported formats:
  * <table>
  * <tr>
