@@ -4,7 +4,7 @@
 
   <groupId>com.github.nitram509</groupId>
   <artifactId>jmacaroons</artifactId>
-  <version>0.2.0</version>
+  <version>0.2.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>${project.groupId}:${project.artifactId}</name>
@@ -16,7 +16,7 @@
     <url>scm:git:git@github.com:nitram509/jmacaroons.git</url>
     <connection>scm:git:git@github.com:nitram509/jmacaroons.git</connection>
     <developerConnection>scm:git:git@github.com:nitram509/jmacaroons.git</developerConnection>
-    <tag>jmacaroons-0.2.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <licenses>
