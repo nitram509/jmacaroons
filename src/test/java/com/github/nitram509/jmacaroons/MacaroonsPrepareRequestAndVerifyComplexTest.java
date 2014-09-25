@@ -1,5 +1,5 @@
 /*
- * Copyright $todaz.zear Martin W. Kirst
+ * Copyright 2014 Martin W. Kirst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class MacaroonsPrepareRequestAndVerifyTest {
+public class MacaroonsPrepareRequestAndVerifyComplexTest {
 
   private String identifier;
   private String secret;
@@ -33,6 +33,7 @@ public class MacaroonsPrepareRequestAndVerifyTest {
   private Macaroon M;
   private Macaroon DP;
   private Macaroon D;
+  private Macaroon E;
 
   @BeforeMethod
   public void setUp() throws Exception {
@@ -56,8 +57,9 @@ public class MacaroonsPrepareRequestAndVerifyTest {
 
     M = new MacaroonsBuilder(M)
         .add_third_party_caveat("http://auth.mybank/", caveat_key, identifier)
+        .add_first_party_caveat("role = admin")
         .getMacaroon();
-    assertThat(M.signature).isEqualTo("6b99edb2ec6d7a4382071d7d41a0bf7dfa27d87d2f9fea86e330d7850ffda2b2");
+    assertThat(M.signature).isEqualTo("5abd993a3bad61410c8b8a3bb606003939297c685fc5f9e04e5b21d570931c2a");
   }
 
   private String send_to_auth_and_recv_identifier(String caveat_key, String predicate) {
@@ -73,17 +75,23 @@ public class MacaroonsPrepareRequestAndVerifyTest {
         .getMacaroon();
     assertThat(D.signature).isEqualTo("82a80681f9f32d419af12f6a71787a1bac3ab199df934ed950ddf20c25ac8c65");
 
+    E = MacaroonsBuilder.create(("http://example.org/"), "example secret key", "example identifier");
+    assertThat(E.signature).isEqualTo("b4f46190b4a41cc66ef277b8ee423259362deb648c18cb80f929ac65bb377d1b");
+
     DP = new MacaroonsBuilder(M)
         .prepare_for_request(D)
+        .prepare_for_request(E)
         .getMacaroon();
 
-    assertThat(DP.signature).isEqualTo("b38b26ab29d3724e728427e758cccc16d9d7f3de46d0d811b70b117b05357b9b");
+    assertThat(DP.signature).isEqualTo("f472a9421ba72c81d92833cff78161bbdfbf71d244642381048b991afbc401df");
+    assertThat(DP.identifier).isEqualTo("example identifier");
   }
 
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")
   public void verifying_valid() {
     boolean valid = new MacaroonsVerifier(M)
         .satisfyExcact("account = 3735928559")
+        .satisfyExcact("role = admin")
         .satisfyGeneral(new TimestampCaveatVerifier())
         .satisfy3rdParty(DP)
         .isValid(secret);
@@ -95,6 +103,7 @@ public class MacaroonsPrepareRequestAndVerifyTest {
   public void verifying_unprepared_macaroon() {
     boolean valid = new MacaroonsVerifier(M)
         .satisfyExcact("account = 3735928559")
+        .satisfyExcact("role = admin")
         .satisfyGeneral(new TimestampCaveatVerifier())
         .satisfy3rdParty(D)
         .isValid(secret);
@@ -106,6 +115,7 @@ public class MacaroonsPrepareRequestAndVerifyTest {
   public void verifying_macaroon_without_satisfying_3rd_party() {
     boolean valid = new MacaroonsVerifier(M)
         .satisfyExcact("account = 3735928559")
+        .satisfyExcact("role = admin")
         .satisfyGeneral(new TimestampCaveatVerifier())
         .isValid(secret);
 
