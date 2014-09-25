@@ -317,7 +317,7 @@ then the verification process will proceed and ignore them.
 new MacaroonsVerifier(m)
     .satisfyExcact("account = 3735928559")
     .satisfyGeneral(new TimestampCaveatVerifier())
-    /* forget to verify 3rd party caveat will NOT fail */
+    /* don't verify 3rd party caveat - will be valid, too */
     .assertIsValid(secret);
 // > ok.
 ````
