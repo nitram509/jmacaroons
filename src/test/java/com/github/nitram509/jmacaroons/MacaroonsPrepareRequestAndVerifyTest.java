@@ -93,8 +93,10 @@ public class MacaroonsPrepareRequestAndVerifyTest {
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")
   public void verifying_unprepared_macaroon() {
     boolean valid = new MacaroonsVerifier(M)
-            .bind(D)
-            .isValid(secret);
+        .satisfyExcact("account = 3735928559")
+        .satisfyGeneral(new TimestampCaveatVerifier())
+        .bind(D)
+        .isValid(secret);
 
     assertThat(valid).isFalse();
   }
