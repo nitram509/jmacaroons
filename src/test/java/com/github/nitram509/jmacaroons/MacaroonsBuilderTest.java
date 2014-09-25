@@ -45,6 +45,15 @@ public class MacaroonsBuilderTest {
   }
 
   @Test
+  public void create_a_Macaroon_with_static_helper_method() {
+    m = MacaroonsBuilder.create("http://example.org/", "example secret key", "example entifier");
+
+    assertThat(m.location).isEqualTo("http://example.org/");
+    assertThat(m.identifier).isEqualTo("example entifier");
+    assertThat(m.signature).isEqualTo("b642ce881b02b1e00b030e039374ece15ea852daa1a42a8dd4e7502977717f8b");
+  }
+
+  @Test
   public void create_a_Macaroon_and_inspect() {
     m = new MacaroonsBuilder(location, secret, identifier).getMacaroon();
 

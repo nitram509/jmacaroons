@@ -22,7 +22,8 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 import static com.github.nitram509.jmacaroons.CryptoTools.*;
-import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_CAVEATS;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_STRLEN;
 
 /**
  * Used to build Macaroons, example:
@@ -133,9 +134,9 @@ public class MacaroonsBuilder {
       ThirdPartyPacket thirdPartyPacket = macaroon_add_third_party_caveat_raw(macaroon.signatureBytes, secret, identifier);
       byte[] hash = thirdPartyPacket.hash;
       CaveatPacket[] caveatsExtended = ArrayTools.appendToArray(macaroon.caveatPackets,
-              new CaveatPacket(CaveatPacket.Type.cid, identifier),
-              new CaveatPacket(CaveatPacket.Type.vid, thirdPartyPacket.vid),
-              new CaveatPacket(CaveatPacket.Type.cl, location)
+          new CaveatPacket(CaveatPacket.Type.cid, identifier),
+          new CaveatPacket(CaveatPacket.Type.vid, thirdPartyPacket.vid),
+          new CaveatPacket(CaveatPacket.Type.cl, location)
       );
       this.macaroon = new Macaroon(macaroon.location, macaroon.identifier, caveatsExtended, hash);
     } catch (InvalidKeyException e) {
@@ -148,15 +149,16 @@ public class MacaroonsBuilder {
 
   /**
    * @param macaroon macaroon used for preparing a request
-   * @return the prepared macaroon
+   * @return this {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
    * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
-  public Macaroon prepare_for_request(Macaroon macaroon) throws GeneralSecurityRuntimeException {
+  public MacaroonsBuilder prepare_for_request(Macaroon macaroon) throws GeneralSecurityRuntimeException {
     assert macaroon.signatureBytes.length > 0;
     assert getMacaroon().signatureBytes.length > 0;
     try {
       byte[] hash = macaroon_bind(getMacaroon().signatureBytes, macaroon.signatureBytes);
-      return new Macaroon(macaroon.location, macaroon.identifier, macaroon.caveatPackets, hash);
+      this.macaroon = new Macaroon(macaroon.location, macaroon.identifier, macaroon.caveatPackets, hash);
+      return this;
     } catch (InvalidKeyException e) {
       throw new GeneralSecurityRuntimeException(e);
     } catch (NoSuchAlgorithmException e) {
