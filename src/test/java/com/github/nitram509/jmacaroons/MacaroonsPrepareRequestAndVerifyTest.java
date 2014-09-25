@@ -28,7 +28,7 @@ public class MacaroonsPrepareRequestAndVerifyTest {
   private String secret;
   private String location;
   private String caveat_key;
-  private String public_;
+  private String publicIdentifier;
   private String predicate;
   private Macaroon M;
   private Macaroon DP;
@@ -36,22 +36,16 @@ public class MacaroonsPrepareRequestAndVerifyTest {
 
   @BeforeMethod
   public void setUp() throws Exception {
-    location = "http://mybank/";
-    secret = "this is our super secret key; only we should know it";
-    identifier = "we used our secret key";
-
-
     secret = "this is a different super-secret key; never use the same secret twice";
-    public_ = "we used our other secret key";
+    publicIdentifier = "we used our other secret key";
     location = "http://mybank/";
-    M = new MacaroonsBuilder(location, secret, public_)
+    M = new MacaroonsBuilder(location, secret, publicIdentifier)
         .add_first_party_caveat("account = 3735928559")
         .getMacaroon();
     assertThat(M.signature).isEqualTo("1434e674ad84fdfdc9bc1aa00785325c8b6d57341fc7ce200ba4680c80786dda");
 
     caveat_key = "4; guaranteed random by a fair toss of the dice";
     predicate = "user = Alice";
-
     identifier = send_to_auth_and_recv_identifier(caveat_key, predicate);
 
     M = new MacaroonsBuilder(M)

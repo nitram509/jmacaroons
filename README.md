@@ -30,13 +30,13 @@ Maven
 <dependency>
   <groupId>com.github.nitram509</groupId>
   <artifactId>jmacaroons</artifactId>
-  <version>0.1.7</version>
+  <version>0.2.0</version>
 </dependency>
 ````
 
 Gradle
 ````groovy
-compile 'com.github.nitram509:jmacaroons:0.1.7'
+compile 'com.github.nitram509:jmacaroons:0.2.0'
 ````
 
 
@@ -207,5 +207,117 @@ verifier.isValid(secretKey);
 Third Party Caveats
 ---------------------
 
-Work in progress ...
-see git branch [3rd-party-caveats](https://github.com/nitram509/jmacaroons/tree/3rd-party-caveats)
+Like first-party caveats, third-party caveats restrict the context in which a
+macaroon is authorized, but with a different form of restriction.  Where a
+first-party caveat is checked directly within the verifier, a third-party caveat
+is checked by the third-party, who provides a discharge macaroon to prove that
+the original third-party caveat is true.  The discharge macaroon is recursively
+inspected by the verifier; if it verifies successfully, the discharge macaroon
+serves as a proof that the original third-party caveat is satisfied.  Of course,
+nothing stops discharge macaroons from containing embedded first- or third-party
+caveats for the verifier to consider during verification.
+
+Let's rework the above example to provide Alice with access to her account only
+after she authenticates with a service that is separate from the service
+processing her banking transactions.
+
+As before, we'll start by constructing a new macaroon with the caveat that is
+limited to Alice's bank account.
+
+````java
+// create a simple macaroon first
+String location = "http://mybank/";
+String secret = "this is a different super-secret key; never use the same secret twice";
+String publicIdentifier = "we used our other secret key";
+MacaroonsBuilder mb = new MacaroonsBuilder(location, secret, publicIdentifier)
+    .add_first_party_caveat("account = 3735928559");
+
+// add a 3rd party caveat
+// you'll likely want to use a higher entropy source to generate this key
+String caveat_key = "4; guaranteed random by a fair toss of the dice";
+String predicate = "user = Alice";
+// send_to_3rd_party_location_and_do_auth(caveat_key, predicate);
+// identifier = recv_from_auth();
+String identifier = "this was how we remind auth of key/pred";
+Macaroon m = mb.add_third_party_caveat("http://auth.mybank/", caveat_key, identifier)
+    .getMacaroon();
+    
+m.inspect();
+// > location http://mybank/
+// > identifier we used our other secret key
+// > cid account = 3735928559
+// > cid this was how we remind auth of key/pred
+// > vid AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA027FAuBYhtHwJ58FX6UlVNFtFsGxQHS7uD/w/dedwv4Jjw7UorCREw5rXbRqIKhr
+// > cl http://auth.mybank/
+// > signature 6b99edb2ec6d7a4382071d7d41a0bf7dfa27d87d2f9fea86e330d7850ffda2b2
+````
+
+In a real application, we'd look at these third party caveats, and contact each
+location to retrieve the requisite discharge macaroons.  We would include the
+identifier for the caveat in the request itself, so that the server can recall
+the secret used to create the third-party caveat.  The server can then generate
+and return a new macaroon that discharges the caveat:
+
+````java
+Macaroon d = new MacaroonsBuilder("http://auth.mybank/", caveat_key, identifier)
+    .add_first_party_caveat("time < 2015-01-01T00:00")
+    .getMacaroon();
+````
+
+This new macaroon enables the verifier to determine that the third party caveat
+is satisfied.  Our target service added a time-limiting caveat to this macaroon
+that ensures that this discharge macaroon does not last forever.  This ensures
+that Alice (or, at least someone authenticated as Alice) cannot use the
+discharge macaroon indefinitely and will eventually have to re-authenticate.
+
+Once Alice has both the root macaroon and the discharge macaroon in her
+possession, she can make the request to the target service.  Making a request
+with discharge macaroons is only slightly more complicated than making requests
+with a single macaroon.  In addition to serializing and transmitting all
+involved macaroons, there is preparation step that binds the discharge macaroons
+to the root macaroon.  This binding step ensures that the discharge macaroon is
+useful only when presented alongside the root macaroon.  The root macaroon is
+used to bind the discharge macaroons like this:
+
+````java
+Macaroon dp = MacaroonsBuilder.modify(m)
+    .prepare_for_request(d)
+    .getMacaroon();
+````
+
+If we were to look at the signatures on these prepared discharge macaroons, we
+would see that the binding process has irreversibly altered their signature(s).
+
+````java
+// > d.signature = 82a80681f9f32d419af12f6a71787a1bac3ab199df934ed950ddf20c25ac8c65
+// > dp.signature = b38b26ab29d3724e728427e758cccc16d9d7f3de46d0d811b70b117b05357b9b
+````
+
+The root macaroon 'm' and its discharge macaroons 'dp' are ready for the
+request.  Alice can serialize them all and send them to the bank to prove she is
+authorized to access her account.  The bank can verify them using the same
+verifier we built before.  We provide the discharge macaroons as a third
+argument to the verify call:
+
+````java
+new MacaroonsVerifier(m)
+    .satisfyExcact("account = 3735928559")
+    .satisfyGeneral(new TimestampCaveatVerifier())
+    .satisfy3rdParty(dp)
+    .assertIsValid(secret);
+// > ok.
+````
+
+Without the 'prepare_for_request()' call, the verification would fail.
+
+Interestingly, when you're verifying a macaroon without satisfy3rdParty(),
+then the verification process will proceed and ignore them. 
+ 
+````java
+new MacaroonsVerifier(m)
+    .satisfyExcact("account = 3735928559")
+    .satisfyGeneral(new TimestampCaveatVerifier())
+    /* forget to verify 3rd party caveat will NOT fail */
+    .assertIsValid(secret);
+// > ok.
+````

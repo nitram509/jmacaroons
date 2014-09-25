@@ -121,6 +121,44 @@ public class MacaroonsExamples {
     // > True
   }
 
+  private void with_3rd_party_caveats() {
+    // create a simple macaroon first
+    String location = "http://mybank/";
+    String secret = "this is a different super-secret key; never use the same secret twice";
+    String publicIdentifier = "we used our other secret key";
+    MacaroonsBuilder mb = new MacaroonsBuilder(location, secret, publicIdentifier)
+        .add_first_party_caveat("account = 3735928559");
+
+    // add a 3rd party caveat
+    // you'll likely want to use a higher entropy source to generate this key
+    String caveat_key = "4; guaranteed random by a fair toss of the dice";
+    String predicate = "user = Alice";
+    // send_to_3rd_party_location_and_do_auth(caveat_key, predicate);
+    // identifier = recv_from_auth();
+    String identifier = "this was how we remind auth of key/pred";
+    Macaroon m = mb.add_third_party_caveat("http://auth.mybank/", caveat_key, identifier)
+        .getMacaroon();
+
+    System.out.println(m.inspect());
+
+    Macaroon d = new MacaroonsBuilder("http://auth.mybank/", caveat_key, identifier)
+        .add_first_party_caveat("time < 2015-01-01T00:00")
+        .getMacaroon();
+
+    Macaroon dp = MacaroonsBuilder.modify(m)
+        .prepare_for_request(d)
+        .getMacaroon();
+
+    System.out.println("d.signature = " + d.signature);
+    System.out.println("dp.signature = " + dp.signature);
+
+    new MacaroonsVerifier(m)
+        .satisfyExcact("account = 3735928559")
+        .satisfyGeneral(new TimestampCaveatVerifier())
+        .satisfy3rdParty(dp)
+        .assertIsValid(secret);
+  }
+
   public static void main(String[] args) {
     MacaroonsExamples examples = new MacaroonsExamples();
     try {
@@ -132,6 +170,7 @@ public class MacaroonsExamples {
       examples.addCaveat_modify();
       examples.verify_required_caveats();
       examples.verify_general_caveats();
+      examples.with_3rd_party_caveats();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
