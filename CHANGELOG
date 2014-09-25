@@ -6,7 +6,9 @@ Version 0.?.?
 --------------------------
 
    + Added: adding third party caveats to macaroons is possible
+   + Added: verifying third party caveats on macaroons is possible
    * fixed: modifying macaroons also copies caveats
+   * improved java-docs
    * reworked macaroon structure, using caveat packets
 
 
