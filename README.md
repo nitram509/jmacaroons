@@ -321,3 +321,22 @@ new MacaroonsVerifier(m)
     .assertIsValid(secret);
 // > ok.
 ````
+
+
+Choosing Secrets
+-------------------
+
+For clarity, we've generated human-readable secrets that we use as the root keys
+of all of our macaroons.  In practice, this is terribly insecure and can lead to
+macaroons that can easily be forged because the secret is too predictable.  To
+avoid this, we recommend generating secrets using a sufficient number of
+suitably random bytes.  Because the bytes are a secret key, they should be drawn
+from a source with enough entropy to ensure that the key cannot be guessed
+before the macaroon falls out of use.
+
+The jmacaroons library exposes a constant that is the ideal number of bytes these
+secret keys should contain.  Any shorter is wasting an opportunity for security.
+
+````java
+com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_SUGGESTED_SECRET_LENGTH = 32
+````
