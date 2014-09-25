@@ -30,7 +30,6 @@ import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 import static com.github.nitram509.jmacaroons.util.ArrayTools.appendToArray;
 import static com.github.nitram509.jmacaroons.util.ArrayTools.containsElement;
 import static com.neilalexander.jnacl.crypto.xsalsa20poly1305.crypto_secretbox_open;
-import static java.util.Arrays.fill;
 
 public class MacaroonsVerifier {
 
@@ -105,9 +104,8 @@ public class MacaroonsVerifier {
           i++;
           CaveatPacket caveat_vid = caveatPackets[i];
           Macaroon boundMacaroon = findBoundMacaroon(caveat.value);
-          if (!macaroon_verify_inner_3rd(boundMacaroon, caveat_vid, csig)) {
-            String msg = "Couldn't verify 3rd party macaroon, " +
-                    "identifier=" + (boundMacaroon != null ? (boundMacaroon.identifier) : "err: no identifier! Most likely you forgot to bind the prepared macaroon to the verifier.");
+          if (boundMacaroon != null && !macaroon_verify_inner_3rd(boundMacaroon, caveat_vid, csig)) {
+            String msg = "Couldn't verify 3rd party macaroon, identifier= " + boundMacaroon.identifier;
             return new VerificationResult(msg);
           }
           byte[] data = caveat.value.getBytes(IDENTIFIER_CHARSET);
@@ -186,7 +184,7 @@ public class MacaroonsVerifier {
    * @param preparedMacaroon preparedMacaroon
    * @return this {@link com.github.nitram509.jmacaroons.MacaroonsVerifier}
    */
-  public MacaroonsVerifier bind(Macaroon preparedMacaroon) {
+  public MacaroonsVerifier satisfy3rdParty(Macaroon preparedMacaroon) {
     if (preparedMacaroon != null) {
       this.boundMacaroons.add(preparedMacaroon);
     }
