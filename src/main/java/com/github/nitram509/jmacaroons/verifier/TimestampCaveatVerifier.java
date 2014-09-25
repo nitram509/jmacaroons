@@ -30,8 +30,8 @@ import java.util.Date;
  * In general, ISO8601 timestamp format with optional parts is allowed.
  * </p>
  *
- * <h4>Supported formats</h4>
  * <table>
+ * <caption><strong>Supported formats</strong></caption>
  * <tr>
  * <th>Supported pattern</th>
  * <th>Example</th>
@@ -57,20 +57,16 @@ import java.util.Date;
  * <td>2014-09-23 (only precise up to 1 day)</td>
  * </tr>
  * </table>
- *
- * <h4>Applying a time based caveat</h4>
- * <p>
- * <code>
- * <pre>
+ * <br>
+ * <strong>Applying a time based caveat</strong>
+ * <pre>{@code
  * Macaroon m = new MacaroonsBuilder("location", "secret", "identifiert")
- *    .add_first_party_caveat("time < 2042-09-23T17:42:35")
+ *    .add_first_party_caveat("time &lt; 2042-09-23T17:42:35")
  *    .getMacaroon();
  * new MacaroonsVerifier(m)
  *    .satisfyGeneral(new TimestampCaveatVerifier())
  *    .assertIsValid("secret");
- * </pre>
- * </code>
- * </p>
+ * }</pre>
  */
 public class TimestampCaveatVerifier implements GeneralCaveatVerifier {
 

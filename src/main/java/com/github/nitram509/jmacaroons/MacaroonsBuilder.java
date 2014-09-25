@@ -27,12 +27,12 @@ import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_ST
 
 /**
  * Used to build Macaroons, example:
- * <pre>
+ * <pre>{@code
  * String location = "http://www.example.org";
  * String secretKey = "this is our super secret key; only we should know it";
  * String identifier = "we used our secret key";
  * Macaroon macaroon = MacaroonsBuilder.create(location, secretKey, identifier);
- * </pre>
+ * }</pre>
  */
 public class MacaroonsBuilder {
 
