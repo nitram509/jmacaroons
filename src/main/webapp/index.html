@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <script type="text/javascript" language="javascript" src="jmacaroons_js/jmacaroons_js.nocache.js"></script>
+  <title>Macaroon Playground</title>
+</head>
+<body>
+
+<h2>Macaroon Playground</h2>
+
+<form action="#" method="get">
+  <input type="text" name="location" id="txtLocation" placeholder="location" value="http://www.example.org"/>
+  <input type="text" name="identifier" id="txtIdentifier" placeholder="identifier" value="we used our secret key"/>
+  <input type="text" name="secret" id="txtSecret" placeholder="secret" value="this is our super secret key; only we should know it"/>
+  <button id="btnCreate" type="button">create</button>
+  <textarea name="serialized" id="txtSerialized" cols="30" rows="10" placeholder="serialized ... (press create)"></textarea>
+</form>
+
+<form action="#" method="get">
+  <input type="text" name="caveat" id="txtCaveat" placeholder="add caveat" value="account = 3735928559"/>
+  <button id="btnAddCaveat" type="button">create</button>
+</form>
+
+<form action="#" method="get">
+  <input type="text" name="caveat" id="txtCaveat" placeholder="add caveat" value="account = 3735928559"/>
+  <button id="btnAddCaveat" type="button">create</button>
+</form>
+
+
+
+
+
+<script type="application/javascript" src="lib/jquery.min.js"></script>
+<script type="application/javascript" src="jmacaroons.js"></script>
+</body>
+</html>
