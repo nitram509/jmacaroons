@@ -17,6 +17,8 @@
 package com.github.nitram509.jmacaroons;
 
 import com.github.nitram509.jmacaroons.util.Base64;
+import org.timepedia.exporter.client.Export;
+import org.timepedia.exporter.client.Exportable;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -29,9 +31,11 @@ import static com.github.nitram509.jmacaroons.CryptoTools.*;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 import static com.github.nitram509.jmacaroons.util.ArrayTools.appendToArray;
 import static com.github.nitram509.jmacaroons.util.ArrayTools.containsElement;
+import static com.github.nitram509.jmacaroons.util.StringUtil.getBytes;
 import static com.neilalexander.jnacl.crypto.xsalsa20poly1305.crypto_secretbox_open;
 
-public class MacaroonsVerifier {
+@Export
+public class MacaroonsVerifier implements Exportable{
 
   private String[] predicates = new String[0];
   private List<Macaroon> boundMacaroons = new ArrayList<Macaroon>(3);
@@ -108,8 +112,8 @@ public class MacaroonsVerifier {
             String msg = "Couldn't verify 3rd party macaroon, identifier= " + boundMacaroon.identifier;
             return new VerificationResult(msg);
           }
-          byte[] data = caveat.value.getBytes(IDENTIFIER_CHARSET);
-          byte[] vdata = caveat_vid.value.getBytes(IDENTIFIER_CHARSET);
+          byte[] data = getBytes(caveat.value);
+          byte[] vdata = getBytes(caveat_vid.value);
           csig = macaroon_hash2(csig, vdata, data);
         }
       }

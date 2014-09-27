@@ -17,6 +17,9 @@
 package com.github.nitram509.jmacaroons;
 
 import com.github.nitram509.jmacaroons.util.Base64;
+import com.github.nitram509.jmacaroons.util.StringUtil;
+import org.timepedia.exporter.client.Export;
+import org.timepedia.exporter.client.Exportable;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -26,8 +29,10 @@ import java.util.List;
 
 import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
+import static com.github.nitram509.jmacaroons.util.StringUtil.asString;
 
-class MacaroonsDeSerializer {
+@Export
+class MacaroonsDeSerializer implements Exportable {
 
   private static final String HEX_ALPHABET = "0123456789abcdef";
 
@@ -92,7 +97,7 @@ class MacaroonsDeSerializer {
   private static String parsePacket(Packet packet, byte[] header) {
     int headerLen = header.length + KEY_VALUE_SEPARATOR.length();
     int len = packet.data.length - headerLen;
-    String payload = new String(packet.data, headerLen, len, IDENTIFIER_CHARSET);
+    String payload = asString(packet.data, headerLen, len);
     if (payload.endsWith(LINE_SEPARATOR)) {
       payload = payload.substring(0, len - LINE_SEPARATOR.length());
     }

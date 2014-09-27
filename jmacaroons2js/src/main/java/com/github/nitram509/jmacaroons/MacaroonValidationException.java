@@ -16,7 +16,11 @@
 
 package com.github.nitram509.jmacaroons;
 
-public class MacaroonValidationException extends RuntimeException {
+import org.timepedia.exporter.client.Export;
+import org.timepedia.exporter.client.Exportable;
+
+@Export
+public class MacaroonValidationException extends RuntimeException implements Exportable {
 
   private final Macaroon macaroon;
 

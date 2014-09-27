@@ -25,4 +25,12 @@ public class StringUtil {
     }
   }
 
+  public static String asString(byte[] bytes, int offset, int length) {
+    try {
+      return new String(bytes, offset, length, IDENTIFIER_CHARSET);
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
+
+  }
 }

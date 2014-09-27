@@ -24,6 +24,7 @@ import java.util.List;
 
 import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
+import static com.github.nitram509.jmacaroons.util.StringUtil.getBytes;
 
 class MacaroonsSerializer {
 
@@ -32,8 +33,6 @@ class MacaroonsSerializer {
           '4', '5', '6', '7',
           '8', '9', 'a', 'b',
           'c', 'd', 'e', 'f'};
-
-  private static final Charset UTF8 = Charset.forName("UTF-8");
 
   public static String serialize(Macaroon macaroon) {
     List<byte[]> packets = new ArrayList<byte[]>(3 + macaroon.caveatPackets.length);
@@ -47,7 +46,7 @@ class MacaroonsSerializer {
   }
 
   private static byte[] serialize_packet(Type type, String data) {
-    return serialize_packet(type, data.getBytes(UTF8));
+    return serialize_packet(type, getBytes(data));
   }
 
   private static byte[] serialize_packet(Type type, byte[] data) {

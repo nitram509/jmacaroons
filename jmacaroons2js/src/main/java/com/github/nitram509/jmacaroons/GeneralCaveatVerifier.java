@@ -16,7 +16,11 @@
 
 package com.github.nitram509.jmacaroons;
 
-public interface GeneralCaveatVerifier {
+import org.timepedia.exporter.client.Export;
+import org.timepedia.exporter.client.Exportable;
+
+@Export
+public interface GeneralCaveatVerifier extends Exportable{
 
   /**
    * @param caveat caveat

@@ -16,11 +16,15 @@
 
 package com.github.nitram509.jmacaroons;
 
+import org.timepedia.exporter.client.Export;
+import org.timepedia.exporter.client.Exportable;
+
 import java.io.Serializable;
 
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.KEY_VALUE_SEPARATOR;
 
-public class CaveatPacket implements Serializable {
+@Export
+public class CaveatPacket implements Serializable, Exportable {
 
   public final Type type;
   public final String value;
