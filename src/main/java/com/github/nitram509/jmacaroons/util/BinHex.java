@@ -16,11 +16,11 @@
 
 package com.github.nitram509.jmacaroons.util;
 
-public class Hex {
+public class BinHex {
 
   private static final char[] ALPHABET = "0123456789abcdef".toCharArray();
 
-  public static String toHex(byte... bytes) {
+  public static String bin2hex(byte... bytes) {
     if (bytes == null) return null;
     char[] hex = new char[bytes.length * 2];
     int counter = 0;
@@ -30,5 +30,4 @@ public class Hex {
     }
     return new String(hex);
   }
-
 }

@@ -21,21 +21,15 @@ import com.github.nitram509.jmacaroons.util.Base64;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 
 class MacaroonsDeSerializer {
 
-  private static final String HEX = "0123456789abcdef";
-  private static final Charset UTF8 = Charset.forName("UTF8");
-
-  private String location = null;
-  private String identifier = null;
-  private List<String> caveats = new ArrayList<String>(3);
-  private byte[] signature = null;
+  private static final String HEX_ALPHABET = "0123456789abcdef";
 
   public static Macaroon deserialize(String serializedMacaroon) throws NotDeSerializableException {
     assert serializedMacaroon != null;
@@ -49,13 +43,18 @@ class MacaroonsDeSerializer {
     }
     InputStream stream = new ByteArrayInputStream(bytes);
     try {
-      return new MacaroonsDeSerializer().deserializeStream(stream);
+      return deserializeStream(stream);
     } catch (IOException e) {
       throw new NotDeSerializableException(e);
     }
   }
 
-  private Macaroon deserializeStream(InputStream stream) throws IOException {
+  private static Macaroon deserializeStream(InputStream stream) throws IOException {
+    String location = null;
+    String identifier = null;
+    List<CaveatPacket> caveats = new ArrayList<CaveatPacket>(3);
+    byte[] signature = null;
+
     for (Packet packet; (packet = read_packet(stream)) != null; ) {
       if (bytesStartWith(packet.data, LOCATION_BYTES)) {
         location = parsePacket(packet, LOCATION_BYTES);
@@ -64,13 +63,22 @@ class MacaroonsDeSerializer {
         identifier = parsePacket(packet, IDENTIFIER_BYTES);
       }
       if (bytesStartWith(packet.data, CID_BYTES)) {
-        caveats.add(parsePacket(packet, CID_BYTES));
+        String s = parsePacket(packet, CID_BYTES);
+        caveats.add(new CaveatPacket(Type.cid, s));
+      }
+      if (bytesStartWith(packet.data, CL_BYTES)) {
+        String s = parsePacket(packet, CL_BYTES);
+        caveats.add(new CaveatPacket(Type.cl, s));
+      }
+      if (bytesStartWith(packet.data, VID_BYTES)) {
+        String s = parsePacket(packet, VID_BYTES);
+        caveats.add(new CaveatPacket(Type.vid, s));
       }
       if (bytesStartWith(packet.data, SIGNATURE_BYTES)) {
         signature = parseSignature(packet, SIGNATURE_BYTES);
       }
     }
-    return new Macaroon(location, identifier, caveats.toArray(new String[caveats.size()]), signature);
+    return new Macaroon(location, identifier, caveats.toArray(new CaveatPacket[caveats.size()]), signature);
   }
 
   private static byte[] parseSignature(Packet packet, byte[] signaturePacketData) {
@@ -84,7 +92,7 @@ class MacaroonsDeSerializer {
   private static String parsePacket(Packet packet, byte[] header) {
     int headerLen = header.length + KEY_VALUE_SEPARATOR.length();
     int len = packet.data.length - headerLen;
-    String payload = new String(packet.data, headerLen, len, UTF8);
+    String payload = new String(packet.data, headerLen, len, IDENTIFIER_CHARSET);
     if (payload.endsWith(LINE_SEPARATOR)) {
       payload = payload.substring(0, len - LINE_SEPARATOR.length());
     }
@@ -123,10 +131,10 @@ class MacaroonsDeSerializer {
 
   private static int parse_packet_header(byte[] lengthHeader) {
     int size = 0;
-    size += (HEX.indexOf(lengthHeader[0]) & 15) << 12;
-    size += (HEX.indexOf(lengthHeader[1]) & 15) << 8;
-    size += (HEX.indexOf(lengthHeader[2]) & 15) << 4;
-    size += (HEX.indexOf(lengthHeader[3]) & 15);
+    size += (HEX_ALPHABET.indexOf(lengthHeader[0]) & 15) << 12;
+    size += (HEX_ALPHABET.indexOf(lengthHeader[1]) & 15) << 8;
+    size += (HEX_ALPHABET.indexOf(lengthHeader[2]) & 15) << 4;
+    size += (HEX_ALPHABET.indexOf(lengthHeader[3]) & 15);
     return size;
   }
 

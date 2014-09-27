@@ -4,7 +4,7 @@ $("#btnCreate").click(function (event) {
   var location = $("#txtLocation").val();
   var identifier = $("#txtIdentifier").val();
   var secret = $("#txtSecret").val();
-  m = MacaroonsBuilder.create(location, secret, identifier);
+  m = com.github.nitram509.jmacaroons.MacaroonsBuilder.create(location, secret, identifier);
   $('#txtSerialized').text(m.inspect());
   return false;
 });
@@ -12,7 +12,7 @@ $("#btnCreate").click(function (event) {
 $("#btnAddCaveat").click(function (event) {
   var caveat = $("#txtCaveat").val();
   var secret = $("#txtSecret").val();
-  var mb = MacaroonsBuilder.modify(m, secret);
+  var mb = com.github.nitram509.jmacaroons.MacaroonsBuilder.modify(m, secret);
   mb.add_first_party_caveat(caveat);
   m = mb.getMacaroon();
   $('#txtSerialized').text(m.inspect());

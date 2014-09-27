@@ -16,18 +16,25 @@
 
 package com.github.nitram509.jmacaroons;
 
+import com.github.nitram509.jmacaroons.util.Base64;
+
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-import static com.github.nitram509.jmacaroons.CryptoTools.generate_derived_key;
-import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_hmac;
+import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
+import static com.github.nitram509.jmacaroons.CryptoTools.*;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 import static com.github.nitram509.jmacaroons.util.ArrayTools.appendToArray;
 import static com.github.nitram509.jmacaroons.util.ArrayTools.containsElement;
+import static com.neilalexander.jnacl.crypto.xsalsa20poly1305.crypto_secretbox_open;
 
 public class MacaroonsVerifier {
 
   private String[] predicates = new String[0];
+  private List<Macaroon> boundMacaroons = new ArrayList<Macaroon>(3);
   private GeneralCaveatVerifier[] generalCaveatVerifiers = new GeneralCaveatVerifier[0];
   private final Macaroon macaroon;
 
@@ -38,11 +45,19 @@ public class MacaroonsVerifier {
   /**
    * @param secret secret
    * @throws com.github.nitram509.jmacaroons.MacaroonValidationException     when the macaroon isn't valid
-   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException when the runtime doesn't provide sufficient crypto support
    */
   public void assertIsValid(String secret) throws MacaroonValidationException, GeneralSecurityRuntimeException {
-    if (!isValid(secret)) {
-      throw new MacaroonValidationException("This macaroon isn't valid.", macaroon);
+    try {
+      VerificationResult result = isValid_verify_raw(macaroon, secret);
+      if (result.fail) {
+        String msg = result.failMessage != null ? result.failMessage : "This macaroon isn't valid.";
+        throw new MacaroonValidationException(msg, macaroon);
+      }
+    } catch (InvalidKeyException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    } catch (NoSuchAlgorithmException e) {
+      throw new GeneralSecurityRuntimeException(e);
     }
   }
 
@@ -53,23 +68,88 @@ public class MacaroonsVerifier {
    */
   public boolean isValid(String secret) throws GeneralSecurityRuntimeException {
     try {
-      byte[] key = generate_derived_key(secret);
-      byte[] hmac = macaroon_hmac(key, macaroon.identifier);
-      if (macaroon.caveats != null) {
-        for (String caveat : macaroon.caveats) {
-          if (caveat != null) {
-            if (containsElement(predicates, caveat) || verifiesGeneral(caveat)) {
-              hmac = macaroon_hmac(hmac, caveat);
-            }
-          }
-        }
-      }
-      return Arrays.equals(hmac, macaroon.signatureBytes);
+      return !isValid_verify_raw(macaroon, secret).fail;
     } catch (InvalidKeyException e) {
       throw new GeneralSecurityRuntimeException(e);
     } catch (NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
+  }
+
+  private VerificationResult isValid_verify_raw(Macaroon M, String secret) throws NoSuchAlgorithmException, InvalidKeyException {
+    byte[] key = generate_derived_key(secret);
+    VerificationResult vresult = macaroon_verify_inner(M, key);
+    if (!vresult.fail) {
+      vresult.fail = !Arrays.equals(vresult.csig, getMacaroon().signatureBytes);
+      if (vresult.fail) {
+        vresult = new VerificationResult("Verification failed. Signature doesn't match. Maybe the key was wrong OR some caveats aren't satisfied.");
+      }
+    }
+    return vresult;
+  }
+
+  private VerificationResult macaroon_verify_inner(Macaroon M, byte[] key) throws InvalidKeyException, NoSuchAlgorithmException {
+    byte[] csig = macaroon_hmac(key, M.identifier);
+    if (M.caveatPackets != null) {
+      CaveatPacket[] caveatPackets = M.caveatPackets;
+      for (int i = 0; i < caveatPackets.length; i++) {
+        CaveatPacket caveat = caveatPackets[i];
+        if (caveat == null) continue;
+        if (caveat.type == Type.cl) continue; // todo: 99.9% yes --> make 100% sure ;-)
+        if (!(caveat.type == Type.cid && caveatPackets[Math.min(i + 1, caveatPackets.length - 1)].type == Type.vid)) {
+          if (containsElement(predicates, caveat.value) || verifiesGeneral(caveat.value)) {
+            csig = macaroon_hmac(csig, caveat.value);
+          }
+        } else {
+          i++;
+          CaveatPacket caveat_vid = caveatPackets[i];
+          Macaroon boundMacaroon = findBoundMacaroon(caveat.value);
+          if (boundMacaroon != null && !macaroon_verify_inner_3rd(boundMacaroon, caveat_vid, csig)) {
+            String msg = "Couldn't verify 3rd party macaroon, identifier= " + boundMacaroon.identifier;
+            return new VerificationResult(msg);
+          }
+          byte[] data = caveat.value.getBytes(IDENTIFIER_CHARSET);
+          byte[] vdata = caveat_vid.value.getBytes(IDENTIFIER_CHARSET);
+          csig = macaroon_hash2(csig, vdata, data);
+        }
+      }
+    }
+    return new VerificationResult(csig);
+  }
+
+  private boolean macaroon_verify_inner_3rd(Macaroon M, CaveatPacket C, byte[] sig) throws InvalidKeyException, NoSuchAlgorithmException {
+    if (M == null) return false;
+    byte[] enc_nonce = new byte[MACAROON_SECRET_NONCE_BYTES];
+    byte[] enc_plaintext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
+    byte[] enc_ciphertext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
+    assert C.value.length() == VID_NONCE_KEY_SZ * 4 / 3;
+
+    byte[] b64_dec = Base64.decode(C.value);
+    System.arraycopy(b64_dec, 0, enc_nonce, 0, MACAROON_SECRET_NONCE_BYTES);
+    System.arraycopy(b64_dec, MACAROON_SECRET_NONCE_BYTES, enc_ciphertext, MACAROON_SECRET_BOX_ZERO_BYTES, VID_NONCE_KEY_SZ - MACAROON_SECRET_NONCE_BYTES);
+    boolean valid = 0 == macaroon_secretbox_open(sig, enc_nonce, enc_ciphertext, MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES, enc_plaintext);
+
+    byte[] key = new byte[MACAROON_HASH_BYTES];
+    System.arraycopy(enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, key, 0, MACAROON_HASH_BYTES);
+    VerificationResult vresult = macaroon_verify_inner(M, key);
+
+    byte[] data = getMacaroon().signatureBytes;
+    byte[] csig = macaroon_bind(data, vresult.csig);
+
+    return valid && Arrays.equals(csig, M.signatureBytes);
+  }
+
+  private Macaroon findBoundMacaroon(String identifier) {
+    for (int i = 0, len = boundMacaroons.size(); i < len; ++i) {
+      if (identifier.equals(boundMacaroons.get(i).identifier)) {
+        return boundMacaroons.get(i);
+      }
+    }
+    return null;
+  }
+
+  private static int macaroon_secretbox_open(byte[] enc_key, byte[] enc_nonce, byte[] ciphertext, int ciphertext_sz, byte[] plaintext) {
+    return crypto_secretbox_open(plaintext, ciphertext, ciphertext_sz, enc_nonce, enc_key);
   }
 
   private boolean verifiesGeneral(String caveat) {
@@ -99,6 +179,19 @@ public class MacaroonsVerifier {
   }
 
   /**
+   * Binds a prepared macaroon.
+   *
+   * @param preparedMacaroon preparedMacaroon
+   * @return this {@link com.github.nitram509.jmacaroons.MacaroonsVerifier}
+   */
+  public MacaroonsVerifier satisfy3rdParty(Macaroon preparedMacaroon) {
+    if (preparedMacaroon != null) {
+      this.boundMacaroons.add(preparedMacaroon);
+    }
+    return this;
+  }
+
+  /**
    * Another technique for informing the verifier that a caveat is satisfied
    * allows for expressive caveats. Whereas exact caveats are checked
    * by simple byte-wise equality, general caveats are checked using
@@ -120,5 +213,20 @@ public class MacaroonsVerifier {
 
   public Macaroon getMacaroon() {
     return macaroon;
+  }
+
+  private static class VerificationResult {
+    byte[] csig = null;
+    boolean fail = false;
+    String failMessage = null;
+
+    private VerificationResult(byte[] csig) {
+      this.csig = csig;
+    }
+
+    private VerificationResult(String failMessage) {
+      this.failMessage = failMessage;
+      this.fail = true;
+    }
   }
 }

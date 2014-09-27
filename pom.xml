@@ -37,15 +37,20 @@
       <version>2.6.1</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.timepedia.exporter</groupId>
+      <artifactId>gwtexporter</artifactId>
+      <version>2.5.1</version>
+    </dependency>
     <!--<dependency>-->
-      <!--<groupId>com.googlecode</groupId>-->
-      <!--<artifactId>crypto-gwt</artifactId>-->
-      <!--<version>1.0</version>-->
+    <!--<groupId>com.googlecode</groupId>-->
+    <!--<artifactId>crypto-gwt</artifactId>-->
+    <!--<version>1.0</version>-->
     <!--</dependency>-->
     <!--<dependency>-->
-      <!--<groupId>com.googlecode.gwt-crypto</groupId>-->
-      <!--<artifactId>gwt-crypto</artifactId>-->
-      <!--<version>2.3.0</version>-->
+    <!--<groupId>com.googlecode.gwt-crypto</groupId>-->
+    <!--<artifactId>gwt-crypto</artifactId>-->
+    <!--<version>2.3.0</version>-->
     <!--</dependency>-->
 
   </dependencies>
@@ -58,8 +63,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.7</source>
+          <target>1.7</target>
         </configuration>
       </plugin>
 

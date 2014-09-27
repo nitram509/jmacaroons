@@ -16,21 +16,30 @@
 
 package com.github.nitram509.jmacaroons.util;
 
+import com.github.nitram509.jmacaroons.CaveatPacket;
 import com.github.nitram509.jmacaroons.GeneralCaveatVerifier;
 
 public class ArrayTools {
 
-  public static GeneralCaveatVerifier[] appendToArray(GeneralCaveatVerifier[] elements, GeneralCaveatVerifier newElement) {
-    assert newElement != null;
-    GeneralCaveatVerifier[] tmp = new GeneralCaveatVerifier[elements.length + 1];
+  public static CaveatPacket[] appendToArray(CaveatPacket[] elements, CaveatPacket... newElements) {
+    assert newElements != null;
+    CaveatPacket[] tmp = new CaveatPacket[elements.length + newElements.length];
     System.arraycopy(elements, 0, tmp, 0, elements.length);
-    tmp[elements.length] = newElement;
+    System.arraycopy(newElements, 0, tmp, elements.length, newElements.length);
     return tmp;
   }
 
   public static String[] appendToArray(String[] elements, String newElement) {
     assert newElement != null;
     String[] tmp = new String[elements.length + 1];
+    System.arraycopy(elements, 0, tmp, 0, elements.length);
+    tmp[elements.length] = newElement;
+    return tmp;
+  }
+
+  public static GeneralCaveatVerifier[] appendToArray(GeneralCaveatVerifier[] elements, GeneralCaveatVerifier newElement) {
+    assert newElement != null;
+    GeneralCaveatVerifier[] tmp = new GeneralCaveatVerifier[elements.length + 1];
     System.arraycopy(elements, 0, tmp, 0, elements.length);
     tmp[elements.length] = newElement;
     return tmp;

@@ -25,9 +25,13 @@ import java.util.Date;
 
 /**
  * <p>
- * A verifier that is able to verify timestamps.
- * In general, ISO8601 timestamp format with optional parts is allowed. Supported formats:
+ * A verifier that is able to verify timestamps against current time.
+ * Thus, it only supports general caveats i.e. <code>"time&nbsp;&lt;&nbsp;2085-12-31T00:00"</code>.
+ * In general, ISO8601 timestamp format with optional parts is allowed.
+ * </p>
+ *
  * <table>
+ * <caption><strong>Supported formats</strong></caption>
  * <tr>
  * <th>Supported pattern</th>
  * <th>Example</th>
@@ -53,20 +57,16 @@ import java.util.Date;
  * <td>2014-09-23 (only precise up to 1 day)</td>
  * </tr>
  * </table>
- * </p>
- * <p>
- * <strong>Applying a time based caveat</strong><br>
- * <code>
- * <pre>
+ * <br>
+ * <strong>Applying a time based caveat</strong>
+ * <pre>{@code
  * Macaroon m = new MacaroonsBuilder("location", "secret", "identifiert")
- *    .add_first_party_caveat("time < 2042-09-23T17:42:35")
+ *    .add_first_party_caveat("time &lt; 2042-09-23T17:42:35")
  *    .getMacaroon();
  * new MacaroonsVerifier(m)
  *    .satisfyGeneral(new TimestampCaveatVerifier())
  *    .assertIsValid("secret");
- * </pre>
- * </code>
- * </p>
+ * }</pre>
  */
 public class TimestampCaveatVerifier implements GeneralCaveatVerifier {
 
