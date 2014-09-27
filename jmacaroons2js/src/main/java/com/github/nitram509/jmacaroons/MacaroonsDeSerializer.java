@@ -17,13 +17,10 @@
 package com.github.nitram509.jmacaroons;
 
 import com.github.nitram509.jmacaroons.util.Base64;
-import com.github.nitram509.jmacaroons.util.StringUtil;
 import org.timepedia.exporter.client.Export;
 import org.timepedia.exporter.client.Exportable;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,8 +28,7 @@ import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 import static com.github.nitram509.jmacaroons.util.StringUtil.asString;
 
-@Export
-class MacaroonsDeSerializer implements Exportable {
+class MacaroonsDeSerializer {
 
   private static final String HEX_ALPHABET = "0123456789abcdef";
 
@@ -46,7 +42,7 @@ class MacaroonsDeSerializer implements Exportable {
     if (bytes.length < minLength) {
       throw new NotDeSerializableException("Couldn't deserialize macaroon. Not enough bytes for signature found. There have to be at least " + minLength + " bytes");
     }
-    InputStream stream = new ByteArrayInputStream(bytes);
+    Stream stream = new Stream(bytes);
     try {
       return deserializeStream(stream);
     } catch (IOException e) {
@@ -54,7 +50,7 @@ class MacaroonsDeSerializer implements Exportable {
     }
   }
 
-  private static Macaroon deserializeStream(InputStream stream) throws IOException {
+  private static Macaroon deserializeStream(Stream stream) throws IOException {
     String location = null;
     String identifier = null;
     List<CaveatPacket> caveats = new ArrayList<CaveatPacket>(3);
@@ -112,7 +108,7 @@ class MacaroonsDeSerializer implements Exportable {
     return true;
   }
 
-  private static Packet read_packet(InputStream stream) throws IOException {
+  private static Packet read_packet(Stream stream) throws IOException {
     int read;
 
     byte[] lengthHeader = new byte[PACKET_PREFIX_LENGTH];
@@ -153,4 +149,23 @@ class MacaroonsDeSerializer implements Exportable {
     }
   }
 
+  private static class Stream {
+
+    private final byte[] buffer;
+    private int seekIndex = 0;
+
+    public Stream(byte[] buffer) {
+      this.buffer = buffer;
+    }
+
+    public int read(byte[] data) {
+      int len = Math.min(data.length, buffer.length - seekIndex);
+      if (len > 0) {
+        System.arraycopy(buffer, seekIndex, data, 0, len);
+        seekIndex += len;
+        return len;
+      }
+      return -1;
+    }
+  }
 }
