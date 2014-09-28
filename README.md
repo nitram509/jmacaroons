@@ -13,7 +13,8 @@ The primary goals are
    * being Android compatible, while using Java6
    * being the reference implementation in the Java community ;-)
 
-There is a [playground](https://nitram509.github.io/jmacaroons/) (testing environment) available.
+There is a [playground](https://nitram509.github.io/jmacaroons/) (testing environment) available,
+where you can build and verify macaroons online.
 
 ##### License
 
