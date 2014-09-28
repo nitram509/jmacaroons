@@ -98,6 +98,13 @@ input, button, textarea {
   padding: 2px 5px;
 }
 
+textarea {
+  border-radius: 3px;
+}
+
+button {
+  cursor: pointer;
+}
 
 #wrap {
   width: 1000px;

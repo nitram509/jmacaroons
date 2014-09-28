@@ -50,7 +50,7 @@
     if (location.length > 0 && identifier.length > 0 && secret.length > 0) {
       $('#btnCreate')
           .removeAttr('disabled')
-          .attr('title', 'Build a macaroon');
+          .attr('title', 'Create a macaroon');
     } else {
       $('#btnCreate')
           .attr('disabled', 'disabled')
