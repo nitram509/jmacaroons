@@ -13,6 +13,8 @@ The primary goals are
    * being Android compatible, while using Java6
    * being the reference implementation in the Java community ;-)
 
+There is a [playground](https://nitram509.github.io/jmacaroons/) (testing environment) available.
+
 ##### License
 
 [![License](https://img.shields.io/:license-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
