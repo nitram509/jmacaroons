@@ -1,0 +1,20 @@
+{
+  "name": "jmacaroons-playground",
+  "version": "0.0.0",
+  "homepage": "https://github.com/nitram509/jmacaroons",
+  "authors": [
+    "nitram509 <maki@bitkings.de>"
+  ],
+  "description": "Macaroons are Better Than Cookies! A Playground For Building And verifying Macaroons",
+  "moduleType": [
+    "globals"
+  ],
+  "license": "Apache 2.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "www/lib",
+    "test",
+    "tests"
+  ]
+}
