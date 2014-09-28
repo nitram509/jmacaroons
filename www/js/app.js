@@ -48,11 +48,13 @@
     var identifier = $("#txtIdentifier").val() || "";
     var secret = $("#txtSecret").val() || "";
     if (location.length > 0 && identifier.length > 0 && secret.length > 0) {
-      $('#btnCreate').removeAttr('disabled');
-      $('#btnCreate').attr('title', 'Build a macaroon');
+      $('#btnCreate')
+          .removeAttr('disabled')
+          .attr('title', 'Build a macaroon');
     } else {
-      $('#btnCreate').attr('disabled', 'disabled');
-      $('#btnCreate').attr('title', 'Please, fill all data fields first.');
+      $('#btnCreate')
+          .attr('disabled', 'disabled')
+          .attr('title', 'Please, fill all data fields first.');
     }
   }
 

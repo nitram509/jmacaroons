@@ -34,6 +34,7 @@
       <a name="build"><h1>Build</h1></a>
 
       <h5>Basic input data</h5>
+
       <div>
         <table border="0" cellpadding="0" cellspacing="0">
           <tr>
@@ -48,19 +49,24 @@
           </tr>
           <tr>
             <td colspan="2" style="text-align: left"></td>
-            <td colspan="1" style="text-align: left"><button id="btnCreate" type="button" disabled="disabled">Create</button></td>
+            <td colspan="1" style="text-align: left">
+              <button id="btnCreate" type="button" disabled="disabled">Create</button>
+            </td>
           </tr>
         </table>
       </div>
 
-      <h5>Macaroon details</h5>
+      <h5>Macaroon technical details</h5>
+
       <div>
-      <textarea id="txtDetails" style="width: 100%" rows="10" readonly="readonly"></textarea>
+        <textarea id="txtDetails" style="width: 100%" rows="10" readonly="readonly"></textarea>
       </div>
 
-      <h5>Macaroon serialized <button id="copy-serialized" data-clipboard-text="" title="Click to copy me." style="display: none;">Copy to Clipboard</button></h5>
+      <h5>Macaroon serialized</h5>
+
       <div>
-      <textarea id="txtSerialized" style="width: 100%" rows="2" readonly="readonly"></textarea>
+        <textarea id="txtSerialized" style="width: 100%" rows="2" readonly="readonly"></textarea>
+        <button id="copy-serialized" data-clipboard-text="" title="Click to copy me." style="display: none;">Copy to Clipboard</button>
       </div>
 
       <p><br></p>
@@ -86,7 +92,7 @@
       </p>
 
       <p>
-        The <i>jmacaroons</i> source code is available on Github:<br>
+        The <a href="https://github.com/nitram509/jmacaroons">jmacaroons</a> source code is available on Github:<br>
         <iframe src="http://ghbtns.com/github-btn.html?user=nitram509&repo=jmacaroons&type=watch&count=true"
                 allowtransparency="true" frameborder="0" scrolling="0" width="62" height="20"></iframe>
         <iframe src="http://ghbtns.com/github-btn.html?user=nitram509&repo=jmacaroons&type=fork&count=true"
