@@ -117,3 +117,8 @@ color: #fff;
 
 .footerleft { float: left; }
 .footerright { float: right; }
+
+/* follow on twitter widget */
+#twitter-widget-0 {
+  vertical-align: middle;
+}
