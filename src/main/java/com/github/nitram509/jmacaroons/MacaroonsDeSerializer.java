@@ -18,9 +18,6 @@ package com.github.nitram509.jmacaroons;
 
 import com.github.nitram509.jmacaroons.util.Base64;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,40 +38,30 @@ class MacaroonsDeSerializer {
     if (bytes.length < minLength) {
       throw new NotDeSerializableException("Couldn't deserialize macaroon. Not enough bytes for signature found. There have to be at least " + minLength + " bytes");
     }
-    InputStream stream = new ByteArrayInputStream(bytes);
-    try {
-      return deserializeStream(stream);
-    } catch (IOException e) {
-      throw new NotDeSerializableException(e);
-    }
+    return deserializeStream(new StatefulPacketReader(bytes));
   }
 
-  private static Macaroon deserializeStream(InputStream stream) throws IOException {
+  private static Macaroon deserializeStream(StatefulPacketReader packetReader) {
     String location = null;
     String identifier = null;
     List<CaveatPacket> caveats = new ArrayList<CaveatPacket>(3);
     byte[] signature = null;
 
-    for (Packet packet; (packet = read_packet(stream)) != null; ) {
+    for (Packet packet; (packet = readPacket(packetReader)) != null; ) {
       if (bytesStartWith(packet.data, LOCATION_BYTES)) {
         location = parsePacket(packet, LOCATION_BYTES);
-      }
-      if (bytesStartWith(packet.data, IDENTIFIER_BYTES)) {
+      } else if (bytesStartWith(packet.data, IDENTIFIER_BYTES)) {
         identifier = parsePacket(packet, IDENTIFIER_BYTES);
-      }
-      if (bytesStartWith(packet.data, CID_BYTES)) {
+      } else if (bytesStartWith(packet.data, CID_BYTES)) {
         String s = parsePacket(packet, CID_BYTES);
         caveats.add(new CaveatPacket(Type.cid, s));
-      }
-      if (bytesStartWith(packet.data, CL_BYTES)) {
+      } else if (bytesStartWith(packet.data, CL_BYTES)) {
         String s = parsePacket(packet, CL_BYTES);
         caveats.add(new CaveatPacket(Type.cl, s));
-      }
-      if (bytesStartWith(packet.data, VID_BYTES)) {
+      } else if (bytesStartWith(packet.data, VID_BYTES)) {
         String s = parsePacket(packet, VID_BYTES);
         caveats.add(new CaveatPacket(Type.vid, s));
-      }
-      if (bytesStartWith(packet.data, SIGNATURE_BYTES)) {
+      } else if (bytesStartWith(packet.data, SIGNATURE_BYTES)) {
         signature = parseSignature(packet, SIGNATURE_BYTES);
       }
     }
@@ -107,35 +94,22 @@ class MacaroonsDeSerializer {
     return true;
   }
 
-  private static Packet read_packet(InputStream stream) throws IOException {
-    int read;
-
-    byte[] lengthHeader = new byte[PACKET_PREFIX_LENGTH];
-    read = stream.read(lengthHeader);
-    if (read < 0) return null;
-    if (read != lengthHeader.length) {
-      throw new NotDeSerializableException("Not enough header bytes available. Needed " + lengthHeader.length + " bytes, but was only " + read);
+  private static Packet readPacket(StatefulPacketReader stream) {
+    if (stream.isEOF()) return null;
+    if (!stream.isPacketHeaderAvailable()) {
+      throw new NotDeSerializableException("Not enough header bytes available. Needed " + PACKET_PREFIX_LENGTH + " bytes.");
     }
-    int size = parse_packet_header(lengthHeader);
+    int size = stream.readPacketHeader();
     assert size <= PACKET_MAX_SIZE;
 
     byte[] data = new byte[size - PACKET_PREFIX_LENGTH];
-    read = stream.read(data);
+    int read = stream.read(data);
     if (read < 0) return null;
     if (read != data.length) {
       throw new NotDeSerializableException("Not enough data bytes available. Needed " + data.length + " bytes, but was only " + read);
     }
 
     return new Packet(size, data);
-  }
-
-  private static int parse_packet_header(byte[] lengthHeader) {
-    int size = 0;
-    size += (HEX_ALPHABET.indexOf(lengthHeader[0]) & 15) << 12;
-    size += (HEX_ALPHABET.indexOf(lengthHeader[1]) & 15) << 8;
-    size += (HEX_ALPHABET.indexOf(lengthHeader[2]) & 15) << 4;
-    size += (HEX_ALPHABET.indexOf(lengthHeader[3]) & 15);
-    return size;
   }
 
   private static class Packet {
@@ -145,6 +119,43 @@ class MacaroonsDeSerializer {
     private Packet(int size, byte[] data) {
       this.size = size;
       this.data = data;
+    }
+  }
+
+  private static class StatefulPacketReader {
+
+    private final byte[] buffer;
+    private int seekIndex = 0;
+
+    public StatefulPacketReader(byte[] buffer) {
+      this.buffer = buffer;
+    }
+
+    public int read(byte[] data) {
+      int len = Math.min(data.length, buffer.length - seekIndex);
+      if (len > 0) {
+        System.arraycopy(buffer, seekIndex, data, 0, len);
+        seekIndex += len;
+        return len;
+      }
+      return -1;
+    }
+
+    public int readPacketHeader() {
+      int size = 0;
+      size += (HEX_ALPHABET.indexOf(buffer[seekIndex++]) & 15) << 12;
+      size += (HEX_ALPHABET.indexOf(buffer[seekIndex++]) & 15) << 8;
+      size += (HEX_ALPHABET.indexOf(buffer[seekIndex++]) & 15) << 4;
+      size += (HEX_ALPHABET.indexOf(buffer[seekIndex++]) & 15);
+      return size;
+    }
+
+    public boolean isPacketHeaderAvailable() {
+      return seekIndex <= (buffer.length - PACKET_PREFIX_LENGTH);
+    }
+
+    public boolean isEOF() {
+      return !(seekIndex < buffer.length);
     }
   }
 

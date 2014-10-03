@@ -18,7 +18,6 @@ package com.github.nitram509.jmacaroons;
 
 import com.github.nitram509.jmacaroons.util.Base64;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +32,6 @@ class MacaroonsSerializer {
           '8', '9', 'a', 'b',
           'c', 'd', 'e', 'f'};
 
-  private static final Charset UTF8 = Charset.forName("UTF-8");
-
   public static String serialize(Macaroon macaroon) {
     List<byte[]> packets = new ArrayList<byte[]>(3 + macaroon.caveatPackets.length);
     packets.add(serialize_packet(Type.location, macaroon.location));
@@ -47,7 +44,7 @@ class MacaroonsSerializer {
   }
 
   private static byte[] serialize_packet(Type type, String data) {
-    return serialize_packet(type, data.getBytes(UTF8));
+    return serialize_packet(type, data.getBytes(IDENTIFIER_CHARSET));
   }
 
   private static byte[] serialize_packet(Type type, byte[] data) {
