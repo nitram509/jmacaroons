@@ -16,6 +16,7 @@
 
 package com.github.nitram509.jmacaroons;
 
+import com.github.nitram509.jmacaroons.util.ArrayTools;
 import com.github.nitram509.jmacaroons.util.Base64;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.List;
 
 import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
+import static com.github.nitram509.jmacaroons.util.ArrayTools.flattenByteArray;
 
 class MacaroonsSerializer {
 
@@ -79,20 +81,6 @@ class MacaroonsSerializer {
     packet[2] = HEX[(size >> 4) & 15];
     packet[3] = HEX[(size) & 15];
     return packet;
-  }
-
-  private static byte[] flattenByteArray(List<byte[]> packets) {
-    int size = 0;
-    for (byte[] packet : packets) {
-      size += packet.length;
-    }
-    byte[] alldata = new byte[size];
-    size = 0;
-    for (byte[] packet : packets) {
-      System.arraycopy(packet, 0, alldata, size, packet.length);
-      size += packet.length;
-    }
-    return alldata;
   }
 
 }

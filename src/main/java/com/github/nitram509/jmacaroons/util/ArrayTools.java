@@ -19,6 +19,8 @@ package com.github.nitram509.jmacaroons.util;
 import com.github.nitram509.jmacaroons.CaveatPacket;
 import com.github.nitram509.jmacaroons.GeneralCaveatVerifier;
 
+import java.util.List;
+
 public class ArrayTools {
 
   public static CaveatPacket[] appendToArray(CaveatPacket[] elements, CaveatPacket... newElements) {
@@ -52,5 +54,19 @@ public class ArrayTools {
       }
     }
     return false;
+  }
+
+  public static byte[] flattenByteArray(List<byte[]> packets) {
+    int size = 0;
+    for (byte[] packet : packets) {
+      size += packet.length;
+    }
+    byte[] alldata = new byte[size];
+    size = 0;
+    for (byte[] packet : packets) {
+      System.arraycopy(packet, 0, alldata, size, packet.length);
+      size += packet.length;
+    }
+    return alldata;
   }
 }
