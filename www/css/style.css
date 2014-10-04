@@ -113,19 +113,20 @@ button {
 
 #header {
   height: 160px;
-  background: url(../img/header.jpg) repeat-x;
+  background: url(../img/Macarons_au_fruits_by_Austinii-header.jpg) repeat-x;
   text-align: right;
 }
 
 #header h1 {
   font-family: 'Amaranth', arial, serif;
   margin: 0;
-  padding: 40px 50px 0 0;
+  padding: 40px 50px 5px 0;
   font-weight: bold;
   font-size: 51px;
   border: none;
   line-height: 1;
   background: none;
+  text-shadow: 0 0 0.1em #323232, 0 0 0.1em #323232, 0 0 0.1em #323232;
 }
 
 #header h1 a {
@@ -144,8 +145,9 @@ button {
   margin: 0;
   padding: 0 50px 0 0;
   color: #000;
-  font-weight: bold;
+  font-weight: 900;
   font-size: 21px;
+  text-shadow: 0 0 0.1em #f2f2f2, 0 0 0.1em #f2f2f2, 0 0 0.1em #f2f2f2;
 }
 
 #menu {
@@ -228,7 +230,7 @@ button {
 }
 
 #footertop {
-  background: url(../img/footertop.jpg) no-repeat;
+  background: url(../img/Macarons_au_fruits_by_Austinii-footer.jpg) no-repeat;
   padding: 5px 0;
 }
 
