@@ -24,7 +24,7 @@
   <div id="menu">
     <ul>
       <li><a href="#build">Build</a></li>
-      <!--<li><a href="#verify">Verify</a></li>-->
+      <li><a href="#verify">Verify</a></li>
     </ul>
   </div>
 
@@ -74,7 +74,23 @@
 
       <p><br></p>
 
-      <!--<a name="verify"><h1>Verify</h1></a>-->
+      <a name="verify"><h1>Verify</h1></a>
+
+      <h5>Input Macaroon</h5>
+
+      <div>
+        <textarea id="txtSerialized_verify" style="width: 100%" rows="2" placeholder="Add your serialized macaroon here ..."></textarea>
+        <button id="btnDeSerialize">Deserialize</button>
+      </div>
+
+      <h5>Macaroon technical details</h5>
+
+      <div>
+        <textarea id="txtDetails_verify" style="width: 100%" rows="10" readonly="readonly"></textarea>
+        <input type="text" id="txtSecret_verify" placeholder="your private secret">
+        <button id="btnVerify">Verify</button>
+        <img id="imgVerified" src="www/img/dwcheckyes.png" alt="Verified OK" style="position: relative; top:-75px; float: right; display: none">
+      </div>
 
     </div>
 

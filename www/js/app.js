@@ -2,6 +2,7 @@
   "use strict";
 
   var m;
+  var mv;
 
   $("#btnCreate").click(function (event) {
     var location = $("#txtLocation").val();
@@ -11,12 +12,6 @@
     $('#txtDetails').text(m.inspect());
     $('#txtSerialized').text(m.serialize());
     $('#copy-serialized').attr('data-clipboard-text', m.serialize()).show("fast");
-  });
-
-  $("#btnDeSerialize").click(function (event) {
-    var serialized = $('#txtSerialized').val();
-    m = com.github.nitram509.jmacaroons.MacaroonsBuilder.deserialize(serialized);
-    $('#txtInspect').text(m.inspect());
   });
 
   $("#btnAddCaveat").click(function (event) {
@@ -30,11 +25,21 @@
     }
   });
 
+  $("#btnDeSerialize").click(function (event) {
+    var serialized = $('#txtSerialized_verify').val();
+    mv = com.github.nitram509.jmacaroons.MacaroonsBuilder.deserialize(serialized);
+    $('#txtDetails_verify').text(mv.inspect());
+  });
+
   $("#btnVerify").click(function (event) {
-    if (m) {
-      var secret = $("#txtSecret").val();
-      var v = new com.github.nitram509.jmacaroons.MacaroonsVerifier(m);
-      alert("Valid = " + v.isValid(secret));
+    if (mv) {
+      var secret = $("#txtSecret_verify").val();
+      var v = new com.github.nitram509.jmacaroons.MacaroonsVerifier(mv);
+      if (v.isValid(secret)) {
+        $("#imgVerified").show('fast')
+      } else {
+        $("#imgVerified").hide('fast')
+      }
     }
   });
 
