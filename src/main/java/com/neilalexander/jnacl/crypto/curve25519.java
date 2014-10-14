@@ -232,34 +232,29 @@ public class curve25519
 		for (int j = 1; j < 64; ++j)
 			xzm[j] = 0;
 
-		int[] xzmbp = xzmb, a0p = a0, xzm1bp = xzm1b;
-		int[] a1p = a1, b0p = b0, b1p = b1, c1p = c1;
-		int[] xznbp = xznb, up = u, xzn1bp = xzn1b;
-		int[] workp = work, sp = s, rp = r;
-
 		for (int pos = 254; pos >= 0; --pos)
 		{
 			int b = ((int) ((e[pos / 8] & 0xFF) >>> (pos & 7)));
 			b &= 1;
 			select(xzmb, xzm1b, xzm, xzm1, b);
-			add(a0, 	0,	xzmb, 	0,	xzmbp,	32);
-			sub(a0p,	32,	xzmb, 	0,	xzmbp, 	32);
-			add(a1, 	0,	xzm1b, 	0,	xzm1bp,	32);
-			sub(a1p,	32,	xzm1b, 	0,	xzm1bp, 32);
-			square(b0p,	0,	a0p,	0);
-			square(b0p, 32,	a0p,	32);
-			mult(b1p,	0,	a1p,	0, 	a0p,	32);
-			mult(b1p,	32,	a1p,	32,	a0p,	0);
-			add(c1, 	0,	b1, 	0,	b1p,	32);
-			sub(c1p,	32,	b1,		0,	b1p,	32);
-			square(rp,	0,	c1p,	32);
-			sub(sp,		0,	b0,		0,	b0p,	32);
+			add(a0, 	0,	xzmb, 	0, xzmb,	32);
+			sub(a0,	32,	xzmb, 	0, xzmb, 	32);
+			add(a1, 	0,	xzm1b, 	0, xzm1b,	32);
+			sub(a1,	32,	xzm1b, 	0, xzm1b, 32);
+			square(b0,	0, a0,	0);
+			square(b0, 32, a0,	32);
+			mult(b1,	0, a1,	0, a0,	32);
+			mult(b1,	32, a1,	32, a0,	0);
+			add(c1, 	0,	b1, 	0, b1,	32);
+			sub(c1,	32,	b1,		0, b1,	32);
+			square(r,	0, c1,	32);
+			sub(s,		0,	b0,		0, b0,	32);
 			mult121665(t, s);
-			add(u, 		0,	t, 		0,	b0p,	0);
-			mult(xznbp,	0,	b0p,	0,	b0p,	32);
-			mult(xznbp,	32, sp,		0,	up,		0);
-			square(xzn1bp, 0, c1p,	0);
-			mult(xzn1bp, 32, rp, 	0, 	workp, 	0);
+			add(u, 		0,	t, 		0, b0,	0);
+			mult(xznb,	0, b0,	0, b0,	32);
+			mult(xznb,	32, s,		0, u,		0);
+			square(xzn1b, 0, c1,	0);
+			mult(xzn1b, 32, r, 	0, work, 	0);
 			select(xzm, xzm1, xznb, xzn1b, b);
 		}
 
@@ -281,8 +276,7 @@ public class curve25519
 		int[] t1 = new int[32];
 
 		/* 2 */
-		int[] z2p = z2;
-		square(z2p, 0, z, zoffset);
+		square(z2, 0, z, zoffset);
 		
 		/* 4 */
 		square(t1, 0, z2, 0);
@@ -291,8 +285,7 @@ public class curve25519
 		square(t0, 0, t1, 0);
 		
 		/* 9 */
-		int[] z9p = z9, t0p = t0;
-		mult(z9p, 0, t0p, 0, z, zoffset);
+		mult(z9, 0, t0, 0, z, zoffset);
 		
 		/* 11 */
 		mult(z11, 0, z9, 0, z2, 0);
@@ -433,8 +426,7 @@ public class curve25519
 		square(t1, 0, t0, 0);
 		
 		/* 2^255 - 21 */
-		int[] t1p = t1, z11p = z11;
-		mult(outv, outvoffset, t1p, 0, z11p, 0);
+		mult(outv, outvoffset, t1, 0, z11, 0);
 	}
 
 	public static int crypto_scalarmult(byte[] q, byte[] n, byte[] p)
