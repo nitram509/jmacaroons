@@ -31,19 +31,23 @@ public class AuthoritiesCaveatVerifierTest {
     verifier = new AuthoritiesCaveatVerifier(null);
   }
 
-  @DataProvider(name = "SingleAuthorityCombinations_for_ADMIN")
+  @DataProvider(name = "SingleAuthorityCombinations")
   public static Object[][] SingleAuthorityCombinations_for_ADMIN() {
     return new Object[][]{
-            {"time < 2014-10-10", false},
-            {"authorities = ABC", false},
-            {"authorities = ADMIN", true},
-            {"authorities = NOADMIN", false}
+        {"time < 2014-10-10", new String[]{"ADMIN"}, false},
+        {"authorities = ABC", new String[]{"ADMIN"}, false},
+        {"authorities = ADMIN", new String[]{"ADMIN"}, true},
+        {"authorities = NOADMIN", new String[]{"ADMIN"}, false},
+        {"authorities = FOO, ADMIN", new String[]{"ADMIN"}, true},
+        {"authorities =", new String[]{"ADMIN"}, false},
+        {"authorities = FOO,BAR,FOO, BAR, ADMIN", new String[]{"ADMIN", "FOO"}, true},
+        {"authorities = FOO", new String[]{"ADMIN", "FOO"}, false}
     };
   }
 
-  @Test(dataProvider = "SingleAuthorityCombinations_for_ADMIN")
-  public void verify_a_single_authority_by_name(String sampleCaveat, Boolean isValid) throws Exception {
-    verifier = new AuthoritiesCaveatVerifier("ADMIN");
+  @Test(dataProvider = "SingleAuthorityCombinations")
+  public void verify_a_single_authority_by_name(String sampleCaveat, String[] authorityToHave, Boolean isValid) throws Exception {
+    verifier = new AuthoritiesCaveatVerifier(authorityToHave);
 
     boolean actual = verifier.verifyCaveat(sampleCaveat);
     assertThat(actual).isEqualTo(isValid);

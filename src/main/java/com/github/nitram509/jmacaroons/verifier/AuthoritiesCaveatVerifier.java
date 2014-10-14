@@ -18,25 +18,37 @@ package com.github.nitram509.jmacaroons.verifier;
 
 import com.github.nitram509.jmacaroons.GeneralCaveatVerifier;
 
-import java.text.ParsePosition;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.HashSet;
 
 public class AuthoritiesCaveatVerifier implements GeneralCaveatVerifier {
 
-  private String[] authorities;
+  public static final String AUTHORITIES_PREFIX = "authorities =";
 
-  public AuthoritiesCaveatVerifier(String authority) {
-    this.authorities = new String[]{authority};
+  private String[] requestedAuthorities;
+
+  public AuthoritiesCaveatVerifier(String... requestedAuthorities) {
+    this.requestedAuthorities = requestedAuthorities != null ? requestedAuthorities : new String[0];
   }
 
   @Override
   public boolean verifyCaveat(String caveat) {
-    if (caveat.startsWith("authorities = ")) {
-      return caveat.contains(authorities[0]);
+    boolean containsGivenAuthorities = false;
+    if (caveat.startsWith(AUTHORITIES_PREFIX)) {
+      HashSet<String> cavaetAuthorities = asTrimmedSet(caveat.substring(AUTHORITIES_PREFIX.length()).split("[,]"));
+      containsGivenAuthorities = requestedAuthorities.length > 0;
+      for (String authority : requestedAuthorities) {
+        containsGivenAuthorities = containsGivenAuthorities && cavaetAuthorities.contains(authority);
+      }
     }
-    return false;
+    return containsGivenAuthorities;
+  }
 
+  private HashSet<String> asTrimmedSet(String[] cavaetAuthorities) {
+    HashSet<String> result = new HashSet<String>(cavaetAuthorities.length);
+    for (String cavaetAuthority : cavaetAuthorities) {
+      result.add(cavaetAuthority.trim());
+    }
+    return result;
   }
 
 }
