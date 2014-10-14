@@ -5,6 +5,12 @@ Changelog jmacaroons
 Version 0.?.?
 --------------------------
 
+   + Added: AuthoritiesCaveatVerifier to verify given authorities, which is a common use case
+
+
+Version 0.2.0 (2014-09-26)
+--------------------------
+
    + Added: adding third party caveats to macaroons is possible
    + Added: verifying third party caveats on macaroons is possible
    * fixed: modifying macaroons also copies caveats
