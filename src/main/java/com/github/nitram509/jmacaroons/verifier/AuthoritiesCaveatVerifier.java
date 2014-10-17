@@ -20,21 +20,37 @@ import com.github.nitram509.jmacaroons.GeneralCaveatVerifier;
 
 import java.util.HashSet;
 
+/**
+ * A verifier that is able to verify for given authorities.
+ * These authorities are comma separated list of string, which are case sensitive.
+ */
 public class AuthoritiesCaveatVerifier implements GeneralCaveatVerifier {
 
-  public static final String AUTHORITIES_PREFIX = "authorities =";
+  public static final String CAVEAT_PREFIX = "authorities =";
 
   private String[] requestedAuthorities;
 
+  /**
+   * @param requestedAuthorities requestedAuthorities
+   */
   public AuthoritiesCaveatVerifier(String... requestedAuthorities) {
     this.requestedAuthorities = requestedAuthorities != null ? requestedAuthorities : new String[0];
+  }
+
+  /**
+   * A comfort method for better readability - simply returns 'new AuthoritiesCaveatVerifier(...)'
+   * @param requestedAuthorities requestedAuthorities
+   * @return a new instance of {@link com.github.nitram509.jmacaroons.verifier.AuthoritiesCaveatVerifier}
+   */
+  public static AuthoritiesCaveatVerifier hasAuthority(String... requestedAuthorities) {
+    return new AuthoritiesCaveatVerifier(requestedAuthorities);
   }
 
   @Override
   public boolean verifyCaveat(String caveat) {
     boolean containsGivenAuthorities = false;
-    if (caveat.startsWith(AUTHORITIES_PREFIX)) {
-      HashSet<String> cavaetAuthorities = asTrimmedSet(caveat.substring(AUTHORITIES_PREFIX.length()).split("[,]"));
+    if (caveat.startsWith(CAVEAT_PREFIX)) {
+      HashSet<String> cavaetAuthorities = asTrimmedSet(caveat.substring(CAVEAT_PREFIX.length()).split("[,]"));
       containsGivenAuthorities = requestedAuthorities.length > 0;
       for (String authority : requestedAuthorities) {
         containsGivenAuthorities = containsGivenAuthorities && cavaetAuthorities.contains(authority);

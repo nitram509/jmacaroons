@@ -70,14 +70,14 @@ import java.util.Date;
  */
 public class TimestampCaveatVerifier implements GeneralCaveatVerifier {
 
+  public static final String CAVEAT_PREFIX = "time < ";
+  public static final int CAVEAT_PREFIX_LEN = CAVEAT_PREFIX.length();
+
   private static SimpleDateFormat ISO_DateFormat_DAY = new SimpleDateFormat("yyyy-MM-dd");
   private static SimpleDateFormat ISO_DateFormat_HOUR = new SimpleDateFormat("yyyy-MM-dd'T'HH");
   private static SimpleDateFormat ISO_DateFormat_MINUTE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
   private static SimpleDateFormat ISO_DateFormat_SECOND = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
   private static SimpleDateFormat ISO_DateFormat_TIMEZONE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-
-  private static final String CAVEAT_PREFIX = "time < ";
-  public static final int CAVEAT_PREFIX_LEN = CAVEAT_PREFIX.length();
 
   @Override
   public boolean verifyCaveat(String caveat) {

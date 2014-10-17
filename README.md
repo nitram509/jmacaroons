@@ -148,6 +148,7 @@ System.out.println(macaroon.inspect());
 // > signature 1efe4763f290dbce0c1d08477367e11f4eee456a64933cf662d79772dbb82128
 ````
 
+
 Verifying Macaroons With Caveats
 --------------------------------
 
@@ -323,6 +324,44 @@ new MacaroonsVerifier(m)
     /* don't verify 3rd party caveat - will be valid, too */
     .assertIsValid(secret);
 // > ok.
+````
+
+
+Commonly used general verifier, shipped with jmacaroons
+----------------------------------------------------------
+
+##### Time to live verification
+
+Applying a timestamp in the future to a macaroon will provide time to live semantics.
+Given that all machines have synchronized clocks, a general macaroon verifier is able to check
+for expiration.
+
+````java
+Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
+    .add_first_party_caveat("time < 2015-01-01T00:00")
+    .getMacaroon();
+
+new MacaroonsVerifier(macaroon)
+    .satisfyGeneral(new TimestampCaveatVerifier())
+    .isValid(secretKey);
+// > True
+````
+
+##### Authorities verification
+
+Macaroons may also embed authorities. Thus a general macaroon verifier is able
+to check for a single authority.
+
+````java
+// import static com.github.nitram509.jmacaroons.verifier.AuthoritiesCaveatVerifier.hasAuthority;
+Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
+    .add_first_party_caveat("authorities = ROLE_USER, DEV_TOOLS_AVAILABLE")
+    .getMacaroon();
+
+new MacaroonsVerifier(macaroon)
+    .satisfyGeneral(hasAuthority("DEV_TOOLS_AVAILABLE"))
+    .isValid(secretKey);
+// > True
 ````
 
 

@@ -41,7 +41,9 @@ public class AuthoritiesCaveatVerifierTest {
         {"authorities = FOO, ADMIN", new String[]{"ADMIN"}, true},
         {"authorities =", new String[]{"ADMIN"}, false},
         {"authorities = FOO,BAR,FOO, BAR, ADMIN", new String[]{"ADMIN", "FOO"}, true},
-        {"authorities = FOO", new String[]{"ADMIN", "FOO"}, false}
+        {"authorities = FOO", new String[]{"ADMIN", "FOO"}, false},
+        {"authorities = ,,,FOO,,, ,", new String[]{"FOO"}, true},
+        {"authorities = ,,,foo,,, ,", new String[]{"FOO"}, false}
     };
   }
 

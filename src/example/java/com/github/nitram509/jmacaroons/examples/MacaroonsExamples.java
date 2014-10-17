@@ -24,6 +24,8 @@ import com.github.nitram509.jmacaroons.verifier.TimestampCaveatVerifier;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
+import static com.github.nitram509.jmacaroons.verifier.AuthoritiesCaveatVerifier.hasAuthority;
+
 /**
  * These are examples, for copy&paste into README.md.
  * They should be correct and compilable.
@@ -159,6 +161,36 @@ public class MacaroonsExamples {
         .assertIsValid(secret);
   }
 
+  private void timestamp_verifier() {
+    String location = "http://www.example.org";
+    String secretKey = "this is our super secret key; only we should know it";
+    String identifier = "we used our secret key";
+
+    Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
+        .add_first_party_caveat("time < 2015-01-01T00:00")
+        .getMacaroon();
+
+    new MacaroonsVerifier(macaroon)
+        .satisfyGeneral(new TimestampCaveatVerifier())
+        .isValid(secretKey);
+    // > True
+  }
+
+  private void authorities_verifier() {
+    String location = "http://www.example.org";
+    String secretKey = "this is our super secret key; only we should know it";
+    String identifier = "we used our secret key";
+
+    Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
+        .add_first_party_caveat("authorities = ROLE_USER, DEV_TOOLS_AVAILABLE")
+        .getMacaroon();
+
+    new MacaroonsVerifier(macaroon)
+        .satisfyGeneral(hasAuthority("DEV_TOOLS_AVAILABLE"))
+        .isValid(secretKey);
+    // > True
+  }
+
   public static void main(String[] args) {
     MacaroonsExamples examples = new MacaroonsExamples();
     try {
@@ -171,6 +203,8 @@ public class MacaroonsExamples {
       examples.verify_required_caveats();
       examples.verify_general_caveats();
       examples.with_3rd_party_caveats();
+      examples.timestamp_verifier();
+      examples.authorities_verifier();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
