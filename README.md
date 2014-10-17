@@ -327,8 +327,8 @@ new MacaroonsVerifier(m)
 ````
 
 
-Commonly used general verifier, shipped with jmacaroons
-----------------------------------------------------------
+Commonly used verifier, shipped with jmacaroons
+--------------------------------------------------
 
 ##### Time to live verification
 
