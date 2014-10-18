@@ -16,6 +16,8 @@
 
 package com.github.nitram509.jmacaroons.util;
 
+import static java.lang.Character.digit;
+
 public class BinHex {
 
   private static final char[] ALPHABET = "0123456789abcdef".toCharArray();
@@ -29,5 +31,15 @@ public class BinHex {
       hex[counter++] = ALPHABET[(b & 0xff) & 0xf];
     }
     return new String(hex);
+  }
+
+  public static byte[] hex2bin(String hexString) {
+    if (hexString == null) return null;
+    int len = hexString.length();
+    byte[] bin = new byte[len >> 1];
+    for (int i = 0; i < len; i += 2) {
+      bin[i >> 1] = (byte) ((digit((int) hexString.charAt(i), 16) << 4) + digit((int) hexString.charAt(i + 1), 16));
+    }
+    return bin;
   }
 }

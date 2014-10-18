@@ -20,10 +20,10 @@ import com.github.nitram509.jmacaroons.verifier.TimestampCaveatVerifier;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.github.nitram509.jmacaroons.util.BinHex.hex2bin;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class MacaroonsVerifierTest {
@@ -34,11 +34,13 @@ public class MacaroonsVerifierTest {
   private String secret;
   private String location;
   private Macaroon m;
+  private byte[] secretBytes;
 
   @BeforeMethod
   public void setUp() throws Exception {
     location = "http://mybank/";
     secret = "this is our super secret key; only we should know it";
+    secretBytes = hex2bin("a96173391e6bfa0356bbf095621b8af1510968e770e4d27d62109b7dc374814b");
     identifier = "we used our secret key";
   }
 
@@ -48,6 +50,14 @@ public class MacaroonsVerifierTest {
 
     MacaroonsVerifier verifier = new MacaroonsVerifier(m);
     assertThat(verifier.isValid(secret)).isTrue();
+  }
+
+  @Test
+  public void verification_with_byteArray() {
+    m = new MacaroonsBuilder(location, secretBytes, identifier).getMacaroon();
+
+    MacaroonsVerifier verifier = new MacaroonsVerifier(m);
+    assertThat(verifier.isValid(secretBytes)).isTrue();
   }
 
   @Test(expectedExceptions = MacaroonValidationException.class)
@@ -63,8 +73,8 @@ public class MacaroonsVerifierTest {
   @Test
   public void verification_satisfy_exact_first_party_caveat() {
     m = new MacaroonsBuilder(location, secret, identifier)
-            .add_first_party_caveat("account = 3735928559")
-            .getMacaroon();
+        .add_first_party_caveat("account = 3735928559")
+        .getMacaroon();
 
     MacaroonsVerifier verifier = new MacaroonsVerifier(m);
     assertThat(verifier.isValid(secret)).isFalse();
@@ -76,9 +86,9 @@ public class MacaroonsVerifierTest {
   @Test
   public void verification_satisfy_exact_required_first_party_caveat_() {
     m = new MacaroonsBuilder(location, secret, identifier)
-            .add_first_party_caveat("account = 3735928559")
-            .add_first_party_caveat("credit_allowed = true")
-            .getMacaroon();
+        .add_first_party_caveat("account = 3735928559")
+        .add_first_party_caveat("credit_allowed = true")
+        .getMacaroon();
 
     MacaroonsVerifier verifier = new MacaroonsVerifier(m);
     assertThat(verifier.isValid(secret)).isFalse();
@@ -90,8 +100,8 @@ public class MacaroonsVerifierTest {
   @Test
   public void verification_satisfy_exact_attenuate_with_additional_caveats() {
     m = new MacaroonsBuilder(location, secret, identifier)
-            .add_first_party_caveat("account = 3735928559")
-            .getMacaroon();
+        .add_first_party_caveat("account = 3735928559")
+        .getMacaroon();
 
     MacaroonsVerifier verifier = new MacaroonsVerifier(m);
     assertThat(verifier.isValid(secret)).isFalse();
@@ -106,8 +116,8 @@ public class MacaroonsVerifierTest {
   @Test
   public void verification_general() {
     m = new MacaroonsBuilder(location, secret, identifier)
-            .add_first_party_caveat("time < " + createTimeStamp1WeekInFuture())
-            .getMacaroon();
+        .add_first_party_caveat("time < " + createTimeStamp1WeekInFuture())
+        .getMacaroon();
 
     MacaroonsVerifier verifier = new MacaroonsVerifier(m);
     assertThat(verifier.isValid(secret)).isFalse();

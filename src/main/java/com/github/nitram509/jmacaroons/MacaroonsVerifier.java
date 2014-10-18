@@ -43,11 +43,26 @@ public class MacaroonsVerifier {
   }
 
   /**
-   * @param secret secret
+   * @param secret secret secret this secret will be enhanced, in case it's shorter than {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_SUGGESTED_SECRET_LENGTH}
    * @throws com.github.nitram509.jmacaroons.MacaroonValidationException     when the macaroon isn't valid
    * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException when the runtime doesn't provide sufficient crypto support
    */
   public void assertIsValid(String secret) throws MacaroonValidationException, GeneralSecurityRuntimeException {
+    try {
+      assertIsValid(generate_derived_key(secret));
+    } catch (InvalidKeyException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    } catch (NoSuchAlgorithmException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    }
+  }
+
+  /**
+   * @param secret secret this secret will be used as it is (be sure that has suggested length {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_SUGGESTED_SECRET_LENGTH})
+   * @throws com.github.nitram509.jmacaroons.MacaroonValidationException     when the macaroon isn't valid
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException when the runtime doesn't provide sufficient crypto support
+   */
+  public void assertIsValid(byte[] secret) throws MacaroonValidationException, GeneralSecurityRuntimeException {
     try {
       VerificationResult result = isValid_verify_raw(macaroon, secret);
       if (result.fail) {
@@ -62,11 +77,26 @@ public class MacaroonsVerifier {
   }
 
   /**
-   * @param secret secret
+   * @param secret secret this secret will be enhanced, in case it's shorter than {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_SUGGESTED_SECRET_LENGTH}
    * @return true/false if the macaroon is valid
    * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
   public boolean isValid(String secret) throws GeneralSecurityRuntimeException {
+    try {
+      return isValid(generate_derived_key(secret));
+    } catch (InvalidKeyException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    } catch (NoSuchAlgorithmException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    }
+  }
+
+  /**
+   * @param secret secret this secret will be used as it is (be sure that has suggested length {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_SUGGESTED_SECRET_LENGTH})
+   * @return true/false if the macaroon is valid
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   */
+  public boolean isValid(byte[] secret) throws GeneralSecurityRuntimeException {
     try {
       return !isValid_verify_raw(macaroon, secret).fail;
     } catch (InvalidKeyException e) {
@@ -76,9 +106,8 @@ public class MacaroonsVerifier {
     }
   }
 
-  private VerificationResult isValid_verify_raw(Macaroon M, String secret) throws NoSuchAlgorithmException, InvalidKeyException {
-    byte[] key = generate_derived_key(secret);
-    VerificationResult vresult = macaroon_verify_inner(M, key);
+  private VerificationResult isValid_verify_raw(Macaroon M, byte[] secret) throws NoSuchAlgorithmException, InvalidKeyException {
+    VerificationResult vresult = macaroon_verify_inner(M, secret);
     if (!vresult.fail) {
       vresult.fail = !Arrays.equals(vresult.csig, getMacaroon().signatureBytes);
       if (vresult.fail) {
@@ -140,9 +169,9 @@ public class MacaroonsVerifier {
   }
 
   private Macaroon findBoundMacaroon(String identifier) {
-    for (int i = 0, len = boundMacaroons.size(); i < len; ++i) {
-      if (identifier.equals(boundMacaroons.get(i).identifier)) {
-        return boundMacaroons.get(i);
+    for (Macaroon boundMacaroon : boundMacaroons) {
+      if (identifier.equals(boundMacaroon.identifier)) {
+        return boundMacaroon;
       }
     }
     return null;

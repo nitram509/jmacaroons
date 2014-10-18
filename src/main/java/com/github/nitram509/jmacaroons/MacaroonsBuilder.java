@@ -40,11 +40,21 @@ public class MacaroonsBuilder {
 
   /**
    * @param location   location
-   * @param secretKey  secretKey
+   * @param secretKey  secretKey this secret will be enhanced, in case it's shorter than {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_SUGGESTED_SECRET_LENGTH}
    * @param identifier identifier
    * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
   public MacaroonsBuilder(String location, String secretKey, String identifier) throws GeneralSecurityRuntimeException {
+    this.macaroon = computeMacaroon(location, secretKey, identifier);
+  }
+
+  /**
+   * @param location   location
+   * @param secretKey  secretKey this secret will be used as it is (be sure that has suggested length {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_SUGGESTED_SECRET_LENGTH})
+   * @param identifier identifier
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   */
+  public MacaroonsBuilder(String location, byte[] secretKey, String identifier) throws GeneralSecurityRuntimeException {
     this.macaroon = computeMacaroon(location, secretKey, identifier);
   }
 
@@ -63,6 +73,16 @@ public class MacaroonsBuilder {
    * @return {@link com.github.nitram509.jmacaroons.Macaroon}
    */
   public static Macaroon create(String location, String secretKey, String identifier) {
+    return computeMacaroon(location, secretKey, identifier);
+  }
+
+  /**
+   * @param location   location
+   * @param secretKey  secretKey
+   * @param identifier identifier
+   * @return {@link com.github.nitram509.jmacaroons.Macaroon}
+   */
+  public static Macaroon create(String location, byte[] secretKey, String identifier) {
     return computeMacaroon(location, secretKey, identifier);
   }
 
@@ -167,11 +187,20 @@ public class MacaroonsBuilder {
   }
 
   private static Macaroon computeMacaroon(String location, String secretKey, String identifier) throws GeneralSecurityRuntimeException {
+    try {
+      return computeMacaroon(location, generate_derived_key(secretKey), identifier);
+    } catch (InvalidKeyException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    } catch (NoSuchAlgorithmException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    }
+  }
+
+  private static Macaroon computeMacaroon(String location, byte[] secretKey, String identifier) throws GeneralSecurityRuntimeException {
     assert location.length() < MACAROON_MAX_STRLEN;
     assert identifier.length() < MACAROON_MAX_STRLEN;
     try {
-      byte[] key = generate_derived_key(secretKey);
-      byte[] hash = macaroon_hmac(key, identifier);
+      byte[] hash = macaroon_hmac(secretKey, identifier);
       return new Macaroon(location, identifier, hash);
     } catch (InvalidKeyException e) {
       throw new GeneralSecurityRuntimeException(e);
