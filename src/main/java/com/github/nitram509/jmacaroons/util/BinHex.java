@@ -22,6 +22,10 @@ public class BinHex {
 
   private static final char[] ALPHABET = "0123456789abcdef".toCharArray();
 
+  /**
+   * @param bytes bytes
+   * @return
+   */
   public static String bin2hex(byte... bytes) {
     if (bytes == null) return null;
     char[] hex = new char[bytes.length * 2];
@@ -33,6 +37,10 @@ public class BinHex {
     return new String(hex);
   }
 
+  /**
+   * @param hexString hexString all lower case, 0-9 and a-f only, even length only, null safe
+   * @return
+   */
   public static byte[] hex2bin(String hexString) {
     if (hexString == null) return null;
     int len = hexString.length();
