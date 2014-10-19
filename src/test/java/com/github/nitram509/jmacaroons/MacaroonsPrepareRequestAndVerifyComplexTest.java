@@ -29,7 +29,6 @@ public class MacaroonsPrepareRequestAndVerifyComplexTest {
   private String location;
   private String caveat_key;
   private String publicIdentifier;
-  private String predicate;
   private Macaroon M;
   private Macaroon DP;
   private Macaroon D;
@@ -46,18 +45,13 @@ public class MacaroonsPrepareRequestAndVerifyComplexTest {
     assertThat(M.signature).isEqualTo("1434e674ad84fdfdc9bc1aa00785325c8b6d57341fc7ce200ba4680c80786dda");
 
     caveat_key = "4; guaranteed random by a fair toss of the dice";
-    predicate = "user = Alice";
-    identifier = send_to_auth_and_recv_identifier(caveat_key, predicate);
+    identifier = "this was how we remind auth of key/pred";
 
     M = new MacaroonsBuilder(M)
         .add_third_party_caveat("http://auth.mybank/", caveat_key, identifier)
         .add_first_party_caveat("role = admin")
         .getMacaroon();
-    assertThat(M.signature).isEqualTo("5abd993a3bad61410c8b8a3bb606003939297c685fc5f9e04e5b21d570931c2a");
-  }
-
-  private String send_to_auth_and_recv_identifier(String caveat_key, String predicate) {
-    return "this was how we remind auth of key/pred";
+    assertThat(M.signature).isEqualTo("a9d5c66ec150248a267a22de28905b1ec2e09bec2fe2bb4d2fa4649d27f17043");
   }
 
   @Test
@@ -70,7 +64,7 @@ public class MacaroonsPrepareRequestAndVerifyComplexTest {
         .getMacaroon();
     assertThat(D.signature).isEqualTo("82a80681f9f32d419af12f6a71787a1bac3ab199df934ed950ddf20c25ac8c65");
 
-    E = MacaroonsBuilder.create(("http://example.org/"), "example secret key", "example identifier");
+    E = MacaroonsBuilder.create("http://example.org/", "example secret key", "example identifier");
     assertThat(E.signature).isEqualTo("b4f46190b4a41cc66ef277b8ee423259362deb648c18cb80f929ac65bb377d1b");
 
     DP = new MacaroonsBuilder(M)
@@ -78,7 +72,7 @@ public class MacaroonsPrepareRequestAndVerifyComplexTest {
         .prepare_for_request(E)
         .getMacaroon();
 
-    assertThat(DP.signature).isEqualTo("f472a9421ba72c81d92833cff78161bbdfbf71d244642381048b991afbc401df");
+    assertThat(DP.signature).isEqualTo("0e36fb2c60be3052960f3037eb09d7fd1e007f5b4d51c8d9be215085197649e7");
     assertThat(DP.identifier).isEqualTo("example identifier");
   }
 

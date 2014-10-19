@@ -118,14 +118,15 @@ public class MacaroonsBuilder {
    */
   public MacaroonsBuilder add_first_party_caveat(String caveat) throws IllegalStateException, GeneralSecurityRuntimeException {
     if (caveat != null) {
-      assert caveat.length() < MACAROON_MAX_STRLEN;
+      byte[] caveatBytes = caveat.getBytes(MacaroonsConstants.IDENTIFIER_CHARSET);
+      assert caveatBytes.length < MACAROON_MAX_STRLEN;
       if (this.macaroon.caveatPackets.length + 1 > MACAROON_MAX_CAVEATS) {
         throw new IllegalStateException("Too many caveats. There are max. " + MACAROON_MAX_CAVEATS + " caveats allowed.");
       }
       try {
-        byte[] hash = macaroon_hmac(macaroon.signatureBytes, caveat);
-        CaveatPacket[] caveatsExtended = ArrayTools.appendToArray(macaroon.caveatPackets, new CaveatPacket(CaveatPacket.Type.cid, caveat));
-        this.macaroon = new Macaroon(macaroon.location, macaroon.identifier, caveatsExtended, hash);
+        byte[] signature = macaroon_hmac(macaroon.signatureBytes, caveatBytes);
+        CaveatPacket[] caveatsAppended = ArrayTools.appendToArray(macaroon.caveatPackets, new CaveatPacket(CaveatPacket.Type.cid, caveatBytes));
+        this.macaroon = new Macaroon(macaroon.location, macaroon.identifier, caveatsAppended, signature);
       } catch (InvalidKeyException e) {
         throw new GeneralSecurityRuntimeException(e);
       } catch (NoSuchAlgorithmException e) {
@@ -152,10 +153,10 @@ public class MacaroonsBuilder {
     }
     try {
       ThirdPartyPacket thirdPartyPacket = macaroon_add_third_party_caveat_raw(macaroon.signatureBytes, secret, identifier);
-      byte[] hash = thirdPartyPacket.hash;
+      byte[] hash = thirdPartyPacket.signature;
       CaveatPacket[] caveatsExtended = ArrayTools.appendToArray(macaroon.caveatPackets,
           new CaveatPacket(CaveatPacket.Type.cid, identifier),
-          new CaveatPacket(CaveatPacket.Type.vid, thirdPartyPacket.vid),
+          new CaveatPacket(CaveatPacket.Type.vid, thirdPartyPacket.vid_data),
           new CaveatPacket(CaveatPacket.Type.cl, location)
       );
       this.macaroon = new Macaroon(macaroon.location, macaroon.identifier, caveatsExtended, hash);

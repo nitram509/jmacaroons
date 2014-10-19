@@ -16,8 +16,6 @@
 
 package com.github.nitram509.jmacaroons;
 
-import com.github.nitram509.jmacaroons.util.Base64;
-
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -124,21 +122,21 @@ public class MacaroonsVerifier {
       for (int i = 0; i < caveatPackets.length; i++) {
         CaveatPacket caveat = caveatPackets[i];
         if (caveat == null) continue;
-        if (caveat.type == Type.cl) continue; // todo: 99.9% yes --> make 100% sure ;-)
+        if (caveat.type == Type.cl) continue;
         if (!(caveat.type == Type.cid && caveatPackets[Math.min(i + 1, caveatPackets.length - 1)].type == Type.vid)) {
-          if (containsElement(predicates, caveat.value) || verifiesGeneral(caveat.value)) {
-            csig = macaroon_hmac(csig, caveat.value);
+          if (containsElement(predicates, caveat.getValueAsText()) || verifiesGeneral(caveat.getValueAsText())) {
+            csig = macaroon_hmac(csig, caveat.rawValue);
           }
         } else {
           i++;
           CaveatPacket caveat_vid = caveatPackets[i];
-          Macaroon boundMacaroon = findBoundMacaroon(caveat.value);
+          Macaroon boundMacaroon = findBoundMacaroon(caveat.getValueAsText());
           if (boundMacaroon != null && !macaroon_verify_inner_3rd(boundMacaroon, caveat_vid, csig)) {
             String msg = "Couldn't verify 3rd party macaroon, identifier= " + boundMacaroon.identifier;
             return new VerificationResult(msg);
           }
-          byte[] data = caveat.value.getBytes(IDENTIFIER_CHARSET);
-          byte[] vdata = caveat_vid.value.getBytes(IDENTIFIER_CHARSET);
+          byte[] data = caveat.rawValue;
+          byte[] vdata = caveat_vid.rawValue;
           csig = macaroon_hash2(csig, vdata, data);
         }
       }
@@ -148,15 +146,20 @@ public class MacaroonsVerifier {
 
   private boolean macaroon_verify_inner_3rd(Macaroon M, CaveatPacket C, byte[] sig) throws InvalidKeyException, NoSuchAlgorithmException {
     if (M == null) return false;
-    byte[] enc_nonce = new byte[MACAROON_SECRET_NONCE_BYTES];
     byte[] enc_plaintext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
-    byte[] enc_ciphertext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
-    assert C.value.length() == VID_NONCE_KEY_SZ * 4 / 3;
+    byte[] enc_ciphertext = new byte[MACAROON_SECRET_BOX_ZERO_BYTES + MACAROON_HASH_BYTES + SECRET_BOX_OVERHEAD];
 
-    byte[] b64_dec = Base64.decode(C.value);
-    System.arraycopy(b64_dec, 0, enc_nonce, 0, MACAROON_SECRET_NONCE_BYTES);
-    System.arraycopy(b64_dec, MACAROON_SECRET_NONCE_BYTES, enc_ciphertext, MACAROON_SECRET_BOX_ZERO_BYTES, VID_NONCE_KEY_SZ - MACAROON_SECRET_NONCE_BYTES);
-    boolean valid = 0 == macaroon_secretbox_open(sig, enc_nonce, enc_ciphertext, MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES, enc_plaintext);
+    byte[] vid_data = C.rawValue;
+    assert vid_data.length == VID_NONCE_KEY_SZ;
+    /**
+     * the nonce is in the first MACAROON_SECRET_NONCE_BYTES
+     * of the vid; the ciphertext is in the rest of it.
+     */
+    byte[] enc_nonce = vid_data;
+
+    /* fill in the ciphertext */
+    System.arraycopy(vid_data, MACAROON_SECRET_NONCE_BYTES, enc_ciphertext, MACAROON_SECRET_BOX_ZERO_BYTES, vid_data.length - MACAROON_SECRET_NONCE_BYTES);
+    boolean valid = 0 == macaroon_secretbox_open(sig, enc_nonce, enc_ciphertext, enc_ciphertext.length, enc_plaintext);
 
     byte[] key = new byte[MACAROON_HASH_BYTES];
     System.arraycopy(enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, key, 0, MACAROON_HASH_BYTES);

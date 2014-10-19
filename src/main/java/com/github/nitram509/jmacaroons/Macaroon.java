@@ -66,7 +66,7 @@ public class Macaroon implements Serializable {
     if (caveats == null) return "";
     StringBuilder sb = new StringBuilder();
     for (CaveatPacket packet : caveats) {
-      sb.append(createKeyValuePacket(packet.type, packet.value));
+      sb.append(createKeyValuePacket(packet.type, packet.getValueAsText()));
     }
     return sb.toString();
   }

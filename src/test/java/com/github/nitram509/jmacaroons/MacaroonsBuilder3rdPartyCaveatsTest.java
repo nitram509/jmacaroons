@@ -16,14 +16,13 @@
 
 package com.github.nitram509.jmacaroons;
 
+import com.github.nitram509.jmacaroons.util.Base64;
 import org.testng.annotations.Test;
 
 import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class MacaroonsBuilder3rdPartyCaveatsTest {
-
-  private Macaroon m;
 
   @Test
   public void add_third_party_caveat() {
@@ -35,7 +34,7 @@ public class MacaroonsBuilder3rdPartyCaveatsTest {
     String caveat_key = "4; guaranteed random by a fair toss of the dice";
     String predicate = "user = Alice";
     String identifier = "this was how we remind auth of key/pred";
-    m = new MacaroonsBuilder(location, secret, publicIdentifier)
+    Macaroon m = new MacaroonsBuilder(location, secret, publicIdentifier)
         .add_first_party_caveat("account = 3735928559")
         .add_third_party_caveat("http://auth.mybank/", caveat_key, identifier)
         .getMacaroon();
@@ -45,10 +44,15 @@ public class MacaroonsBuilder3rdPartyCaveatsTest {
     assertThat(m.caveatPackets).isEqualTo(new CaveatPacket[]{
         new CaveatPacket(Type.cid, "account = 3735928559"),
         new CaveatPacket(Type.cid, identifier),
-        new CaveatPacket(Type.vid, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA027FAuBYhtHwJ58FX6UlVNFtFsGxQHS7uD/w/dedwv4Jjw7UorCREw5rXbRqIKhr"),
+        new CaveatPacket(Type.vid, getVidFromBase64()),
         new CaveatPacket(Type.cl, "http://auth.mybank/")
     });
-    assertThat(m.signature).isEqualTo("6b99edb2ec6d7a4382071d7d41a0bf7dfa27d87d2f9fea86e330d7850ffda2b2");
+    assertThat(m.signature).isEqualTo("d27db2fd1f22760e4c3dae8137e2d8fc1df6c0741c18aed4b97256bf78d1f55c");
+    assertThat(m.serialize()).isEqualTo("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMmNpZGVudGlmaWVyIHdlIHVzZWQgb3VyIG90aGVyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDMwY2lkIHRoaXMgd2FzIGhvdyB3ZSByZW1pbmQgYXV0aCBvZiBrZXkvcHJlZAowMDUxdmlkIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANNuxQLgWIbR8CefBV+lJVTRbRbBsUB0u7g/8P3XncL+CY8O1KKwkRMOa120aiCoawowMDFiY2wgaHR0cDovL2F1dGgubXliYW5rLwowMDJmc2lnbmF0dXJlINJ9sv0fInYOTD2ugTfi2Pwd9sB0HBiu1LlyVr940fVcCg==");
+  }
+
+  private byte[] getVidFromBase64() {
+    return Base64.decode("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA027FAuBYhtHwJ58FX6UlVNFtFsGxQHS7uD/w/dedwv4Jjw7UorCREw5rXbRqIKhr");
   }
 
 }

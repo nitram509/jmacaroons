@@ -51,7 +51,7 @@ public class MacaroonsPrepareRequestAndVerifyTest {
     M = new MacaroonsBuilder(M)
         .add_third_party_caveat("http://auth.mybank/", caveat_key, identifier)
         .getMacaroon();
-    assertThat(M.signature).isEqualTo("6b99edb2ec6d7a4382071d7d41a0bf7dfa27d87d2f9fea86e330d7850ffda2b2");
+    assertThat(M.signature).isEqualTo("d27db2fd1f22760e4c3dae8137e2d8fc1df6c0741c18aed4b97256bf78d1f55c");
   }
 
   private String send_to_auth_and_recv_identifier(String caveat_key, String predicate) {
@@ -71,7 +71,7 @@ public class MacaroonsPrepareRequestAndVerifyTest {
         .prepare_for_request(D)
         .getMacaroon();
 
-    assertThat(DP.signature).isEqualTo("b38b26ab29d3724e728427e758cccc16d9d7f3de46d0d811b70b117b05357b9b");
+    assertThat(DP.signature).isEqualTo("2eb01d0dd2b4475330739140188648cf25dda0425ea9f661f1574ca0a9eac54e");
   }
 
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")

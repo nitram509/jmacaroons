@@ -59,8 +59,8 @@ class MacaroonsDeSerializer {
         String s = parsePacket(packet, CL_BYTES);
         caveats.add(new CaveatPacket(Type.cl, s));
       } else if (bytesStartWith(packet.data, VID_BYTES)) {
-        String s = parsePacket(packet, VID_BYTES);
-        caveats.add(new CaveatPacket(Type.vid, s));
+        byte[] raw = parseRawPacket(packet, VID_BYTES);
+        caveats.add(new CaveatPacket(Type.vid, raw));
       } else if (bytesStartWith(packet.data, SIGNATURE_BYTES)) {
         signature = parseSignature(packet, SIGNATURE_BYTES);
       }
@@ -84,6 +84,14 @@ class MacaroonsDeSerializer {
       payload = payload.substring(0, len - LINE_SEPARATOR.length());
     }
     return payload;
+  }
+
+  private static byte[] parseRawPacket(Packet packet, byte[] header) {
+    int headerLen = header.length + KEY_VALUE_SEPARATOR.length();
+    int len = packet.data.length - headerLen - LINE_SEPARATOR.length();
+    byte[] raw = new byte[len];
+    System.arraycopy(packet.data, headerLen, raw, 0, len);
+    return raw;
   }
 
   private static boolean bytesStartWith(byte[] bytes, byte[] startBytes) {

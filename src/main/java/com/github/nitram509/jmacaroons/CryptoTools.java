@@ -16,7 +16,6 @@
 
 package com.github.nitram509.jmacaroons;
 
-import com.github.nitram509.jmacaroons.util.Base64;
 import com.neilalexander.jnacl.crypto.xsalsa20poly1305;
 
 import javax.crypto.Mac;
@@ -52,23 +51,23 @@ class CryptoTools {
     return macaroon_hmac(key, tmp);
   }
 
-  static ThirdPartyPacket macaroon_add_third_party_caveat_raw(byte[] hash, String key, String identifier) throws InvalidKeyException, NoSuchAlgorithmException {
+  static ThirdPartyPacket macaroon_add_third_party_caveat_raw(byte[] old_sig, String key, String identifier) throws InvalidKeyException, NoSuchAlgorithmException {
     byte[] derived_key = generate_derived_key(key);
 
+    byte[] enc_nonce = new byte[MACAROON_SECRET_NONCE_BYTES]; /* XXX get some random bytes instead */
     byte[] enc_plaintext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
+    byte[] enc_ciphertext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
+    /* now encrypt the key to give us vid */
     System.arraycopy(derived_key, 0, enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, MACAROON_HASH_BYTES);
 
-    byte[] enc_nonce = new byte[MACAROON_SECRET_NONCE_BYTES]; /* XXX get some random bytes instead */
-    byte[] enc_ciphertext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
-    macaroon_secretbox(hash, enc_nonce, enc_plaintext, enc_ciphertext);
+    macaroon_secretbox(old_sig, enc_nonce, enc_plaintext, enc_ciphertext);
 
     byte[] vid = new byte[VID_NONCE_KEY_SZ];
     System.arraycopy(enc_nonce, 0, vid, 0, MACAROON_SECRET_NONCE_BYTES);
     System.arraycopy(enc_ciphertext, MACAROON_SECRET_BOX_ZERO_BYTES, vid, MACAROON_SECRET_NONCE_BYTES, VID_NONCE_KEY_SZ - MACAROON_SECRET_NONCE_BYTES);
-    byte[] vidAsBase64 = Base64.encodeToByte(vid, 0, VID_NONCE_KEY_SZ, false);
 
-    byte[] hashNew = macaroon_hash2(hash, vidAsBase64, identifier.getBytes(IDENTIFIER_CHARSET));
-    return new ThirdPartyPacket(hashNew, new String(vidAsBase64, MacaroonsConstants.IDENTIFIER_CHARSET));
+    byte[] new_sig = macaroon_hash2(old_sig, vid, identifier.getBytes(IDENTIFIER_CHARSET));
+    return new ThirdPartyPacket(new_sig, vid);
   }
 
   private static void macaroon_secretbox(byte[] key, byte[] nonce, byte[] plaintext, byte[] ciphertext) throws GeneralSecurityRuntimeException {
@@ -84,12 +83,12 @@ class CryptoTools {
   }
 
   static class ThirdPartyPacket {
-    final byte[] hash;
-    final String vid;
+    final byte[] signature;
+    final byte[] vid_data;
 
-    ThirdPartyPacket(byte[] hash, String vid) {
-      this.hash = hash;
-      this.vid = vid;
+    ThirdPartyPacket(byte[] signature, byte[] vid_data) {
+      this.signature = signature;
+      this.vid_data = vid_data;
     }
   }
 }

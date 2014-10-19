@@ -85,18 +85,18 @@ public class MacaroonsBuilderCaveatsTest {
 
   @Test
   public void add_first_party_caveat_German_umlauts_using_UTF8_encoding() {
-    m = new MacaroonsBuilder(location, secret, identifier)
-        .add_first_party_caveat("ä")
-        .add_first_party_caveat("ü")
-        .add_first_party_caveat("ö")
-        .getMacaroon();
+    MacaroonsBuilder mb = new MacaroonsBuilder(location, secret, identifier);
+    mb = mb.add_first_party_caveat("\u00E4");
+    mb = mb.add_first_party_caveat("\u00FC");
+    mb = mb.add_first_party_caveat("\u00F6");
+    m = mb.getMacaroon();
 
     assertThat(m.identifier).isEqualTo(m.identifier);
     assertThat(m.location).isEqualTo(m.location);
     assertThat(m.caveatPackets).isEqualTo(new CaveatPacket[]{
-        new CaveatPacket(Type.cid, "ä"),
-        new CaveatPacket(Type.cid, "ü"),
-        new CaveatPacket(Type.cid, "ö")
+        new CaveatPacket(Type.cid, "\u00E4"),
+        new CaveatPacket(Type.cid, "\u00FC"),
+        new CaveatPacket(Type.cid, "\u00F6")
     });
     assertThat(m.signature).isEqualTo("e38cce985a627fbfaea3490ca184fb8c59ec2bd14f0adc3b5035156e94daa111");
   }

@@ -45,10 +45,21 @@ public class MacaroonsSerializerTest {
   @Test
   public void Macaroon_with_caveat_can_be_serialized() {
     Macaroon m = new MacaroonsBuilder(location, secret, identifier)
-            .add_first_party_caveat("account = 3735928559")
-            .getMacaroon();
+        .add_first_party_caveat("account = 3735928559")
+        .getMacaroon();
 
     assertThat(MacaroonsSerializer.serialize(m)).isEqualTo("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDJmc2lnbmF0dXJlIB7+R2PykNvODB0IR3Nn4R9O7kVqZJM89mLXl3LbuCEoCg==");
+    assertThat(MacaroonsSerializer.serialize(m)).isEqualTo(m.serialize());
+  }
+
+  @Test
+  public void Macaroon_with_3rd_party_caveat_can_be_serialized() {
+    Macaroon m = new MacaroonsBuilder(location, secret, identifier)
+        .add_first_party_caveat("account = 3735928559")
+        .add_third_party_caveat("http://auth.mybank/", "SECRET for 3rd party caveat", identifier)
+        .getMacaroon();
+
+    assertThat(MacaroonsSerializer.serialize(m)).isEqualTo("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDFmY2lkIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDA1MXZpZCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFvL/9aQlwPH0Jiuh9k/NTDwO18xb23aiv3ukwGUTSzJhwKUOheayUmZU/NXTiFgoKMDAxYmNsIGh0dHA6Ly9hdXRoLm15YmFuay8KMDAyZnNpZ25hdHVyZSBjSegoF7hDHgqZJS4lWS3CeugQaQciv/oVO7XjcN79jwo=");
     assertThat(MacaroonsSerializer.serialize(m)).isEqualTo(m.serialize());
   }
 

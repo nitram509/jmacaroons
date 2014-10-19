@@ -16,34 +16,57 @@
 
 package com.github.nitram509.jmacaroons;
 
-import java.io.Serializable;
+import com.github.nitram509.jmacaroons.util.Base64;
 
+import java.io.Serializable;
+import java.util.Arrays;
+
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.IDENTIFIER_CHARSET;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.KEY_VALUE_SEPARATOR;
 
 public class CaveatPacket implements Serializable {
 
   public final Type type;
-  public final String value;
+  public final byte[] rawValue;
 
-  CaveatPacket(Type type, String value) {
+  private String valueAsText;
+
+  CaveatPacket(Type type, byte[] rawValue) {
     assert type != null;
-    assert value != null;
+    assert rawValue != null;
     this.type = type;
-    this.value = value;
+    this.rawValue = rawValue;
   }
 
-  public static enum Type {
-    location,
-    identifier,
-    signature,
-    cid,
-    vid,
-    cl
+  CaveatPacket(Type type, String valueAsText) {
+    assert type != null;
+    assert type != Type.vid : "VIDs should be used as raw bytes, because otherwise UTF8 string encoder would break it";
+    assert valueAsText != null;
+    this.type = type;
+    this.rawValue = valueAsText.getBytes(IDENTIFIER_CHARSET);
+  }
+
+  public Type getType() {
+    return type;
+  }
+
+  public byte[] getRawValue() {
+    return rawValue;
+  }
+
+  public String getValueAsText() {
+    if (type == Type.vid) {
+      if (valueAsText == null) {
+        valueAsText = Base64.encodeToString(rawValue, false);
+      }
+      return valueAsText;
+    }
+    return new String(rawValue, IDENTIFIER_CHARSET);
   }
 
   @Override
   public String toString() {
-    return type.name() + KEY_VALUE_SEPARATOR + value;
+    return type.name() + KEY_VALUE_SEPARATOR + (Arrays.toString(rawValue));
   }
 
   @Override
@@ -53,16 +76,25 @@ public class CaveatPacket implements Serializable {
 
     CaveatPacket that = (CaveatPacket) o;
 
+    if (!Arrays.equals(rawValue, that.rawValue)) return false;
     if (type != that.type) return false;
-    if (!value.equals(that.value)) return false;
 
     return true;
   }
 
   @Override
   public int hashCode() {
-    int result = type.hashCode();
-    result = 31 * result + value.hashCode();
+    int result = type != null ? type.hashCode() : 0;
+    result = 31 * result + (rawValue != null ? Arrays.hashCode(rawValue) : 0);
     return result;
+  }
+
+  public static enum Type {
+    location,
+    identifier,
+    signature,
+    cid,
+    vid,
+    cl
   }
 }

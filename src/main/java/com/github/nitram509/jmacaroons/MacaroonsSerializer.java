@@ -16,7 +16,6 @@
 
 package com.github.nitram509.jmacaroons;
 
-import com.github.nitram509.jmacaroons.util.ArrayTools;
 import com.github.nitram509.jmacaroons.util.Base64;
 
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ class MacaroonsSerializer {
     packets.add(serialize_packet(Type.location, macaroon.location));
     packets.add(serialize_packet(Type.identifier, macaroon.identifier));
     for (CaveatPacket caveatPacket : macaroon.caveatPackets) {
-      packets.add(serialize_packet(caveatPacket.type, caveatPacket.value));
+      packets.add(serialize_packet(caveatPacket.type, caveatPacket.rawValue));
     }
     packets.add(serialize_packet(Type.signature, macaroon.signatureBytes));
     return Base64.encodeToString(flattenByteArray(packets), false);
