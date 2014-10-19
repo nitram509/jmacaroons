@@ -12,10 +12,6 @@
   </description>
   <url>https://github.com/nitram509/jmacaroons</url>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-
   <scm>
     <url>scm:git:git@github.com:nitram509/jmacaroons.git</url>
     <connection>scm:git:git@github.com:nitram509/jmacaroons.git</connection>
