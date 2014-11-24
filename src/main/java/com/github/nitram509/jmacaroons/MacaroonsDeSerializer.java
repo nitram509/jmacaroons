@@ -31,9 +31,6 @@ class MacaroonsDeSerializer {
   public static Macaroon deserialize(String serializedMacaroon) throws NotDeSerializableException {
     assert serializedMacaroon != null;
     byte[] bytes = Base64.decode(serializedMacaroon);
-    if (bytes == null) {
-      throw new NotDeSerializableException("Couldn't deserialize macaroon. Invalid base64 string representation.");
-    }
     int minLength = MACAROON_HASH_BYTES + KEY_VALUE_SEPARATOR.length() + SIGNATURE.length();
     if (bytes.length < minLength) {
       throw new NotDeSerializableException("Couldn't deserialize macaroon. Not enough bytes for signature found. There have to be at least " + minLength + " bytes");

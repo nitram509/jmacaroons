@@ -57,7 +57,7 @@ public class CaveatPacket implements Serializable {
   public String getValueAsText() {
     if (type == Type.vid) {
       if (valueAsText == null) {
-        valueAsText = Base64.encodeToString(rawValue, false);
+        valueAsText = Base64.encodeUrlSafeToString(rawValue);
       }
       return valueAsText;
     }

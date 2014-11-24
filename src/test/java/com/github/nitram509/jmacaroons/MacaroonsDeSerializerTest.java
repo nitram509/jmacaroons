@@ -75,13 +75,6 @@ public class MacaroonsDeSerializerTest {
     assertThat(deserialized).isEqualTo(m);
   }
 
-  @Test(expectedExceptions = NotDeSerializableException.class, expectedExceptionsMessageRegExp = ".*Invalid base64 string representation.*")
-  public void invalid_base64_throws_NotDeSerializableException() {
-    MacaroonsDeSerializer.deserialize("foobar");
-
-    // expected NotDeSerializableException
-  }
-
   @Test(expectedExceptions = NotDeSerializableException.class, expectedExceptionsMessageRegExp = ".*Not enough bytes for signature found.*")
   public void to_short_base64_throws_NotDeSerializableException() {
     // packet is: "123"

@@ -8,6 +8,8 @@ Version 0.?.?
    + Added: AuthoritiesCaveatVerifier to verify given authorities, which is a common use case
    + Added: not only strings but also byte arrays may be used as secret keys
    * catched up latest changes from libmacaroons, up to 2014-10-05 hash 568ff74 (vid isn't encoded as base64, but raw)
+   ! Serialization uses base64 URL safe encoding (RFC 4648). This follows libmacaroons implementation,
+     but may break compatibility to older libs. For backward compatibility, De-Serialization accepts both base64 standards.
 
 
 Version 0.2.0 (2014-09-26)

@@ -41,7 +41,7 @@ class MacaroonsSerializer {
       packets.add(serialize_packet(caveatPacket.type, caveatPacket.rawValue));
     }
     packets.add(serialize_packet(Type.signature, macaroon.signatureBytes));
-    return Base64.encodeToString(flattenByteArray(packets), false);
+    return Base64.encodeUrlSafeToString(flattenByteArray(packets));
   }
 
   private static byte[] serialize_packet(Type type, String data) {
