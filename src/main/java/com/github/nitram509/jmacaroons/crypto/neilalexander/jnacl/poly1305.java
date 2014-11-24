@@ -25,7 +25,7 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-package com.neilalexander.jnacl.crypto;
+package com.github.nitram509.jmacaroons.crypto.neilalexander.jnacl;
 
 public class poly1305 {
   final int CRYPTO_BYTES = 16;

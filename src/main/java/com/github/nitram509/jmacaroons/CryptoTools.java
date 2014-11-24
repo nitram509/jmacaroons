@@ -16,7 +16,7 @@
 
 package com.github.nitram509.jmacaroons;
 
-import com.neilalexander.jnacl.crypto.xsalsa20poly1305;
+import com.github.nitram509.jmacaroons.crypto.neilalexander.jnacl.xsalsa20poly1305;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

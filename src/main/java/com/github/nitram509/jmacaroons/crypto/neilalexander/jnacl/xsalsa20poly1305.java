@@ -25,31 +25,46 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-package com.neilalexander.jnacl.crypto;
+package com.github.nitram509.jmacaroons.crypto.neilalexander.jnacl;
 
-public class xsalsa20
+public class xsalsa20poly1305
 {
-	final int crypto_stream_xsalsa20_ref_KEYBYTES = 32;
-	final int crypto_stream_xsalsa20_ref_NONCEBYTES = 24;
-	
-	public final static byte[] sigma = {(byte) 'e', (byte) 'x', (byte) 'p', (byte) 'a',
-						  (byte) 'n', (byte) 'd', (byte) ' ', (byte) '3',
-						  (byte) '2', (byte) '-', (byte) 'b', (byte) 'y',
-						  (byte) 't', (byte) 'e', (byte) ' ', (byte) 'k'}; 
-	
-	public static int crypto_stream(byte[] c, int clen, byte[] n, byte[] k)
+	final int crypto_secretbox_KEYBYTES = 32;
+	final int crypto_secretbox_NONCEBYTES = 24;
+	final int crypto_secretbox_ZEROBYTES = 32;
+	final int crypto_secretbox_BOXZEROBYTES = 16;
+
+	static public int crypto_secretbox(byte[] c, byte[] m, long mlen, byte[] n, byte[] k)
 	{
-		byte[] subkey = new byte[32];
+		if (mlen < 32)
+			return -1;
+
+		xsalsa20.crypto_stream_xor(c, m, mlen, n, k);
+		poly1305.crypto_onetimeauth(c, 16, c, 32, mlen - 32, c);
 		
-		hsalsa20.crypto_core(subkey, n, k, sigma);
-		return salsa20.crypto_stream(c, clen, n, 16, subkey);
+		for (int i = 0; i < 16; ++i)
+			c[i] = 0;
+		
+		return 0;
 	}
-	
-	public static int crypto_stream_xor(byte[] c, byte[] m, long mlen, byte[] n, byte[] k)
+
+	static public int crypto_secretbox_open(byte[] m, byte[] c, long clen, byte[] n, byte[] k)
 	{
-		byte[] subkey = new byte[32];
+		if (clen < 32)
+			return -1;
+	
+		byte[] subkeyp = new byte[32];
 		
-		hsalsa20.crypto_core(subkey, n, k, sigma);
-		return salsa20.crypto_stream_xor(c, m, (int) mlen, n, 16, subkey);
+		xsalsa20.crypto_stream(subkeyp, 32, n, k);
+		
+		if (poly1305.crypto_onetimeauth_verify(c, 16, c, 32, clen - 32, subkeyp) != 0)
+			return -1;
+		
+		xsalsa20.crypto_stream_xor(m, c, clen, n, k);
+		
+		for (int i = 0; i < 32; ++i)
+			m[i] = 0;
+		
+		return 0;
 	}
 }

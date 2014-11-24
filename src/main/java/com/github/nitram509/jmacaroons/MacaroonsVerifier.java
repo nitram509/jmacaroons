@@ -27,7 +27,7 @@ import static com.github.nitram509.jmacaroons.CryptoTools.*;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 import static com.github.nitram509.jmacaroons.util.ArrayTools.appendToArray;
 import static com.github.nitram509.jmacaroons.util.ArrayTools.containsElement;
-import static com.neilalexander.jnacl.crypto.xsalsa20poly1305.crypto_secretbox_open;
+import static com.github.nitram509.jmacaroons.crypto.neilalexander.jnacl.xsalsa20poly1305.crypto_secretbox_open;
 
 public class MacaroonsVerifier {
 
