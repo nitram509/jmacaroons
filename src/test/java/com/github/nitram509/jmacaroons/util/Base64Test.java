@@ -1,11 +1,9 @@
 package com.github.nitram509.jmacaroons.util;
 
-import com.sun.org.apache.xml.internal.security.utils.*;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.testng.Assert.*;
 
 public class Base64Test {
 
