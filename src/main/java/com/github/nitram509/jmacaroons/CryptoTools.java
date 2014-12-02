@@ -27,10 +27,21 @@ import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 
 class CryptoTools {
 
-  private static final String MAGIC_KEY = "macaroons-key-generator";
+  private static final String HMAC_SHA_256_ALGO = "HmacSHA256";
+  private static final String MACAROONS_MAGIC_KEY = "macaroons-key-generator";
+
+  private static final Mac HMACSHA256_PROTOTYPE;
+
+  static {
+    try {
+      HMACSHA256_PROTOTYPE = Mac.getInstance(HMAC_SHA_256_ALGO);
+    } catch (NoSuchAlgorithmException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    }
+  }
 
   static byte[] generate_derived_key(String variableKey) throws InvalidKeyException, NoSuchAlgorithmException {
-    return macaroon_hmac(MAGIC_KEY.getBytes(IDENTIFIER_CHARSET), variableKey);
+    return macaroon_hmac(MACAROONS_MAGIC_KEY.getBytes(IDENTIFIER_CHARSET), variableKey);
   }
 
   static byte[] macaroon_hmac(byte[] key, String message) throws NoSuchAlgorithmException, InvalidKeyException {
@@ -38,10 +49,10 @@ class CryptoTools {
   }
 
   static byte[] macaroon_hmac(byte[] key, byte[] message) throws NoSuchAlgorithmException, InvalidKeyException {
-    Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-    SecretKeySpec secret_key = new SecretKeySpec(key, "HmacSHA256");
-    sha256_HMAC.init(secret_key);
-    return sha256_HMAC.doFinal(message);
+    Mac sha256HMAC = createNewHmacInstance();
+    SecretKeySpec secret_key = new SecretKeySpec(key, HMAC_SHA_256_ALGO);
+    sha256HMAC.init(secret_key);
+    return sha256HMAC.doFinal(message);
   }
 
   static byte[] macaroon_hash2(byte[] key, byte[] message1, byte[] message2) throws NoSuchAlgorithmException, InvalidKeyException {
@@ -70,6 +81,11 @@ class CryptoTools {
     return new ThirdPartyPacket(new_sig, vid);
   }
 
+  static byte[] macaroon_bind(byte[] Msig, byte[] MPsig) throws InvalidKeyException, NoSuchAlgorithmException {
+    byte[] key = new byte[MACAROON_HASH_BYTES];
+    return CryptoTools.macaroon_hash2(key, Msig, MPsig);
+  }
+
   private static void macaroon_secretbox(byte[] key, byte[] nonce, byte[] plaintext, byte[] ciphertext) throws GeneralSecurityRuntimeException {
     int err_code = xsalsa20poly1305.crypto_secretbox(ciphertext, plaintext, plaintext.length, nonce, key);
     if (err_code != 0) {
@@ -77,9 +93,14 @@ class CryptoTools {
     }
   }
 
-  static byte[] macaroon_bind(byte[] Msig, byte[] MPsig) throws InvalidKeyException, NoSuchAlgorithmException {
-    byte[] key = new byte[MACAROON_HASH_BYTES];
-    return CryptoTools.macaroon_hash2(key, Msig, MPsig);
+  private static Mac createNewHmacInstance() throws NoSuchAlgorithmException {
+    try {
+      Mac clonedMac = (Mac) HMACSHA256_PROTOTYPE.clone();
+      clonedMac.reset();
+      return clonedMac;
+    } catch (CloneNotSupportedException e) {
+      return Mac.getInstance(HMAC_SHA_256_ALGO);
+    }
   }
 
   static class ThirdPartyPacket {
