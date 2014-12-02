@@ -90,4 +90,10 @@ public class MacaroonsDeSerializerTest {
 
     // expected NotDeSerializableException
   }
+
+  @Test
+  public void stateful_packet_reader_parses_header_length() throws Exception {
+    MacaroonsDeSerializer.StatefulPacketReader packetReader = new MacaroonsDeSerializer.StatefulPacketReader(new byte[]{'a', 'b', 'c', 'd'});
+    assertThat(packetReader.readPacketHeader()).isEqualTo(0xabcd);
+  }
 }

@@ -79,8 +79,11 @@ public interface MacaroonsConstants {
   static final String CL = "cl";
   static final byte[] CL_BYTES = CL.getBytes(Charset.forName("ASCII"));
 
-  static final String LINE_SEPARATOR = "\n";
-  static final String KEY_VALUE_SEPARATOR = " ";
+  static final char LINE_SEPARATOR = '\n';
+  static final int LINE_SEPARATOR_LEN = 1;
+
+  static final char KEY_VALUE_SEPARATOR = ' ';
+  static final int KEY_VALUE_SEPARATOR_LEN = 1;
 
   static final Charset IDENTIFIER_CHARSET = Charset.forName("UTF-8");
 }

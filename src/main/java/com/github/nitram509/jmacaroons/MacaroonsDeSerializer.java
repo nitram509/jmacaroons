@@ -26,12 +26,20 @@ import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 
 class MacaroonsDeSerializer {
 
-  private static final String HEX_ALPHABET = "0123456789abcdef";
+  private static final byte[] HEX_ALPHABET = new byte[]{
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0,
+      0, 10, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 10, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
   public static Macaroon deserialize(String serializedMacaroon) throws NotDeSerializableException {
     assert serializedMacaroon != null;
     byte[] bytes = Base64.decode(serializedMacaroon);
-    int minLength = MACAROON_HASH_BYTES + KEY_VALUE_SEPARATOR.length() + SIGNATURE.length();
+    int minLength = MACAROON_HASH_BYTES + KEY_VALUE_SEPARATOR_LEN + SIGNATURE.length();
     if (bytes.length < minLength) {
       throw new NotDeSerializableException("Couldn't deserialize macaroon. Not enough bytes for signature found. There have to be at least " + minLength + " bytes");
     }
@@ -66,7 +74,7 @@ class MacaroonsDeSerializer {
   }
 
   private static byte[] parseSignature(Packet packet, byte[] signaturePacketData) {
-    int headerLen = signaturePacketData.length + KEY_VALUE_SEPARATOR.length();
+    int headerLen = signaturePacketData.length + KEY_VALUE_SEPARATOR_LEN;
     int len = Math.min(packet.data.length - headerLen, MacaroonsConstants.MACAROON_HASH_BYTES);
     byte[] signature = new byte[len];
     System.arraycopy(packet.data, headerLen, signature, 0, len);
@@ -74,18 +82,15 @@ class MacaroonsDeSerializer {
   }
 
   private static String parsePacket(Packet packet, byte[] header) {
-    int headerLen = header.length + KEY_VALUE_SEPARATOR.length();
+    int headerLen = header.length + KEY_VALUE_SEPARATOR_LEN;
     int len = packet.data.length - headerLen;
-    String payload = new String(packet.data, headerLen, len, IDENTIFIER_CHARSET);
-    if (payload.endsWith(LINE_SEPARATOR)) {
-      payload = payload.substring(0, len - LINE_SEPARATOR.length());
-    }
-    return payload;
+    if (packet.data[headerLen + len - 1] == LINE_SEPARATOR) len--;
+    return new String(packet.data, headerLen, len, IDENTIFIER_CHARSET);
   }
 
   private static byte[] parseRawPacket(Packet packet, byte[] header) {
-    int headerLen = header.length + KEY_VALUE_SEPARATOR.length();
-    int len = packet.data.length - headerLen - LINE_SEPARATOR.length();
+    int headerLen = header.length + KEY_VALUE_SEPARATOR_LEN;
+    int len = packet.data.length - headerLen - LINE_SEPARATOR_LEN;
     byte[] raw = new byte[len];
     System.arraycopy(packet.data, headerLen, raw, 0, len);
     return raw;
@@ -127,7 +132,7 @@ class MacaroonsDeSerializer {
     }
   }
 
-  private static class StatefulPacketReader {
+  static class StatefulPacketReader {
 
     private final byte[] buffer;
     private int seekIndex = 0;
@@ -147,12 +152,10 @@ class MacaroonsDeSerializer {
     }
 
     public int readPacketHeader() {
-      int size = 0;
-      size += (HEX_ALPHABET.indexOf(buffer[seekIndex++]) & 15) << 12;
-      size += (HEX_ALPHABET.indexOf(buffer[seekIndex++]) & 15) << 8;
-      size += (HEX_ALPHABET.indexOf(buffer[seekIndex++]) & 15) << 4;
-      size += (HEX_ALPHABET.indexOf(buffer[seekIndex++]) & 15);
-      return size;
+      return (HEX_ALPHABET[buffer[seekIndex++]] << 12)
+          | (HEX_ALPHABET[buffer[seekIndex++]] << 8)
+          | (HEX_ALPHABET[buffer[seekIndex++]] << 4)
+          | HEX_ALPHABET[buffer[seekIndex++]];
     }
 
     public boolean isPacketHeaderAvailable() {

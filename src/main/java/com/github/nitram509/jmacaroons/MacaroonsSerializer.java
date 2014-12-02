@@ -50,7 +50,7 @@ class MacaroonsSerializer {
 
   private static byte[] serialize_packet(Type type, byte[] data) {
     String typname = type.name();
-    int packet_len = PACKET_PREFIX_LENGTH + typname.length() + KEY_VALUE_SEPARATOR.length() + data.length + LINE_SEPARATOR.length();
+    int packet_len = PACKET_PREFIX_LENGTH + typname.length() + KEY_VALUE_SEPARATOR_LEN + data.length + LINE_SEPARATOR_LEN;
     byte[] packet = new byte[packet_len];
     int offset = 0;
 
@@ -60,14 +60,13 @@ class MacaroonsSerializer {
     System.arraycopy(typname.getBytes(), 0, packet, offset, typname.length());
     offset += typname.length();
 
-    System.arraycopy(KEY_VALUE_SEPARATOR.getBytes(), 0, packet, offset, KEY_VALUE_SEPARATOR.length());
-    offset += KEY_VALUE_SEPARATOR.length();
+    packet[offset] = KEY_VALUE_SEPARATOR;
+    offset += KEY_VALUE_SEPARATOR_LEN;
 
     System.arraycopy(data, 0, packet, offset, data.length);
     offset += data.length;
 
-    System.arraycopy(LINE_SEPARATOR.getBytes(), 0, packet, offset, LINE_SEPARATOR.length());
-    offset += LINE_SEPARATOR.length();
+    packet[offset] = LINE_SEPARATOR;
     return packet;
   }
 
