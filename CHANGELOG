@@ -2,13 +2,14 @@
 Changelog jmacaroons
 =====================
 
-Version 0.?.?
+Version 0.3.0 (2014-12-06)
 --------------------------
 
    + Added: AuthoritiesCaveatVerifier to verify given authorities, which is a common use case
    + Added: not only strings but also byte arrays may be used as secret keys
-   * catched up latest changes from libmacaroons, up to 2014-10-05 hash 568ff74 (vid isn't encoded as base64, but raw)
-   ! Serialization uses base64 URL safe encoding (RFC 4648). This follows libmacaroons implementation,
+   * Catched up latest changes from libmacaroons (2014-10-05 hash 568ff74, vid isn't encoded as base64, but raw)
+   * Improved performance via clone HMAC tool, because its 25% faster than creating a new one via 'getInstance()'
+   ! Serialization uses Base64 URL safe encoding (RFC 4648). This follows libmacaroons implementation,
      but may break compatibility to older libs. For backward compatibility, De-Serialization accepts both base64 standards.
 
 
@@ -17,9 +18,9 @@ Version 0.2.0 (2014-09-26)
 
    + Added: adding third party caveats to macaroons is possible
    + Added: verifying third party caveats on macaroons is possible
-   * fixed: modifying macaroons also copies caveats
-   * improved java-docs
-   * reworked macaroon structure, using caveat packets
+   * Fixed: modifying macaroons also copies caveats
+   * Improved java-docs
+   * Reworked macaroon structure, using caveat packets
 
 
 Version 0.1.7 (2014-09-06)

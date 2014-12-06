@@ -33,13 +33,13 @@ Maven
 <dependency>
   <groupId>com.github.nitram509</groupId>
   <artifactId>jmacaroons</artifactId>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
 </dependency>
 ````
 
 Gradle
 ````groovy
-compile 'com.github.nitram509:jmacaroons:0.2.0'
+compile 'com.github.nitram509:jmacaroons:0.3.0'
 ````
 
 
@@ -83,6 +83,9 @@ System.out.println(macaroon.inspect());
 Serializing
 ----------------------------------
 
+Macaroons are serialized, using Base64 URL safe encoding ([RFC 4648])(http://www.ietf.org/rfc/rfc4648.txt).
+This way you can very easily append it to query string within URIs.
+
 ````java
 String serialized = macaroon.serialize();
 System.out.println("Serialized: " + serialized);
@@ -92,6 +95,8 @@ System.out.println("Serialized: " + serialized);
 Serialized: MDAyNGxvY2F0aW9uIGh0dHA6Ly93d3cuZXhhbXBsZS5vcmcKMDAyNmlkZW50aWZpZXIgd2UgdXNlZCBvdXIgc2VjcmV0IGtleQowMDJmc2lnbmF0dXJlIOPZ4CkIUmxMADmuFRFBFdl_3Wi_K6N5s0Kq8PYX0FUvCg
 ````
 
+_Note:_
+Base64 URL safe is supported since v0.3.0. jmacaroons also de-serializes regular Base64 to maintain backward compatibility.
 
 De-Serializing
 ----------------------------------
@@ -257,9 +262,9 @@ m.inspect();
 ````
 
 In a real application, we'd look at these third party caveats, and contact each
-location to retrieve the requisite discharge macaroons.  We would include the
+location to retrieve the requisite discharge macaroons. We would include the
 identifier for the caveat in the request itself, so that the server can recall
-the secret used to create the third-party caveat.  The server can then generate
+the secret used to create the third-party caveat. The server can then generate
 and return a new macaroon that discharges the caveat:
 
 ````java
@@ -269,18 +274,18 @@ Macaroon d = new MacaroonsBuilder("http://auth.mybank/", caveat_key, identifier)
 ````
 
 This new macaroon enables the verifier to determine that the third party caveat
-is satisfied.  Our target service added a time-limiting caveat to this macaroon
+is satisfied. Our target service added a time-limiting caveat to this macaroon
 that ensures that this discharge macaroon does not last forever.  This ensures
 that Alice (or, at least someone authenticated as Alice) cannot use the
 discharge macaroon indefinitely and will eventually have to re-authenticate.
 
 Once Alice has both the root macaroon and the discharge macaroon in her
-possession, she can make the request to the target service.  Making a request
+possession, she can make the request to the target service. Making a request
 with discharge macaroons is only slightly more complicated than making requests
-with a single macaroon.  In addition to serializing and transmitting all
+with a single macaroon. In addition to serializing and transmitting all
 involved macaroons, there is preparation step that binds the discharge macaroons
-to the root macaroon.  This binding step ensures that the discharge macaroon is
-useful only when presented alongside the root macaroon.  The root macaroon is
+to the root macaroon. This binding step ensures that the discharge macaroon is
+useful only when presented alongside the root macaroon. The root macaroon is
 used to bind the discharge macaroons like this:
 
 ````java
@@ -299,7 +304,7 @@ would see that the binding process has irreversibly altered their signature(s).
 
 The root macaroon 'm' and its discharge macaroons 'dp' are ready for the
 request.  Alice can serialize them all and send them to the bank to prove she is
-authorized to access her account.  The bank can verify them using the same
+authorized to access her account. The bank can verify them using the same
 verifier we built before.  We provide the discharge macaroons as a third
 argument to the verify call:
 
