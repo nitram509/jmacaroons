@@ -83,7 +83,7 @@ System.out.println(macaroon.inspect());
 Serializing
 ----------------------------------
 
-Macaroons are serialized, using Base64 URL safe encoding ([RFC 4648])(http://www.ietf.org/rfc/rfc4648.txt).
+Macaroons are serialized, using Base64 URL safe encoding [RFC 4648](http://www.ietf.org/rfc/rfc4648.txt).
 This way you can very easily append it to query string within URIs.
 
 ````java
