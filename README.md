@@ -258,7 +258,7 @@ m.inspect();
 // > cid this was how we remind auth of key/pred
 // > vid AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA027FAuBYhtHwJ58FX6UlVNFtFsGxQHS7uD_w_dedwv4Jjw7UorCREw5rXbRqIKhr
 // > cl http://auth.mybank/
-// > signature 6b99edb2ec6d7a4382071d7d41a0bf7dfa27d87d2f9fea86e330d7850ffda2b2
+// > signature d27db2fd1f22760e4c3dae8137e2d8fc1df6c0741c18aed4b97256bf78d1f55c
 ````
 
 In a real application, we'd look at these third party caveats, and contact each
@@ -299,7 +299,7 @@ would see that the binding process has irreversibly altered their signature(s).
 
 ````java
 // > d.signature = 82a80681f9f32d419af12f6a71787a1bac3ab199df934ed950ddf20c25ac8c65
-// > dp.signature = b38b26ab29d3724e728427e758cccc16d9d7f3de46d0d811b70b117b05357b9b
+// > dp.signature = 2eb01d0dd2b4475330739140188648cf25dda0425ea9f661f1574ca0a9eac54e
 ````
 
 The root macaroon 'm' and its discharge macaroons 'dp' are ready for the

@@ -64,16 +64,11 @@ public class MacaroonsPrepareRequestAndVerifyComplexTest {
         .getMacaroon();
     assertThat(D.signature).isEqualTo("82a80681f9f32d419af12f6a71787a1bac3ab199df934ed950ddf20c25ac8c65");
 
-    E = MacaroonsBuilder.create("http://example.org/", "example secret key", "example identifier");
-    assertThat(E.signature).isEqualTo("b4f46190b4a41cc66ef277b8ee423259362deb648c18cb80f929ac65bb377d1b");
-
     DP = new MacaroonsBuilder(M)
         .prepare_for_request(D)
-        .prepare_for_request(E)
         .getMacaroon();
 
-    assertThat(DP.signature).isEqualTo("0e36fb2c60be3052960f3037eb09d7fd1e007f5b4d51c8d9be215085197649e7");
-    assertThat(DP.identifier).isEqualTo("example identifier");
+    assertThat(DP.signature).isEqualTo("b862e19b656ae279e3a103ce16cc674f86acfe4d8f00790cc769ab121e765fb2");
   }
 
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")
@@ -89,7 +84,7 @@ public class MacaroonsPrepareRequestAndVerifyComplexTest {
   }
 
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")
-  public void verifying_unprepared_macaroon() {
+  public void verifying_unprepared_macaroon__has_to_fail() {
     boolean valid = new MacaroonsVerifier(M)
         .satisfyExcact("account = 3735928559")
         .satisfyExcact("role = admin")
@@ -101,13 +96,13 @@ public class MacaroonsPrepareRequestAndVerifyComplexTest {
   }
 
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")
-  public void verifying_macaroon_without_satisfying_3rd_party() {
+  public void verifying_macaroon_without_satisfying_3rd_party__has_to_fail() {
     boolean valid = new MacaroonsVerifier(M)
         .satisfyExcact("account = 3735928559")
         .satisfyExcact("role = admin")
         .satisfyGeneral(new TimestampCaveatVerifier())
         .isValid(secret);
 
-    assertThat(valid).isTrue();
+    assertThat(valid).isFalse();
   }
 }

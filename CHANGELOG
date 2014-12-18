@@ -2,6 +2,12 @@
 Changelog jmacaroons
 =====================
 
+Version 0.?.? (2014-12-??)
+--------------------------
+
+   * Fixed: a bug in verifying third-party caveats, they aren't optional but mandatory
+
+
 Version 0.3.0 (2014-12-06)
 --------------------------
 

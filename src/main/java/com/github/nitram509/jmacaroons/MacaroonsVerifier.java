@@ -131,7 +131,11 @@ public class MacaroonsVerifier {
           i++;
           CaveatPacket caveat_vid = caveatPackets[i];
           Macaroon boundMacaroon = findBoundMacaroon(caveat.getValueAsText());
-          if (boundMacaroon != null && !macaroon_verify_inner_3rd(boundMacaroon, caveat_vid, csig)) {
+          if (boundMacaroon == null) {
+            String msg = "Couldn't verify 3rd party macaroon, because no discharged macaroon was provided to the verifier.";
+            return new VerificationResult(msg);
+          }
+          if (!macaroon_verify_inner_3rd(boundMacaroon, caveat_vid, csig)) {
             String msg = "Couldn't verify 3rd party macaroon, identifier= " + boundMacaroon.identifier;
             return new VerificationResult(msg);
           }
