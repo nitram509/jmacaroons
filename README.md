@@ -319,18 +319,6 @@ new MacaroonsVerifier(m)
 
 Without the 'prepare_for_request()' call, the verification would fail.
 
-Interestingly, when you're verifying a macaroon without satisfy3rdParty(),
-then the verification process will proceed and ignore them. 
- 
-````java
-new MacaroonsVerifier(m)
-    .satisfyExcact("account = 3735928559")
-    .satisfyGeneral(new TimestampCaveatVerifier())
-    /* don't verify 3rd party caveat - will be valid, too */
-    .assertIsValid(secret);
-// > ok.
-````
-
 
 Commonly used verifier, shipped with jmacaroons
 --------------------------------------------------
