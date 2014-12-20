@@ -26,7 +26,7 @@ import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_CA
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_STRLEN;
 
 /**
- * Used to build Macaroons, example:
+ * Used to build and modify Macaroons, example:
  * <pre>{@code
  * String location = "http://www.example.org";
  * String secretKey = "this is our super secret key; only we should know it";
