@@ -47,6 +47,7 @@ Build Status
 --------------------
 
 [![Build Status](https://travis-ci.org/nitram509/jmacaroons.svg?branch=master)](https://travis-ci.org/nitram509/jmacaroons)
+[![Build Status](https://drone.io/github.com/nitram509/jmacaroons/status.png)](https://drone.io/github.com/nitram509/jmacaroons/latest)
 
 [![Coverage Status](https://coveralls.io/repos/nitram509/jmacaroons/badge.png?branch=master)](https://coveralls.io/r/nitram509/jmacaroons?branch=master)
 
