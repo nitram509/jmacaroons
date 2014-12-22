@@ -70,7 +70,7 @@ class MacaroonsDeSerializer {
         signature = parseSignature(packet, SIGNATURE_BYTES);
       }
     }
-    return new Macaroon(location, identifier, caveats.toArray(new CaveatPacket[caveats.size()]), signature);
+    return new Macaroon(location, identifier, signature, caveats.toArray(new CaveatPacket[caveats.size()]));
   }
 
   private static byte[] parseSignature(Packet packet, byte[] signaturePacketData) {

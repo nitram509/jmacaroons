@@ -44,10 +44,10 @@ public class Macaroon implements Serializable {
   final byte[] signatureBytes;
 
   Macaroon(String location, String identifier, byte[] signature) {
-    this(location, identifier, new CaveatPacket[0], signature);
+    this(location, identifier, signature, new CaveatPacket[0]);
   }
 
-  Macaroon(String location, String identifier, CaveatPacket[] caveats, byte[] signature) {
+  Macaroon(String location, String identifier, byte[] signature, CaveatPacket[] caveats) {
     this.location = location;
     this.identifier = identifier;
     this.caveatPackets = caveats;
