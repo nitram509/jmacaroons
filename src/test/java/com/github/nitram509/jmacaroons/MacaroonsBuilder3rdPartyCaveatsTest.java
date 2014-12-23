@@ -39,8 +39,8 @@ public class MacaroonsBuilder3rdPartyCaveatsTest {
         .add_third_party_caveat("http://auth.mybank/", caveat_key, identifier)
         .getMacaroon();
 
-    assertThat(m.identifier).isEqualTo(m.identifier);
-    assertThat(m.location).isEqualTo(m.location);
+    assertThat(m.identifier).isEqualTo(publicIdentifier);
+    assertThat(m.location).isEqualTo(location);
     assertThat(m.caveatPackets).isEqualTo(new CaveatPacket[]{
         new CaveatPacket(Type.cid, "account = 3735928559"),
         new CaveatPacket(Type.cid, identifier),
