@@ -77,7 +77,7 @@ public class MacaroonsPrepareRequestAndVerifyTest {
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")
   public void verifying_valid() {
     boolean valid = new MacaroonsVerifier(M)
-        .satisfyExcact("account = 3735928559")
+        .satisfyExact("account = 3735928559")
         .satisfyGeneral(new TimestampCaveatVerifier())
         .satisfy3rdParty(DP)
         .isValid(secret);
@@ -88,7 +88,7 @@ public class MacaroonsPrepareRequestAndVerifyTest {
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")
   public void verifying_unprepared_macaroon__has_to_fail() {
     boolean valid = new MacaroonsVerifier(M)
-        .satisfyExcact("account = 3735928559")
+        .satisfyExact("account = 3735928559")
         .satisfyGeneral(new TimestampCaveatVerifier())
         .satisfy3rdParty(D)
         .isValid(secret);
@@ -99,7 +99,7 @@ public class MacaroonsPrepareRequestAndVerifyTest {
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")
   public void verifying_macaroon_without_satisfying_3rd_party__has_to_fail() {
     boolean valid = new MacaroonsVerifier(M)
-        .satisfyExcact("account = 3735928559")
+        .satisfyExact("account = 3735928559")
         .satisfyGeneral(new TimestampCaveatVerifier())
         .isValid(secret);
 
