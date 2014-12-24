@@ -79,7 +79,7 @@ public class MacaroonsVerifierTest {
     MacaroonsVerifier verifier = new MacaroonsVerifier(m);
     assertThat(verifier.isValid(secret)).isFalse();
 
-    verifier.satisfyExcact("account = 3735928559");
+    verifier.satisfyExact("account = 3735928559");
     assertThat(verifier.isValid(secret)).isTrue();
   }
 
@@ -93,7 +93,7 @@ public class MacaroonsVerifierTest {
     MacaroonsVerifier verifier = new MacaroonsVerifier(m);
     assertThat(verifier.isValid(secret)).isFalse();
 
-    verifier.satisfyExcact("account = 3735928559");
+    verifier.satisfyExact("account = 3735928559");
     assertThat(verifier.isValid(secret)).isFalse();
   }
 
@@ -106,10 +106,10 @@ public class MacaroonsVerifierTest {
     MacaroonsVerifier verifier = new MacaroonsVerifier(m);
     assertThat(verifier.isValid(secret)).isFalse();
 
-    verifier.satisfyExcact("account = 3735928559");
-    verifier.satisfyExcact("IP = 127.0.0.1')");
-    verifier.satisfyExcact("browser = Chrome')");
-    verifier.satisfyExcact("action = deposit");
+    verifier.satisfyExact("account = 3735928559");
+    verifier.satisfyExact("IP = 127.0.0.1')");
+    verifier.satisfyExact("browser = Chrome')");
+    verifier.satisfyExact("action = deposit");
     assertThat(verifier.isValid(secret)).isTrue();
   }
 
