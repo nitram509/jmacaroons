@@ -5,6 +5,12 @@ Changelog jmacaroons
 Version 0.3.1 (2014-12-19)
 --------------------------
 
+   ! Fix spelling mistake satisfyExcact -> satisfyExact (breaking API change, but fixes this jarring typo)
+
+
+Version 0.3.1 (2014-12-19)
+--------------------------
+
    * Fixed: a bug in verifying third-party caveats, they aren't optional but mandatory
 
 
