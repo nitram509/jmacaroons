@@ -27,7 +27,6 @@ import static com.github.nitram509.jmacaroons.CryptoTools.*;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 import static com.github.nitram509.jmacaroons.util.ArrayTools.appendToArray;
 import static com.github.nitram509.jmacaroons.util.ArrayTools.containsElement;
-import static com.github.nitram509.jmacaroons.crypto.neilalexander.jnacl.xsalsa20poly1305.crypto_secretbox_open;
 
 public class MacaroonsVerifier {
 
@@ -163,7 +162,7 @@ public class MacaroonsVerifier {
 
     /* fill in the ciphertext */
     System.arraycopy(vid_data, MACAROON_SECRET_NONCE_BYTES, enc_ciphertext, MACAROON_SECRET_BOX_ZERO_BYTES, vid_data.length - MACAROON_SECRET_NONCE_BYTES);
-    boolean valid = 0 == macaroon_secretbox_open(sig, enc_nonce, enc_ciphertext, enc_ciphertext.length, enc_plaintext);
+    boolean valid = 0 == macaroon_secretbox_open(sig, enc_nonce, enc_ciphertext, enc_plaintext);
 
     byte[] key = new byte[MACAROON_HASH_BYTES];
     System.arraycopy(enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, key, 0, MACAROON_HASH_BYTES);
@@ -182,10 +181,6 @@ public class MacaroonsVerifier {
       }
     }
     return null;
-  }
-
-  private static int macaroon_secretbox_open(byte[] enc_key, byte[] enc_nonce, byte[] ciphertext, int ciphertext_sz, byte[] plaintext) {
-    return crypto_secretbox_open(plaintext, ciphertext, ciphertext_sz, enc_nonce, enc_key);
   }
 
   private boolean verifiesGeneral(String caveat) {

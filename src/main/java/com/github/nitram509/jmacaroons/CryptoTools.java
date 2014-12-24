@@ -24,6 +24,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
+import static com.github.nitram509.jmacaroons.crypto.neilalexander.jnacl.xsalsa20poly1305.crypto_secretbox_open;
 
 class CryptoTools {
 
@@ -91,6 +92,10 @@ class CryptoTools {
     if (err_code != 0) {
       throw new GeneralSecurityRuntimeException("Error while creating secret box. err_code=" + err_code);
     }
+  }
+
+  static int macaroon_secretbox_open(byte[] enc_key, byte[] enc_nonce, byte[] ciphertext, byte[] plaintext) {
+    return crypto_secretbox_open(plaintext, ciphertext, ciphertext.length, enc_nonce, enc_key);
   }
 
   private static Mac createNewHmacInstance() throws NoSuchAlgorithmException {
