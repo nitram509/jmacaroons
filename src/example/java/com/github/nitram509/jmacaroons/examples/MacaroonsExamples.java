@@ -95,13 +95,13 @@ public class MacaroonsExamples {
     verifier.isValid(secretKey);
     // > False
 
-    verifier.satisfyExcact("account = 3735928559");
+    verifier.satisfyExact("account = 3735928559");
     verifier.isValid(secretKey);
     // > True
 
-    verifier.satisfyExcact("IP = 127.0.0.1')");
-    verifier.satisfyExcact("browser = Chrome')");
-    verifier.satisfyExcact("action = deposit");
+    verifier.satisfyExact("IP = 127.0.0.1')");
+    verifier.satisfyExact("browser = Chrome')");
+    verifier.satisfyExact("action = deposit");
     verifier.isValid(secretKey);
     // > True
   }
@@ -155,7 +155,7 @@ public class MacaroonsExamples {
     System.out.println("dp.signature = " + dp.signature);
 
     new MacaroonsVerifier(m)
-        .satisfyExcact("account = 3735928559")
+        .satisfyExact("account = 3735928559")
         .satisfyGeneral(new TimestampCaveatVerifier())
         .satisfy3rdParty(dp)
         .assertIsValid(secret);
