@@ -55,13 +55,13 @@ public class CaveatPacket implements Serializable {
   }
 
   public String getValueAsText() {
-    if (type == Type.vid) {
-      if (valueAsText == null) {
-        valueAsText = Base64.encodeUrlSafeToString(rawValue);
-      }
-      return valueAsText;
+    if (valueAsText == null) {
+      valueAsText = (type == Type.vid)
+              ? Base64.encodeUrlSafeToString(rawValue)
+              : new String(rawValue, IDENTIFIER_CHARSET);
     }
-    return new String(rawValue, IDENTIFIER_CHARSET);
+    return valueAsText;
+
   }
 
   @Override
