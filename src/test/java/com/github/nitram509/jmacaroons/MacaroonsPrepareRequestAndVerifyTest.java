@@ -63,15 +63,15 @@ public class MacaroonsPrepareRequestAndVerifyTest {
     caveat_key = "4; guaranteed random by a fair toss of the dice";
     identifier = "this was how we remind auth of key/pred";
     D = new MacaroonsBuilder("http://auth.mybank/", caveat_key, identifier)
-        .add_first_party_caveat("time < 2015-01-01T00:00")
+        .add_first_party_caveat("time < 2025-01-01T00:00")
         .getMacaroon();
-    assertThat(D.signature).isEqualTo("82a80681f9f32d419af12f6a71787a1bac3ab199df934ed950ddf20c25ac8c65");
+    assertThat(D.signature).isEqualTo("b338d11fb136c4b95c86efe146f77978cd0947585375ba4d4da4ef68be2b3e8b");
 
     DP = new MacaroonsBuilder(M)
         .prepare_for_request(D)
         .getMacaroon();
 
-    assertThat(DP.signature).isEqualTo("2eb01d0dd2b4475330739140188648cf25dda0425ea9f661f1574ca0a9eac54e");
+    assertThat(DP.signature).isEqualTo("f8718cd3d2cc250344c072ea557c36a4f5a963353a5b664b0faa709e0d65ad9f");
   }
 
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")
