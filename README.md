@@ -11,6 +11,7 @@ The primary goals are
    * being compatible to libmacaroons
    * having no external dependencies, except the Java Runtime
    * being Android compatible, while using Java6
+   * focus on binary serialization format (currently, JSON format isn't supported)
    * being the reference implementation in the Java community ;-)
 
 There is a [playground](http://www.macaroons.io/) (testing environment) available,
