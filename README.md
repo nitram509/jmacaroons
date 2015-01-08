@@ -376,3 +376,28 @@ secret keys should contain.  Any shorter is wasting an opportunity for security.
 ````java
 com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_SUGGESTED_SECRET_LENGTH = 32
 ````
+
+
+Performance
+--------------
+
+There's a little micro benchmark, which demonstrates the performance of jmacaroons.
+
+Source: https://gist.github.com/nitram509/b6f836a697b405e5f440
+
+Environment: Windows 8.1 64bit, JRE 1.8.0_25 64bit, Intel i7-4790 @3.60GHz
+
+````text
+Results
+----------
+Benchmark                                                                    Mode  Samples        Score       Error  Units
+o.s.JMacaroonsBenchmark.benchmark_Deserialize                               thrpt        5  2169368,589 ± 64218,485  ops/s
+o.s.JMacaroonsBenchmark.benchmark_Deserialize_and_Verify                    thrpt        5   262681,397 ±  8759,459  ops/s
+o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_bytes                  thrpt        5   430921,523 ± 26852,349  ops/s
+o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_bytes_and_1_caveat     thrpt        5   238711,509 ±  8685,272  ops/s
+o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_bytes_and_2_caveats    thrpt        5   166050,356 ±  1179,434  ops/s
+o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_bytes_and_3_caveats    thrpt        5   128190,800 ±  1709,344  ops/s
+o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_string                 thrpt        5   250717,231 ±  8464,992  ops/s
+````
+
+
