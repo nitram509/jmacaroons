@@ -20,6 +20,8 @@ import com.github.nitram509.jmacaroons.util.BinHex;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.io.UnsupportedEncodingException;
+
 import static com.github.nitram509.jmacaroons.util.BinHex.hex2bin;
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -84,14 +86,14 @@ public class MacaroonsBuilderTest {
   }
 
   @Test
-  public void create_a_Macaroon_from_a_byteArray() {
+  public void create_a_Macaroon_from_a_byteArray() throws UnsupportedEncodingException {
     identifier ="we used our secret key";
-    byte[] secretBytes = hex2bin("a96173391e6bfa0356bbf095621b8af1510968e770e4d27d62109b7dc374814b");
+    byte[] secretBytes = secret.getBytes("ASCII");
     location ="http://www.example.org";
 
     m = MacaroonsBuilder.create(location, secretBytes, identifier);
 
-    assertThat(m.signature).isEqualTo("e3d9e02908526c4c0039ae15114115d97fdd68bf2ba379b342aaf0f617d0552f");
+    assertThat(m.signature).isEqualTo("5c748a4dabfd5ff2a0b5ab56120c8021912b591ac09023b4bffbc6e1b54e664f");
   }
 
 }
