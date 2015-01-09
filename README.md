@@ -392,13 +392,14 @@ Environment: Windows 8.1 64bit, JRE 1.8.0_25 64bit, Intel i7-4790 @3.60GHz
 Results
 ----------
 Benchmark                                                                    Mode  Samples        Score       Error  Units
-o.s.JMacaroonsBenchmark.benchmark_Deserialize                               thrpt        5  2169368,589 ± 64218,485  ops/s
-o.s.JMacaroonsBenchmark.benchmark_Deserialize_and_Verify                    thrpt        5   262681,397 ±  8759,459  ops/s
-o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_bytes                  thrpt        5   430921,523 ± 26852,349  ops/s
-o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_bytes_and_1_caveat     thrpt        5   238711,509 ±  8685,272  ops/s
-o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_bytes_and_2_caveats    thrpt        5   166050,356 ±  1179,434  ops/s
-o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_bytes_and_3_caveats    thrpt        5   128190,800 ±  1709,344  ops/s
-o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_string                 thrpt        5   250717,231 ±  8464,992  ops/s
+o.s.JMacaroonsBenchmark.benchmark_Deserialize                               thrpt        5  2190474,677 ± 44591,197  ops/s
+o.s.JMacaroonsBenchmark.benchmark_Deserialize_and_Verify_key_bytes          thrpt        5   457262,262 ±  5868,723  ops/s
+o.s.JMacaroonsBenchmark.benchmark_Deserialize_and_Verify_key_string         thrpt        5   262689,398 ±  4270,857  ops/s
+o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_bytes                  thrpt        5   424008,024 ± 16222,450  ops/s
+o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_bytes_and_1_caveat     thrpt        5   242060,835 ±  5696,272  ops/s
+o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_bytes_and_2_caveats    thrpt        5   166017,277 ±   870,467  ops/s
+o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_bytes_and_3_caveats    thrpt        5   127712,773 ±   478,394  ops/s
+o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_string                 thrpt        5   252302,839 ±  3277,232  ops/s
 ````
 
 
