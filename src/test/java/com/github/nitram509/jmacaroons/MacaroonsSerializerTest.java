@@ -59,7 +59,7 @@ public class MacaroonsSerializerTest {
         .add_third_party_caveat("http://auth.mybank/", "SECRET for 3rd party caveat", identifier)
         .getMacaroon();
 
-    assertThat(MacaroonsSerializer.serialize(m)).isEqualTo("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDFmY2lkIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDA1MXZpZCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFvL_9aQlwPH0Jiuh9k_NTDwO18xb23aiv3ukwGUTSzJhwKUOheayUmZU_NXTiFgoKMDAxYmNsIGh0dHA6Ly9hdXRoLm15YmFuay8KMDAyZnNpZ25hdHVyZSBjSegoF7hDHgqZJS4lWS3CeugQaQciv_oVO7XjcN79jwo");
+    assertThat(MacaroonsSerializer.serialize(m)).startsWith("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDFmY2lkIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDA1MXZpZC");
     assertThat(MacaroonsSerializer.serialize(m)).isEqualTo(m.serialize());
   }
 

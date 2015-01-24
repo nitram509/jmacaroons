@@ -17,7 +17,7 @@
 package com.github.nitram509.jmacaroons;
 
 import com.github.nitram509.jmacaroons.verifier.TimestampCaveatVerifier;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -34,7 +34,7 @@ public class MacaroonsPrepareRequestAndVerifyComplexTest {
   private Macaroon D;
   private Macaroon E;
 
-  @BeforeMethod
+  @BeforeClass
   public void setUp() throws Exception {
     location = "http://mybank/";
     secret = "this is a different super-secret key; never use the same secret twice";
@@ -51,7 +51,7 @@ public class MacaroonsPrepareRequestAndVerifyComplexTest {
         .add_third_party_caveat("http://auth.mybank/", caveat_key, identifier)
         .add_first_party_caveat("role = admin")
         .getMacaroon();
-    assertThat(M.signature).isEqualTo("a9d5c66ec150248a267a22de28905b1ec2e09bec2fe2bb4d2fa4649d27f17043");
+    // signature can't be asserted to be equal to a constant, because random nonce influences signature
   }
 
   @Test
@@ -68,7 +68,7 @@ public class MacaroonsPrepareRequestAndVerifyComplexTest {
         .prepare_for_request(D)
         .getMacaroon();
 
-    assertThat(DP.signature).isEqualTo("4579b9b0a12902906421dc28e00264baf24a82ffd05be14c503dbce686f6d969");
+    // signature can't be asserted to be equal to a constant, because random nonce influences signature
   }
 
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")

@@ -16,7 +16,6 @@
 
 package com.github.nitram509.jmacaroons;
 
-import com.github.nitram509.jmacaroons.util.Base64;
 import org.testng.annotations.Test;
 
 import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
@@ -41,18 +40,13 @@ public class MacaroonsBuilder3rdPartyCaveatsTest {
 
     assertThat(m.identifier).isEqualTo(publicIdentifier);
     assertThat(m.location).isEqualTo(location);
-    assertThat(m.caveatPackets).isEqualTo(new CaveatPacket[]{
-        new CaveatPacket(Type.cid, "account = 3735928559"),
-        new CaveatPacket(Type.cid, identifier),
-        new CaveatPacket(Type.vid, getVidFromBase64()),
-        new CaveatPacket(Type.cl, "http://auth.mybank/")
-    });
-    assertThat(m.signature).isEqualTo("d27db2fd1f22760e4c3dae8137e2d8fc1df6c0741c18aed4b97256bf78d1f55c");
-    assertThat(m.serialize()).isEqualTo("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMmNpZGVudGlmaWVyIHdlIHVzZWQgb3VyIG90aGVyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDMwY2lkIHRoaXMgd2FzIGhvdyB3ZSByZW1pbmQgYXV0aCBvZiBrZXkvcHJlZAowMDUxdmlkIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANNuxQLgWIbR8CefBV-lJVTRbRbBsUB0u7g_8P3XncL-CY8O1KKwkRMOa120aiCoawowMDFiY2wgaHR0cDovL2F1dGgubXliYW5rLwowMDJmc2lnbmF0dXJlINJ9sv0fInYOTD2ugTfi2Pwd9sB0HBiu1LlyVr940fVcCg");
-  }
-
-  private byte[] getVidFromBase64() {
-    return Base64.decode("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA027FAuBYhtHwJ58FX6UlVNFtFsGxQHS7uD_w_dedwv4Jjw7UorCREw5rXbRqIKhr");
+    assertThat(m.caveatPackets[0]).isEqualTo(new CaveatPacket(Type.cid, "account = 3735928559"));
+    assertThat(m.caveatPackets[1]).isEqualTo(new CaveatPacket(Type.cid, identifier));
+    // packet with type VID can't be asserted to be equal to a constant, because random nonce influences signature
+    assertThat(m.caveatPackets[3]).isEqualTo(new CaveatPacket(Type.cl, "http://auth.mybank/"));
+    assertThat(m.caveatPackets).hasSize(4);
+    // signature can't be asserted to be equal to a constant, because random nonce influences signature
+    assertThat(m.serialize()).startsWith("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMmNpZGVudGlmaWVyIHdlIHVzZWQgb3VyIG90aGVyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDMwY2lkIHRoaXMgd2FzIGhvdyB3ZSByZW1pbmQgYXV0aCBvZiBrZXkvcHJlZAowMDUxdmlkI");
   }
 
 }

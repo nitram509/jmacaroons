@@ -22,6 +22,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 import static com.github.nitram509.jmacaroons.crypto.neilalexander.jnacl.xsalsa20poly1305.crypto_secretbox_open;
@@ -32,10 +33,13 @@ class CryptoTools {
   private static final String MACAROONS_MAGIC_KEY = "macaroons-key-generator";
 
   private static final Mac HMACSHA256_PROTOTYPE;
+  private static final SecureRandom SECURE_RANDOM;
 
   static {
     try {
       HMACSHA256_PROTOTYPE = Mac.getInstance(HMAC_SHA_256_ALGO);
+      SECURE_RANDOM = new SecureRandom();
+      SECURE_RANDOM.setSeed(System.currentTimeMillis());
     } catch (NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
@@ -66,7 +70,8 @@ class CryptoTools {
   static ThirdPartyPacket macaroon_add_third_party_caveat_raw(byte[] old_sig, String key, String identifier) throws InvalidKeyException, NoSuchAlgorithmException {
     byte[] derived_key = generate_derived_key(key);
 
-    byte[] enc_nonce = new byte[MACAROON_SECRET_NONCE_BYTES]; /* XXX get some random bytes instead */
+    byte[] enc_nonce = new byte[MACAROON_SECRET_NONCE_BYTES];
+    SECURE_RANDOM.nextBytes(enc_nonce);
     byte[] enc_plaintext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
     byte[] enc_ciphertext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
     /* now encrypt the key to give us vid */

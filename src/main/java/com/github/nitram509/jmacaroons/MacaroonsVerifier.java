@@ -158,7 +158,8 @@ public class MacaroonsVerifier {
      * the nonce is in the first MACAROON_SECRET_NONCE_BYTES
      * of the vid; the ciphertext is in the rest of it.
      */
-    byte[] enc_nonce = vid_data;
+    byte[] enc_nonce = new byte[MACAROON_SECRET_NONCE_BYTES];
+    System.arraycopy(vid_data, 0, enc_nonce, 0, MACAROON_SECRET_NONCE_BYTES);
 
     /* fill in the ciphertext */
     System.arraycopy(vid_data, MACAROON_SECRET_NONCE_BYTES, enc_ciphertext, MACAROON_SECRET_BOX_ZERO_BYTES, vid_data.length - MACAROON_SECRET_NONCE_BYTES);
