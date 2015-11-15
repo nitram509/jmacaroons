@@ -87,11 +87,10 @@ public class MacaroonsVerifier {
    * @return true/false if the macaroon is valid
    * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
-  public boolean isValid(byte[] secret) throws GeneralSecurityRuntimeException, NoSuchAlgorithmException
-  {
+  public boolean isValid(byte[] secret) throws GeneralSecurityRuntimeException {
     try {
       return !isValid_verify_raw(macaroon, secret).fail;
-    } catch (InvalidKeyException e) {
+    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
   }
