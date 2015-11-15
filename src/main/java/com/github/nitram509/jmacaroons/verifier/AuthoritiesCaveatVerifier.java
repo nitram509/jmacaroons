@@ -60,7 +60,7 @@ public class AuthoritiesCaveatVerifier implements GeneralCaveatVerifier {
   }
 
   private HashSet<String> asTrimmedSet(String[] cavaetAuthorities) {
-    HashSet<String> result = new HashSet<String>(cavaetAuthorities.length);
+    HashSet<String> result = new HashSet<>( cavaetAuthorities.length );
     for (String cavaetAuthority : cavaetAuthorities) {
       result.add(cavaetAuthority.trim());
     }

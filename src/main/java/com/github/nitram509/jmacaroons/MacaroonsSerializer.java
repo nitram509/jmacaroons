@@ -34,7 +34,7 @@ class MacaroonsSerializer {
           'c', 'd', 'e', 'f'};
 
   public static String serialize(Macaroon macaroon) {
-    List<byte[]> packets = new ArrayList<byte[]>(3 + macaroon.caveatPackets.length);
+    List<byte[]> packets = new ArrayList<>( 3 + macaroon.caveatPackets.length );
     packets.add(serialize_packet(Type.location, macaroon.location));
     packets.add(serialize_packet(Type.identifier, macaroon.identifier));
     for (CaveatPacket caveatPacket : macaroon.caveatPackets) {

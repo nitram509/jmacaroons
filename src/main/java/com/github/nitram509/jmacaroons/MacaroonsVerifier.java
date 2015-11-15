@@ -31,7 +31,7 @@ import static com.github.nitram509.jmacaroons.util.ArrayTools.containsElement;
 public class MacaroonsVerifier {
 
   private String[] predicates = new String[0];
-  private List<Macaroon> boundMacaroons = new ArrayList<Macaroon>(3);
+  private List<Macaroon> boundMacaroons = new ArrayList<>( 3 );
   private GeneralCaveatVerifier[] generalCaveatVerifiers = new GeneralCaveatVerifier[0];
   private final Macaroon macaroon;
 
@@ -47,9 +47,7 @@ public class MacaroonsVerifier {
   public void assertIsValid(String secret) throws MacaroonValidationException, GeneralSecurityRuntimeException {
     try {
       assertIsValid(generate_derived_key(secret));
-    } catch (InvalidKeyException e) {
-      throw new GeneralSecurityRuntimeException(e);
-    } catch (NoSuchAlgorithmException e) {
+    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
   }
@@ -66,9 +64,7 @@ public class MacaroonsVerifier {
         String msg = result.failMessage != null ? result.failMessage : "This macaroon isn't valid.";
         throw new MacaroonValidationException(msg, macaroon);
       }
-    } catch (InvalidKeyException e) {
-      throw new GeneralSecurityRuntimeException(e);
-    } catch (NoSuchAlgorithmException e) {
+    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
   }
@@ -81,9 +77,7 @@ public class MacaroonsVerifier {
   public boolean isValid(String secret) throws GeneralSecurityRuntimeException {
     try {
       return isValid(generate_derived_key(secret));
-    } catch (InvalidKeyException e) {
-      throw new GeneralSecurityRuntimeException(e);
-    } catch (NoSuchAlgorithmException e) {
+    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
   }
@@ -93,12 +87,11 @@ public class MacaroonsVerifier {
    * @return true/false if the macaroon is valid
    * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
-  public boolean isValid(byte[] secret) throws GeneralSecurityRuntimeException {
+  public boolean isValid(byte[] secret) throws GeneralSecurityRuntimeException, NoSuchAlgorithmException
+  {
     try {
       return !isValid_verify_raw(macaroon, secret).fail;
     } catch (InvalidKeyException e) {
-      throw new GeneralSecurityRuntimeException(e);
-    } catch (NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
   }

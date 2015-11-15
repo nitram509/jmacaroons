@@ -127,9 +127,7 @@ public class MacaroonsBuilder {
         byte[] signature = macaroon_hmac(macaroon.signatureBytes, caveatBytes);
         CaveatPacket[] caveatsAppended = ArrayTools.appendToArray(macaroon.caveatPackets, new CaveatPacket(CaveatPacket.Type.cid, caveatBytes));
         this.macaroon = new Macaroon(macaroon.location, macaroon.identifier, signature, caveatsAppended);
-      } catch (InvalidKeyException e) {
-        throw new GeneralSecurityRuntimeException(e);
-      } catch (NoSuchAlgorithmException e) {
+      } catch (InvalidKeyException | NoSuchAlgorithmException e) {
         throw new GeneralSecurityRuntimeException(e);
       }
     }
@@ -160,9 +158,7 @@ public class MacaroonsBuilder {
           new CaveatPacket(CaveatPacket.Type.cl, location)
       );
       this.macaroon = new Macaroon(macaroon.location, macaroon.identifier, hash, caveatsExtended);
-    } catch (InvalidKeyException e) {
-      throw new GeneralSecurityRuntimeException(e);
-    } catch (NoSuchAlgorithmException e) {
+    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
     return this;
@@ -180,9 +176,7 @@ public class MacaroonsBuilder {
       byte[] hash = macaroon_bind(getMacaroon().signatureBytes, macaroon.signatureBytes);
       this.macaroon = new Macaroon(macaroon.location, macaroon.identifier, hash, macaroon.caveatPackets);
       return this;
-    } catch (InvalidKeyException e) {
-      throw new GeneralSecurityRuntimeException(e);
-    } catch (NoSuchAlgorithmException e) {
+    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
   }
@@ -190,9 +184,7 @@ public class MacaroonsBuilder {
   private static Macaroon computeMacaroon(String location, String secretKey, String identifier) throws GeneralSecurityRuntimeException {
     try {
       return computeMacaroon(location, generate_derived_key(secretKey), identifier);
-    } catch (InvalidKeyException e) {
-      throw new GeneralSecurityRuntimeException(e);
-    } catch (NoSuchAlgorithmException e) {
+    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
   }
@@ -203,9 +195,7 @@ public class MacaroonsBuilder {
     try {
       byte[] hash = macaroon_hmac(secretKey, identifier);
       return new Macaroon(location, identifier, hash);
-    } catch (InvalidKeyException e) {
-      throw new GeneralSecurityRuntimeException(e);
-    } catch (NoSuchAlgorithmException e) {
+    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
   }

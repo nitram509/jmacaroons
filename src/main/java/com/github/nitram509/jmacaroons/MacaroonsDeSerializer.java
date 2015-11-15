@@ -49,7 +49,7 @@ class MacaroonsDeSerializer {
   private static Macaroon deserializeStream(StatefulPacketReader packetReader) {
     String location = null;
     String identifier = null;
-    List<CaveatPacket> caveats = new ArrayList<CaveatPacket>(3);
+    List<CaveatPacket> caveats = new ArrayList<>( 3 );
     byte[] signature = null;
 
     for (Packet packet; (packet = readPacket(packetReader)) != null; ) {
