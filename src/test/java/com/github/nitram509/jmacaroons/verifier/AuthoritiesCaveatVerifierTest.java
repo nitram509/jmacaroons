@@ -28,7 +28,7 @@ public class AuthoritiesCaveatVerifierTest {
 
   @BeforeMethod
   public void setUp() throws Exception {
-    verifier = new AuthoritiesCaveatVerifier(null);
+    verifier = new AuthoritiesCaveatVerifier();
   }
 
   @DataProvider(name = "SingleAuthorityCombinations")

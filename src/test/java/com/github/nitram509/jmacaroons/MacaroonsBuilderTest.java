@@ -16,13 +16,11 @@
 
 package com.github.nitram509.jmacaroons;
 
-import com.github.nitram509.jmacaroons.util.BinHex;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.UnsupportedEncodingException;
 
-import static com.github.nitram509.jmacaroons.util.BinHex.hex2bin;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class MacaroonsBuilderTest {

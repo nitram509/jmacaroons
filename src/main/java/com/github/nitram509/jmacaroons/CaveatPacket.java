@@ -89,7 +89,7 @@ public class CaveatPacket implements Serializable {
     return result;
   }
 
-  public static enum Type {
+  public enum Type {
     location,
     identifier,
     signature,
