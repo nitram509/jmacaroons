@@ -39,7 +39,6 @@ class CryptoTools {
     try {
       HMACSHA256_PROTOTYPE = Mac.getInstance(HMAC_SHA_256_ALGO);
       SECURE_RANDOM = new SecureRandom();
-      SECURE_RANDOM.setSeed(System.currentTimeMillis());
     } catch (NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
