@@ -121,4 +121,24 @@ class CryptoTools {
       this.vid_data = vid_data;
     }
   }
+
+  /**
+   * Use constant time approach, to compare two byte arrays
+   * See also
+   * <a href="https://codahale.com/a-lesson-in-timing-attacks">A Lesson In Timing Attacks (or, Don’t use MessageDigest.isEquals)</a>
+   * @param a an array
+   * @param b an array
+   * @return true if both have same length and content
+   */
+  static boolean safeEquals(byte[] a, byte[] b) {
+    if (a.length != b.length) {
+      return false;
+    }
+
+    int result = 0;
+    for (int i = 0; i < a.length; i++) {
+      result |= a[i] ^ b[i];
+    }
+    return result == 0;
+  }
 }

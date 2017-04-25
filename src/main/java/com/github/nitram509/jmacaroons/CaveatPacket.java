@@ -21,6 +21,7 @@ import com.github.nitram509.jmacaroons.util.Base64;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import static com.github.nitram509.jmacaroons.CryptoTools.safeEquals;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.IDENTIFIER_CHARSET;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.KEY_VALUE_SEPARATOR;
 
@@ -76,7 +77,7 @@ public class CaveatPacket implements Serializable {
 
     CaveatPacket that = (CaveatPacket) o;
 
-    if (!Arrays.equals(rawValue, that.rawValue)) return false;
+    if (!safeEquals(rawValue, that.rawValue)) return false;
     if (type != that.type) return false;
 
     return true;

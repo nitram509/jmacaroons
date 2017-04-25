@@ -31,7 +31,7 @@ import static com.github.nitram509.jmacaroons.util.ArrayTools.containsElement;
 public class MacaroonsVerifier {
 
   private String[] predicates = new String[0];
-  private List<Macaroon> boundMacaroons = new ArrayList<>( 3 );
+  private List<Macaroon> boundMacaroons = new ArrayList<>(3);
   private GeneralCaveatVerifier[] generalCaveatVerifiers = new GeneralCaveatVerifier[0];
   private final Macaroon macaroon;
 
@@ -98,7 +98,7 @@ public class MacaroonsVerifier {
   private VerificationResult isValid_verify_raw(Macaroon M, byte[] secret) throws NoSuchAlgorithmException, InvalidKeyException {
     VerificationResult vresult = macaroon_verify_inner(M, secret);
     if (!vresult.fail) {
-      vresult.fail = !Arrays.equals(vresult.csig, getMacaroon().signatureBytes);
+      vresult.fail = !safeEquals(vresult.csig, getMacaroon().signatureBytes);
       if (vresult.fail) {
         vresult = new VerificationResult("Verification failed. Signature doesn't match. Maybe the key was wrong OR some caveats aren't satisfied.");
       }
@@ -164,7 +164,7 @@ public class MacaroonsVerifier {
     byte[] data = getMacaroon().signatureBytes;
     byte[] csig = macaroon_bind(data, vresult.csig);
 
-    return valid && Arrays.equals(csig, M.signatureBytes);
+    return valid && safeEquals(csig, M.signatureBytes);
   }
 
   private Macaroon findBoundMacaroon(String identifier) {
