@@ -7,6 +7,7 @@ Version 0.4.0 (????-??-??)
 
    ! Fix spelling mistake satisfyExcact -> satisfyExact (breaking API change, but fixes this jarring typo)
    ! Fix 3rd party caveats have to be encrypted using a unique nonce, else the security model breaks
+   ! Fix possible timing attack issue while comparing HMACs (https://github.com/nitram509/jmacaroons/issues/6)
    * Switch to Java 1.7 support
 
 
