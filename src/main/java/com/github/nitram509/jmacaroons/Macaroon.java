@@ -75,8 +75,17 @@ public class Macaroon implements Serializable {
     return value != null ? type.name() + KEY_VALUE_SEPARATOR + value + LINE_SEPARATOR : "";
   }
 
+  /**
+   * Serialize the macaroon into the {@link MacaroonVersion#V1_BINARY} format.
+   *
+   * @return - Base64 encoded {@link String} representation of the given
+   */
   public String serialize() {
-    return MacaroonsSerializer.serialize(this);
+    return MacaroonsSerializer.serialize(this, MacaroonVersion.V1_BINARY);
+  }
+
+  public String serialize(MacaroonVersion version) {
+    return MacaroonsSerializer.serialize(this, version);
   }
 
   @Override

@@ -96,4 +96,29 @@ public class MacaroonsDeSerializerTest {
     MacaroonsDeSerializer.StatefulPacketReader packetReader = new MacaroonsDeSerializer.StatefulPacketReader(new byte[]{'a', 'b', 'c', 'd'});
     assertThat(packetReader.readPacketHeader()).isEqualTo(0xabcd);
   }
+
+
+  @Test
+  public void Macaroon_v2_can_be_deserialized() {
+    final Macaroon m = new MacaroonsBuilder("http://test.loc", "test-key", "test-id").getMacaroon();
+    assertThat(m).isEqualTo(MacaroonsDeSerializer.deserialize(m.serialize(MacaroonVersion.V2_JSON)));
+
+    // Add a third party caveat
+    final Macaroon m2 = new MacaroonsBuilder(m)
+            .add_third_party_caveat("http://auth.mybank", "SECRET for 3rd party caveat", "test-third-party")
+            .getMacaroon();
+
+    assertThat(m2).isEqualTo(MacaroonsDeSerializer.deserialize(MacaroonsSerializer.serialize(m2, MacaroonVersion.V2_JSON)));
+  }
+
+  @Test
+  public void Macaroon_v2_json_with_third_party_can_be_deserialized() {
+    Macaroon m = new MacaroonsBuilder(location, secret, identifier)
+            .add_first_party_caveat("account = 3735928559")
+            .add_third_party_caveat("http://auth.mybank/", "SECRET for 3rd party caveat", identifier)
+            .getMacaroon();
+
+    final Macaroon m2 = MacaroonsDeSerializer.deserialize(m.serialize(MacaroonVersion.V2_JSON));
+    assertThat(m).isEqualTo(m2);
+  }
 }

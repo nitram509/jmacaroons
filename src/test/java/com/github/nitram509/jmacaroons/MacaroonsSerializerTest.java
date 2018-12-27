@@ -28,7 +28,7 @@ public class MacaroonsSerializerTest {
   private String location;
 
   @BeforeMethod
-  public void setUp() throws Exception {
+  public void setUp() {
     location = "http://mybank/";
     secret = "this is our super secret key; only we should know it";
     identifier = "we used our secret key";
@@ -63,4 +63,21 @@ public class MacaroonsSerializerTest {
     assertThat(MacaroonsSerializer.serialize(m)).isEqualTo(m.serialize());
   }
 
+  @Test
+  public void Macaroon_v2_json_can_be_serialized() {
+      Macaroon m = new MacaroonsBuilder(location, secret, identifier).getMacaroon();
+
+      assertThat(MacaroonsSerializer.serialize(m, MacaroonVersion.V2_JSON)).isEqualTo("eyJ2IjoyLCJsIjoiaHR0cDovL215YmFuay8iLCJpIjoid2UgdXNlZCBvdXIgc2VjcmV0IGtleSIsInM2NCI6IjQ5bmdLUWhTYkV3QU9hNFZFVUVWMlhfZGFMOHJvM216UXFydzloZlFWUzgifQ");
+      assertThat(m.serialize(MacaroonVersion.V2_JSON)).isEqualTo("eyJ2IjoyLCJsIjoiaHR0cDovL215YmFuay8iLCJpIjoid2UgdXNlZCBvdXIgc2VjcmV0IGtleSIsInM2NCI6IjQ5bmdLUWhTYkV3QU9hNFZFVUVWMlhfZGFMOHJvM216UXFydzloZlFWUzgifQ");
+  }
+
+  @Test
+  public void Macaroon_v2_json_with_caveat_can_be_serialized() {
+      Macaroon m = new MacaroonsBuilder(location, secret, identifier)
+              .add_first_party_caveat("account = 3735928559")
+              .getMacaroon();
+
+      final Macaroon m2 = MacaroonsDeSerializer.deserialize(m.serialize(MacaroonVersion.V2_JSON));
+      assertThat(m).isEqualTo(m2);
+  }
 }

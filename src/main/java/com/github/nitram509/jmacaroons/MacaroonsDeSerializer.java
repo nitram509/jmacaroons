@@ -16,8 +16,12 @@
 
 package com.github.nitram509.jmacaroons;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nitram509.jmacaroons.util.Base64;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +29,8 @@ import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 
 class MacaroonsDeSerializer {
+
+  private static final ObjectMapper mapper = new ObjectMapper();
 
   private static final byte[] HEX_ALPHABET = new byte[]{
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -36,14 +42,57 @@ class MacaroonsDeSerializer {
       0, 10, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-  public static Macaroon deserialize(String serializedMacaroon) throws NotDeSerializableException {
-    assert serializedMacaroon != null;
-    byte[] bytes = Base64.decode(serializedMacaroon);
+    public static Macaroon deserialize(String serializedMacaroon) throws NotDeSerializableException {
+        assert serializedMacaroon != null;
+        byte[] bytes = Base64.decode(serializedMacaroon);
+
+        // Determine which format to use
+        if (bytes[0] == '{') {
+            return deserializeJSONFormat(bytes);
+        }
+        return deserializeBinaryFormat(bytes);
+    }
+
+  private static Macaroon deserializeBinaryFormat(byte[] bytes) {
+    return deserializeV1BinaryFormat(bytes);
+  }
+
+  private static Macaroon deserializeV1BinaryFormat(byte[] bytes) {
     int minLength = MACAROON_HASH_BYTES + KEY_VALUE_SEPARATOR_LEN + SIGNATURE.length();
     if (bytes.length < minLength) {
       throw new NotDeSerializableException("Couldn't deserialize macaroon. Not enough bytes for signature found. There have to be at least " + minLength + " bytes");
     }
     return deserializeStream(new StatefulPacketReader(bytes));
+  }
+
+  private static Macaroon deserializeJSONFormat(byte[] macaroonBytes) {
+    final JsonNode jsonValue;
+    try {
+      jsonValue = mapper.readTree(macaroonBytes);
+    } catch (IOException e) {
+      throw new NotDeSerializableException(e.getCause());
+    }
+    final int version = jsonValue.get("v").asInt(0);
+    switch (version) {
+      case 2: return deserializeV2JSON(jsonValue);
+      case 1: throw new IllegalArgumentException("Don't support V1 json, yet");
+      default: throw new IllegalArgumentException(String.format("Cannot deserialize version %d", version));
+    }
+  }
+
+  private static Macaroon deserializeV2JSON(JsonNode json) {
+    final MacaroonJSONV2 jsonMacaroon;
+    try {
+       jsonMacaroon = mapper.treeToValue(json, MacaroonJSONV2.class);
+    } catch (JsonProcessingException e) {
+      throw new NotDeSerializableException(e.getCause());
+    }
+
+    // Extract the caveats
+    return new Macaroon(jsonMacaroon.getLocation(),
+            jsonMacaroon.parseIdentifier(),
+            jsonMacaroon.parseSignature(),
+            jsonMacaroon.getCaveatPackets());
   }
 
   private static Macaroon deserializeStream(StatefulPacketReader packetReader) {
