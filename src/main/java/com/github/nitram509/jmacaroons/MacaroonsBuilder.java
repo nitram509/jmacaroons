@@ -136,13 +136,14 @@ public class MacaroonsBuilder {
 
   /**
    * @param location   location
-   * @param secret     secret
+   * @param caveat_key byte array to use directly as key material for performing the HMAC of the third-party caveat
    * @param identifier identifier
    * @return this {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
-   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException if the crypto operations fail during
+   * signature generation
    * @throws IllegalStateException                                           if there are more than {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_MAX_CAVEATS} caveats.
    */
-  public MacaroonsBuilder add_third_party_caveat(String location, String secret, String identifier) throws IllegalStateException, GeneralSecurityRuntimeException {
+  public MacaroonsBuilder add_third_party_caveat(String location, byte[] caveat_key, String identifier) throws IllegalStateException, GeneralSecurityRuntimeException {
     assert location.length() < MACAROON_MAX_STRLEN;
     assert identifier.length() < MACAROON_MAX_STRLEN;
 
@@ -150,7 +151,7 @@ public class MacaroonsBuilder {
       throw new IllegalStateException("Too many caveats. There are max. " + MACAROON_MAX_CAVEATS + " caveats allowed.");
     }
     try {
-      ThirdPartyPacket thirdPartyPacket = macaroon_add_third_party_caveat_raw(macaroon.signatureBytes, secret, identifier);
+      ThirdPartyPacket thirdPartyPacket = macaroon_add_third_party_caveat_raw(macaroon.signatureBytes, caveat_key, identifier);
       byte[] hash = thirdPartyPacket.signature;
       CaveatPacket[] caveatsExtended = ArrayTools.appendToArray(macaroon.caveatPackets,
           new CaveatPacket(CaveatPacket.Type.cid, identifier),
@@ -162,6 +163,24 @@ public class MacaroonsBuilder {
       throw new GeneralSecurityRuntimeException(e);
     }
     return this;
+  }
+
+    /**
+     * @param location   location
+     * @param secret     secret - String to use as a shared secret. This is not used directly but is input to
+     *                   generate a derived key
+     * @param identifier identifier
+     * @return this {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
+     * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException if the key derivation from the secret
+     * String fails
+     * @throws IllegalStateException                                           if there are more than {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_MAX_CAVEATS} caveats.
+     */
+  public MacaroonsBuilder add_third_party_caveat(String location, String secret, String identifier) throws IllegalStateException, GeneralSecurityRuntimeException {
+    try {
+      return add_third_party_caveat(location, generate_derived_key(secret), identifier);
+    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    }
   }
 
   /**

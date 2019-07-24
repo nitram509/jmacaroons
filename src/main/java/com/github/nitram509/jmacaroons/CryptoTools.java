@@ -66,15 +66,13 @@ class CryptoTools {
     return macaroon_hmac(key, tmp);
   }
 
-  static ThirdPartyPacket macaroon_add_third_party_caveat_raw(byte[] old_sig, String key, String identifier) throws InvalidKeyException, NoSuchAlgorithmException {
-    byte[] derived_key = generate_derived_key(key);
-
+  static ThirdPartyPacket macaroon_add_third_party_caveat_raw(byte[] old_sig, byte[] caveat_key, String identifier) throws InvalidKeyException, NoSuchAlgorithmException {
     byte[] enc_nonce = new byte[MACAROON_SECRET_NONCE_BYTES];
     SECURE_RANDOM.nextBytes(enc_nonce);
     byte[] enc_plaintext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
     byte[] enc_ciphertext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
     /* now encrypt the key to give us vid */
-    System.arraycopy(derived_key, 0, enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, MACAROON_HASH_BYTES);
+    System.arraycopy(caveat_key, 0, enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, MACAROON_HASH_BYTES);
 
     macaroon_secretbox(old_sig, enc_nonce, enc_plaintext, enc_ciphertext);
 

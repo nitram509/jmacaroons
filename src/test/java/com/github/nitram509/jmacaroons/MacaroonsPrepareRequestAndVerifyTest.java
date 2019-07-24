@@ -22,8 +22,12 @@ import org.testng.annotations.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
 public class MacaroonsPrepareRequestAndVerifyTest {
 
+  public static final int MAX_KEYLEN = 32;
   private String identifier;
   private String secret;
   private String location;
@@ -104,5 +108,60 @@ public class MacaroonsPrepareRequestAndVerifyTest {
         .isValid(secret);
 
     assertThat(valid).isFalse();
+  }
+
+  @Test
+  public void using_non_string_key_bytes_for_3rd_party__should_succeed() {
+
+    byte[] root_key = keyGen();
+    byte[] caveat_key = keyGen();
+    String caveat_id = "caveat";
+    String macaroon_id = "123456";
+    Macaroon M = new MacaroonsBuilder("some-service", root_key, macaroon_id)
+        .add_third_party_caveat("authN", caveat_key, caveat_id)
+        .getMacaroon();
+
+    assertThat(new MacaroonsVerifier(M)
+        .isValid(root_key))
+        .describedAs("Original should not be valid without discharge macaroon")
+        .isFalse();
+
+    // create discharge macaroon using caveat key as bytes
+    Macaroon D = new MacaroonsBuilder("authN", caveat_key, caveat_id)
+        .getMacaroon();
+
+    assertThat(new MacaroonsVerifier(D)
+        .isValid(caveat_key))
+        .describedAs("Discharge macaroon should be valid")
+        .isTrue();
+
+    // prepare discharge macaroon by binding to the original macaroon
+    Macaroon bound = new MacaroonsBuilder(M)
+        .prepare_for_request(D)
+        .getMacaroon();
+
+    assertThat(new MacaroonsVerifier(bound)
+        .isValid(caveat_key))
+        .describedAs("Bound discharge macaroon should not be considered valid on its own")
+        .isFalse();
+
+    assertThat(new MacaroonsVerifier(M)
+        .satisfy3rdParty(bound)
+        .isValid(root_key))
+        .describedAs("Original should be valid with third party caveat bound")
+        .isTrue();
+  }
+
+  byte[] keyGen() {
+    try {
+      byte[] keyBytes = new byte[MAX_KEYLEN];
+      SecureRandom prng = SecureRandom.getInstanceStrong();
+      prng.nextBytes(keyBytes);
+      return keyBytes;
+    }
+    catch (NoSuchAlgorithmException e) {
+      e.printStackTrace();
+    }
+    return null;
   }
 }
