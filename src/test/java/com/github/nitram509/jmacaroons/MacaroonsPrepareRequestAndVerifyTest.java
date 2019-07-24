@@ -27,7 +27,6 @@ import java.security.SecureRandom;
 
 public class MacaroonsPrepareRequestAndVerifyTest {
 
-  public static final int MAX_KEYLEN = 32;
   private String identifier;
   private String secret;
   private String location;
@@ -39,7 +38,7 @@ public class MacaroonsPrepareRequestAndVerifyTest {
   private Macaroon D;
 
   @BeforeClass
-  public void setUp() throws Exception {
+  public void setUp() {
     secret = "this is a different super-secret key; never use the same secret twice";
     publicIdentifier = "we used our other secret key";
     location = "http://mybank/";
@@ -154,7 +153,7 @@ public class MacaroonsPrepareRequestAndVerifyTest {
 
   byte[] keyGen() {
     try {
-      byte[] keyBytes = new byte[MAX_KEYLEN];
+      byte[] keyBytes = new byte[com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_SUGGESTED_SECRET_LENGTH];
       SecureRandom prng = SecureRandom.getInstanceStrong();
       prng.nextBytes(keyBytes);
       return keyBytes;
