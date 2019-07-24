@@ -45,11 +45,7 @@ public class MacaroonsVerifier {
    * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException when the runtime doesn't provide sufficient crypto support
    */
   public void assertIsValid(String secret) throws MacaroonValidationException, GeneralSecurityRuntimeException {
-    try {
-      assertIsValid(generate_derived_key(secret));
-    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
-      throw new GeneralSecurityRuntimeException(e);
-    }
+    assertIsValid(string_to_bytes(secret));
   }
 
   /**
@@ -59,7 +55,7 @@ public class MacaroonsVerifier {
    */
   public void assertIsValid(byte[] secret) throws MacaroonValidationException, GeneralSecurityRuntimeException {
     try {
-      VerificationResult result = isValid_verify_raw(macaroon, secret);
+      VerificationResult result = isValid_verify_raw(macaroon, generate_derived_key(secret));
       if (result.fail) {
         String msg = result.failMessage != null ? result.failMessage : "This macaroon isn't valid.";
         throw new MacaroonValidationException(msg, macaroon);
@@ -75,11 +71,7 @@ public class MacaroonsVerifier {
    * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
   public boolean isValid(String secret) throws GeneralSecurityRuntimeException {
-    try {
-      return isValid(generate_derived_key(secret));
-    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
-      throw new GeneralSecurityRuntimeException(e);
-    }
+    return isValid(string_to_bytes(secret));
   }
 
   /**
@@ -89,7 +81,7 @@ public class MacaroonsVerifier {
    */
   public boolean isValid(byte[] secret) throws GeneralSecurityRuntimeException {
     try {
-      return !isValid_verify_raw(macaroon, secret).fail;
+      return !isValid_verify_raw(macaroon, generate_derived_key(secret)).fail;
     } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }

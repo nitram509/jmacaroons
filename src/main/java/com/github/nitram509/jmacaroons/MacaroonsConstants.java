@@ -86,4 +86,7 @@ public interface MacaroonsConstants {
   int KEY_VALUE_SEPARATOR_LEN = 1;
 
   Charset IDENTIFIER_CHARSET = Charset.forName("UTF-8");
+
+  // for maximal compatibility between strings and byte arrays for keys, use an encoding that is reversible
+  Charset STRING_KEY_CHARSET = Charset.forName("ISO-8859-1");
 }

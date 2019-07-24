@@ -48,8 +48,18 @@ class CryptoTools {
     return macaroon_hmac(MACAROONS_MAGIC_KEY.getBytes(IDENTIFIER_CHARSET), variableKey);
   }
 
+  static byte[] generate_derived_key(byte[] variableKey) throws InvalidKeyException, NoSuchAlgorithmException {
+    return macaroon_hmac(MACAROONS_MAGIC_KEY.getBytes(IDENTIFIER_CHARSET), variableKey);
+  }
+
   static byte[] macaroon_hmac(byte[] key, String message) throws NoSuchAlgorithmException, InvalidKeyException {
-    return macaroon_hmac(key, message.getBytes(IDENTIFIER_CHARSET));
+    return macaroon_hmac(key, string_to_bytes(message));
+  }
+
+  static byte[] string_to_bytes(String message) {
+    return message == null
+        ? null
+        : message.getBytes(STRING_KEY_CHARSET);
   }
 
   static byte[] macaroon_hmac(byte[] key, byte[] message) throws NoSuchAlgorithmException, InvalidKeyException {

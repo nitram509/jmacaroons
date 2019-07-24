@@ -22,6 +22,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 import static com.github.nitram509.jmacaroons.CryptoTools.*;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.IDENTIFIER_CHARSET;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_CAVEATS;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_STRLEN;
 
@@ -45,7 +46,7 @@ public class MacaroonsBuilder {
    * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
    */
   public MacaroonsBuilder(String location, String secretKey, String identifier) throws GeneralSecurityRuntimeException {
-    this.macaroon = computeMacaroon(location, secretKey, identifier);
+    this.macaroon = computeMacaroon(location, string_to_bytes(secretKey), identifier);
   }
 
   /**
@@ -73,7 +74,7 @@ public class MacaroonsBuilder {
    * @return {@link com.github.nitram509.jmacaroons.Macaroon}
    */
   public static Macaroon create(String location, String secretKey, String identifier) {
-    return computeMacaroon(location, secretKey, identifier);
+    return computeMacaroon(location, string_to_bytes(secretKey), identifier);
   }
 
   /**
@@ -181,19 +182,12 @@ public class MacaroonsBuilder {
     }
   }
 
-  private static Macaroon computeMacaroon(String location, String secretKey, String identifier) throws GeneralSecurityRuntimeException {
-    try {
-      return computeMacaroon(location, generate_derived_key(secretKey), identifier);
-    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
-      throw new GeneralSecurityRuntimeException(e);
-    }
-  }
-
   private static Macaroon computeMacaroon(String location, byte[] secretKey, String identifier) throws GeneralSecurityRuntimeException {
     assert location.length() < MACAROON_MAX_STRLEN;
     assert identifier.length() < MACAROON_MAX_STRLEN;
     try {
-      byte[] hash = macaroon_hmac(secretKey, identifier);
+      byte[] derived_key = generate_derived_key(secretKey);
+      byte[] hash = macaroon_hmac(derived_key, identifier);
       return new Macaroon(location, identifier, hash);
     } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
