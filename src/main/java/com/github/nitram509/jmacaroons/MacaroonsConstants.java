@@ -17,6 +17,7 @@
 package com.github.nitram509.jmacaroons;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public interface MacaroonsConstants {
 
@@ -61,23 +62,29 @@ public interface MacaroonsConstants {
   int SECRET_BOX_OVERHEAD = MACAROON_SECRET_TEXT_ZERO_BYTES - MACAROON_SECRET_BOX_ZERO_BYTES;
   int VID_NONCE_KEY_SZ = MACAROON_SECRET_NONCE_BYTES + MACAROON_HASH_BYTES + SECRET_BOX_OVERHEAD;
 
+  // used to encode identifier with respect to preserve special characters (like umlauts, etc.)
+  Charset IDENTIFIER_CHARSET = StandardCharsets.UTF_8;
+
+  // for maximal compatibility between strings and byte arrays for keys, use an encoding that is reversible
+  Charset STRING_KEY_CHARSET = StandardCharsets.ISO_8859_1;
+
   String LOCATION = "location";
-  byte[] LOCATION_BYTES = LOCATION.getBytes(Charset.forName("ASCII"));
+  byte[] LOCATION_BYTES = LOCATION.getBytes(STRING_KEY_CHARSET);
 
   String IDENTIFIER = "identifier";
-  byte[] IDENTIFIER_BYTES = IDENTIFIER.getBytes(Charset.forName("ASCII"));
+  byte[] IDENTIFIER_BYTES = IDENTIFIER.getBytes(STRING_KEY_CHARSET);
 
   String SIGNATURE = "signature";
-  byte[] SIGNATURE_BYTES = SIGNATURE.getBytes(Charset.forName("ASCII"));
+  byte[] SIGNATURE_BYTES = SIGNATURE.getBytes(STRING_KEY_CHARSET);
 
   String CID = "cid";
-  byte[] CID_BYTES = CID.getBytes(Charset.forName("ASCII"));
+  byte[] CID_BYTES = CID.getBytes(STRING_KEY_CHARSET);
 
   String VID = "vid";
-  byte[] VID_BYTES = VID.getBytes(Charset.forName("ASCII"));
+  byte[] VID_BYTES = VID.getBytes(STRING_KEY_CHARSET);
 
   String CL = "cl";
-  byte[] CL_BYTES = CL.getBytes(Charset.forName("ASCII"));
+  byte[] CL_BYTES = CL.getBytes(STRING_KEY_CHARSET);
 
   char LINE_SEPARATOR = '\n';
   int LINE_SEPARATOR_LEN = 1;
@@ -85,8 +92,4 @@ public interface MacaroonsConstants {
   char KEY_VALUE_SEPARATOR = ' ';
   int KEY_VALUE_SEPARATOR_LEN = 1;
 
-  Charset IDENTIFIER_CHARSET = Charset.forName("UTF-8");
-
-  // for maximal compatibility between strings and byte arrays for keys, use an encoding that is reversible
-  Charset STRING_KEY_CHARSET = Charset.forName("ISO-8859-1");
 }
