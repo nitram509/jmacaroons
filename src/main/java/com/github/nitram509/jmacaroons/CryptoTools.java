@@ -26,6 +26,7 @@ import java.security.SecureRandom;
 
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
 import static com.github.nitram509.jmacaroons.crypto.neilalexander.jnacl.xsalsa20poly1305.crypto_secretbox_open;
+import static java.lang.System.arraycopy;
 
 class CryptoTools {
 
@@ -44,7 +45,7 @@ class CryptoTools {
     }
   }
 
-  static byte[] generate_derived_key(String variableKey) throws InvalidKeyException, NoSuchAlgorithmException {
+  private static byte[] generate_derived_key(String variableKey) throws InvalidKeyException, NoSuchAlgorithmException {
     return macaroon_hmac(MACAROONS_MAGIC_KEY.getBytes(IDENTIFIER_CHARSET), variableKey);
   }
 
@@ -71,8 +72,8 @@ class CryptoTools {
 
   static byte[] macaroon_hash2(byte[] key, byte[] message1, byte[] message2) throws NoSuchAlgorithmException, InvalidKeyException {
     byte[] tmp = new byte[2 * MACAROON_HASH_BYTES];
-    System.arraycopy(macaroon_hmac(key, message1), 0, tmp, 0, MACAROON_HASH_BYTES);
-    System.arraycopy(macaroon_hmac(key, message2), 0, tmp, MACAROON_HASH_BYTES, MACAROON_HASH_BYTES);
+    arraycopy(macaroon_hmac(key, message1), 0, tmp, 0, MACAROON_HASH_BYTES);
+    arraycopy(macaroon_hmac(key, message2), 0, tmp, MACAROON_HASH_BYTES, MACAROON_HASH_BYTES);
     return macaroon_hmac(key, tmp);
   }
 
@@ -84,13 +85,13 @@ class CryptoTools {
     byte[] enc_plaintext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
     byte[] enc_ciphertext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
     /* now encrypt the key to give us vid */
-    System.arraycopy(derived_key, 0, enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, MACAROON_HASH_BYTES);
+    arraycopy(derived_key, 0, enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, MACAROON_HASH_BYTES);
 
     macaroon_secretbox(old_sig, enc_nonce, enc_plaintext, enc_ciphertext);
 
     byte[] vid = new byte[VID_NONCE_KEY_SZ];
-    System.arraycopy(enc_nonce, 0, vid, 0, MACAROON_SECRET_NONCE_BYTES);
-    System.arraycopy(enc_ciphertext, MACAROON_SECRET_BOX_ZERO_BYTES, vid, MACAROON_SECRET_NONCE_BYTES, VID_NONCE_KEY_SZ - MACAROON_SECRET_NONCE_BYTES);
+    arraycopy(enc_nonce, 0, vid, 0, MACAROON_SECRET_NONCE_BYTES);
+    arraycopy(enc_ciphertext, MACAROON_SECRET_BOX_ZERO_BYTES, vid, MACAROON_SECRET_NONCE_BYTES, VID_NONCE_KEY_SZ - MACAROON_SECRET_NONCE_BYTES);
 
     byte[] new_sig = macaroon_hash2(old_sig, vid, identifier.getBytes(IDENTIFIER_CHARSET));
     return new ThirdPartyPacket(new_sig, vid);
@@ -98,7 +99,7 @@ class CryptoTools {
 
   static byte[] macaroon_bind(byte[] Msig, byte[] MPsig) throws InvalidKeyException, NoSuchAlgorithmException {
     byte[] key = new byte[MACAROON_HASH_BYTES];
-    return CryptoTools.macaroon_hash2(key, Msig, MPsig);
+    return macaroon_hash2(key, Msig, MPsig);
   }
 
   private static void macaroon_secretbox(byte[] key, byte[] nonce, byte[] plaintext, byte[] ciphertext) throws GeneralSecurityRuntimeException {
@@ -136,6 +137,7 @@ class CryptoTools {
    * Use constant time approach, to compare two byte arrays
    * See also
    * <a href="https://codahale.com/a-lesson-in-timing-attacks">A Lesson In Timing Attacks (or, Don’t use MessageDigest.isEquals)</a>
+   *
    * @param a an array
    * @param b an array
    * @return true if both have same length and content
