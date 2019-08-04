@@ -176,6 +176,7 @@
             <version>3.1.1</version>
             <configuration>
               <excludePackageNames>com.neilalexander.jnacl</excludePackageNames>
+              <source>8</source>
             </configuration>
           </plugin>
 
