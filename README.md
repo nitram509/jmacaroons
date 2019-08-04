@@ -48,7 +48,6 @@ Build Status
 --------------------
 
 [![Build Status](https://travis-ci.org/nitram509/jmacaroons.svg?branch=master)](https://travis-ci.org/nitram509/jmacaroons)
-[![Build Status](https://drone.io/github.com/nitram509/jmacaroons/status.png)](https://drone.io/github.com/nitram509/jmacaroons/latest)
 
 [![Coverage Status](https://coveralls.io/repos/nitram509/jmacaroons/badge.png?branch=master)](https://coveralls.io/r/nitram509/jmacaroons?branch=master)
 
@@ -58,7 +57,6 @@ Community & Badges
 
 Listed on Android Arsenal: [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-jmacaroons-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/914)
 
-If you like this project, endorse please: [![endorse](https://api.coderwall.com/nitram509/endorsecount.png)](https://coderwall.com/nitram509)
 
 Creating Your First Macaroon
 ----------------------------------
