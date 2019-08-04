@@ -24,7 +24,7 @@ public class BinHex {
 
   /**
    * @param bytes bytes
-   * @return
+   * @return a String OR null
    */
   public static String bin2hex(byte... bytes) {
     if (bytes == null) return null;
@@ -39,7 +39,7 @@ public class BinHex {
 
   /**
    * @param hexString hexString all lower case, 0-9 and a-f only, even length only, null safe
-   * @return
+   * @return a byte array OR null
    */
   public static byte[] hex2bin(String hexString) {
     if (hexString == null) return null;

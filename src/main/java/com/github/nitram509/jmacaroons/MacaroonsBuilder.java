@@ -42,7 +42,7 @@ public class MacaroonsBuilder {
    * @param location   location
    * @param secretKey  secretKey this secret will be enhanced, in case it's shorter than {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_SUGGESTED_SECRET_LENGTH}
    * @param identifier identifier
-   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException GeneralSecurityRuntimeException
    */
   public MacaroonsBuilder(String location, String secretKey, String identifier) throws GeneralSecurityRuntimeException {
     this.macaroon = computeMacaroon(location, string_to_bytes(secretKey), identifier);
@@ -52,7 +52,7 @@ public class MacaroonsBuilder {
    * @param location   location
    * @param secretKey  secretKey this secret will be used as it is (be sure that has suggested length {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_SUGGESTED_SECRET_LENGTH})
    * @param identifier identifier
-   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException GeneralSecurityRuntimeException
    */
   public MacaroonsBuilder(String location, byte[] secretKey, String identifier) throws GeneralSecurityRuntimeException {
     this.macaroon = computeMacaroon(location, secretKey, identifier);
@@ -113,7 +113,7 @@ public class MacaroonsBuilder {
   /**
    * @param caveat caveat
    * @return this {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
-   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException GeneralSecurityRuntimeException
    * @throws IllegalStateException                                           if there are more than {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_MAX_CAVEATS} caveats.
    */
   public MacaroonsBuilder add_first_party_caveat(String caveat) throws IllegalStateException, GeneralSecurityRuntimeException {
@@ -139,7 +139,7 @@ public class MacaroonsBuilder {
    * @param secret     secret
    * @param identifier identifier
    * @return this {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
-   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException GeneralSecurityRuntimeException
    * @throws IllegalStateException                                           if there are more than {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_MAX_CAVEATS} caveats.
    */
   public MacaroonsBuilder add_third_party_caveat(String location, String secret, String identifier) throws IllegalStateException, GeneralSecurityRuntimeException {
@@ -167,7 +167,7 @@ public class MacaroonsBuilder {
   /**
    * @param macaroon macaroon used for preparing a request
    * @return this {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
-   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException GeneralSecurityRuntimeException
    */
   public MacaroonsBuilder prepare_for_request(Macaroon macaroon) throws GeneralSecurityRuntimeException {
     assert macaroon.signatureBytes.length > 0;

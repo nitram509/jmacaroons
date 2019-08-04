@@ -67,7 +67,7 @@ public class MacaroonsVerifier {
   /**
    * @param secret secret this secret will be enhanced, in case it's shorter than {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_SUGGESTED_SECRET_LENGTH}
    * @return true/false if the macaroon is valid
-   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException GeneralSecurityRuntimeException
    */
   public boolean isValid(String secret) throws GeneralSecurityRuntimeException {
     return isValid(string_to_bytes(secret));
@@ -76,7 +76,7 @@ public class MacaroonsVerifier {
   /**
    * @param secret secret this secret will be used as it is (be sure that has suggested length {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_SUGGESTED_SECRET_LENGTH})
    * @return true/false if the macaroon is valid
-   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException GeneralSecurityRuntimeException
    */
   public boolean isValid(byte[] secret) throws GeneralSecurityRuntimeException {
     try {

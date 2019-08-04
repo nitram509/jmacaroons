@@ -5,16 +5,20 @@ package com.github.nitram509.jmacaroons.util;
 import java.util.Arrays;
 
 /**
+ * <p>
  * High-performance base64 codec based on the algorithm used in Mikael Grev's MiG Base64.
  * This implementation is designed to handle base64 without line splitting and with
  * optional padding. Alternative character tables may be supplied to the {@code encode}
  * and {@code decode} methods to implement modified base64 schemes.
- * <p/>
+ * </p>
+ * <p>
  * Decoding assumes correct input, the caller is responsible for ensuring that the input
  * contains no invalid characters.
- * <p/>
+ * </p>
+ * <p>
  * Switched the alphabet to make base64 URL and filename safe.
  * See <a href="https://tools.ietf.org/html/rfc4648#page-7">RFC 4648</a> for details.
+ * </p>
  *
  * @author Will Glozer
  * @author Martin W. Kirst
@@ -174,7 +178,7 @@ public class Base64 {
   /**
    * Encode to String without padding
    * @param bytes bytes
-   * @return
+   * @return a String (not null)
    */
   public static String encodeUrlSafeToString(byte[] bytes) {
     return new String(encodeUrlSafe(bytes, false));
