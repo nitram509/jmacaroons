@@ -10,7 +10,7 @@ This project started as a port of libmacaroons[[2]](https://github.com/rescrv/li
 The primary goals are
    * being compatible to libmacaroons
    * having no external dependencies, except the Java Runtime
-   * being Android compatible, while using Java6
+   * being very much backward compatible, while using Java8
    * focus on binary serialization format (currently, JSON format isn't supported)
    * being the reference implementation in the Java community ;-)
 
