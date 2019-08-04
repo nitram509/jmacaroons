@@ -2,13 +2,14 @@
 Changelog jmacaroons
 =====================
 
-Version 0.4.0 (????-??-??)
+Version 0.4.0 (2019-08-04)
 --------------------------
 
    ! Fix spelling mistake satisfyExcact -> satisfyExact (breaking API change, but fixes this jarring typo)
    ! Fix 3rd party caveats have to be encrypted using a unique nonce, else the security model breaks
    ! Fix possible timing attack issue while comparing HMACs (https://github.com/nitram509/jmacaroons/issues/6)
-   * Switch to Java 1.7 support
+   ! Changed key handling to consistently ensure we always derive a fixed length key from that string or bytes, to be consistent with other macaroon implementations (https://github.com/nitram509/jmacaroons/issues/11)
+   * Switch to Java 1.8 support
 
 
 Version 0.3.1 (2014-12-19)
