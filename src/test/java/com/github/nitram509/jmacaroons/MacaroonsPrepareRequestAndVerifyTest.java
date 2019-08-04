@@ -20,11 +20,11 @@ import com.github.nitram509.jmacaroons.verifier.TimestampCaveatVerifier;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
-
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class MacaroonsPrepareRequestAndVerifyTest {
 

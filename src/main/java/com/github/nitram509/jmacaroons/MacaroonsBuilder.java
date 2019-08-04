@@ -22,7 +22,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 import static com.github.nitram509.jmacaroons.CryptoTools.*;
-import static com.github.nitram509.jmacaroons.MacaroonsConstants.IDENTIFIER_CHARSET;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_CAVEATS;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_STRLEN;
 

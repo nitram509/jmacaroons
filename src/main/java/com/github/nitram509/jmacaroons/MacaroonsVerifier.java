@@ -19,7 +19,6 @@ package com.github.nitram509.jmacaroons;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
@@ -138,7 +137,7 @@ public class MacaroonsVerifier {
 
     byte[] vid_data = C.rawValue;
     assert vid_data.length == VID_NONCE_KEY_SZ;
-    /**
+    /*
      * the nonce is in the first MACAROON_SECRET_NONCE_BYTES
      * of the vid; the ciphertext is in the rest of it.
      */
