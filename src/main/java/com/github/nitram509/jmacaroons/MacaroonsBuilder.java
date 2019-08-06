@@ -45,7 +45,12 @@ public class MacaroonsBuilder {
    * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException GeneralSecurityRuntimeException
    */
   public MacaroonsBuilder(String location, String secretKey, String identifier) throws GeneralSecurityRuntimeException {
-    this.macaroon = computeMacaroon(location, string_to_bytes(secretKey), identifier);
+    try {
+      this.macaroon = computeMacaroon(location, generate_derived_key(string_to_bytes(secretKey)), identifier);
+    }
+    catch (InvalidKeyException | NoSuchAlgorithmException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    }
   }
 
   /**
@@ -55,7 +60,12 @@ public class MacaroonsBuilder {
    * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException GeneralSecurityRuntimeException
    */
   public MacaroonsBuilder(String location, byte[] secretKey, String identifier) throws GeneralSecurityRuntimeException {
-    this.macaroon = computeMacaroon(location, secretKey, identifier);
+    try {
+      this.macaroon = computeMacaroon(location, generate_derived_key(secretKey), identifier);
+    }
+    catch (InvalidKeyException | NoSuchAlgorithmException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    }
   }
 
   /**
@@ -73,7 +83,12 @@ public class MacaroonsBuilder {
    * @return {@link com.github.nitram509.jmacaroons.Macaroon}
    */
   public static Macaroon create(String location, String secretKey, String identifier) {
-    return computeMacaroon(location, string_to_bytes(secretKey), identifier);
+    try {
+      return computeMacaroon(location, generate_derived_key(string_to_bytes(secretKey)), identifier);
+    }
+    catch (InvalidKeyException | NoSuchAlgorithmException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    }
   }
 
   /**
@@ -83,7 +98,12 @@ public class MacaroonsBuilder {
    * @return {@link com.github.nitram509.jmacaroons.Macaroon}
    */
   public static Macaroon create(String location, byte[] secretKey, String identifier) {
-    return computeMacaroon(location, secretKey, identifier);
+    try {
+      return computeMacaroon(location, generate_derived_key(secretKey), identifier);
+    }
+    catch (InvalidKeyException | NoSuchAlgorithmException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    }
   }
 
   /**
@@ -143,6 +163,7 @@ public class MacaroonsBuilder {
    * @throws IllegalStateException                                           if there are more than {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_MAX_CAVEATS} caveats.
    */
   public MacaroonsBuilder add_third_party_caveat(String location, String secret, String identifier) throws IllegalStateException, GeneralSecurityRuntimeException {
+
     assert location.length() < MACAROON_MAX_STRLEN;
     assert identifier.length() < MACAROON_MAX_STRLEN;
 
@@ -150,7 +171,8 @@ public class MacaroonsBuilder {
       throw new IllegalStateException("Too many caveats. There are max. " + MACAROON_MAX_CAVEATS + " caveats allowed.");
     }
     try {
-      ThirdPartyPacket thirdPartyPacket = macaroon_add_third_party_caveat_raw(macaroon.signatureBytes, secret, identifier);
+      byte[] derived_key = generate_derived_key(string_to_bytes(secret));
+      ThirdPartyPacket thirdPartyPacket = macaroon_add_third_party_caveat_raw(macaroon.signatureBytes, derived_key, identifier);
       byte[] hash = thirdPartyPacket.signature;
       CaveatPacket[] caveatsExtended = ArrayTools.appendToArray(macaroon.caveatPackets,
           new CaveatPacket(CaveatPacket.Type.cid, identifier),
@@ -185,8 +207,7 @@ public class MacaroonsBuilder {
     assert location.length() < MACAROON_MAX_STRLEN;
     assert identifier.length() < MACAROON_MAX_STRLEN;
     try {
-      byte[] derived_key = generate_derived_key(secretKey);
-      byte[] hash = macaroon_hmac(derived_key, identifier);
+      byte[] hash = macaroon_hmac(secretKey, identifier);
       return new Macaroon(location, identifier, hash);
     } catch (InvalidKeyException | NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
