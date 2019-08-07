@@ -34,7 +34,7 @@ import static com.github.nitram509.jmacaroons.verifier.AuthoritiesCaveatVerifier
  */
 public class MacaroonsExamples {
 
-  private Macaroon create() {
+  Macaroon create() {
     String location = "http://www.example.org";
     String secretKey = "this is our super secret key; only we should know it";
     String identifier = "we used our secret key";
@@ -44,21 +44,21 @@ public class MacaroonsExamples {
     return macaroon;
   }
 
-  private void serialize() {
+  void serialize() {
     Macaroon macaroon = create();
 
     String serialized = macaroon.serialize();
     System.out.println("Serialized: " + serialized);
   }
 
-  private void deserialize() {
+  void deserialize() {
     String serialized = create().serialize();
 
     Macaroon macaroon = MacaroonsBuilder.deserialize(serialized);
     System.out.println(macaroon.inspect());
   }
 
-  private void verify() throws InvalidKeyException, NoSuchAlgorithmException {
+  void verify() throws InvalidKeyException, NoSuchAlgorithmException {
     Macaroon macaroon = create();
 
     MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
@@ -68,7 +68,7 @@ public class MacaroonsExamples {
     // > True
   }
 
-  private void addCaveat() throws InvalidKeyException, NoSuchAlgorithmException {
+  void addCaveat() throws InvalidKeyException, NoSuchAlgorithmException {
     String location = "http://www.example.org";
     String secretKey = "this is our super secret key; only we should know it";
     String identifier = "we used our secret key";
@@ -78,7 +78,7 @@ public class MacaroonsExamples {
     System.out.println(macaroon.inspect());
   }
 
-  private void addCaveat_modify() throws InvalidKeyException, NoSuchAlgorithmException {
+  void addCaveat_modify() throws InvalidKeyException, NoSuchAlgorithmException {
     Macaroon macaroon = create();
     macaroon = MacaroonsBuilder.modify(macaroon)
         .add_first_party_caveat("account = 3735928559")
@@ -86,7 +86,7 @@ public class MacaroonsExamples {
     System.out.println(macaroon.inspect());
   }
 
-  private void verify_required_caveats() throws InvalidKeyException, NoSuchAlgorithmException {
+  void verify_required_caveats() throws InvalidKeyException, NoSuchAlgorithmException {
     String location = "http://www.example.org";
     String secretKey = "this is our super secret key; only we should know it";
     String identifier = "we used our secret key";
@@ -108,7 +108,7 @@ public class MacaroonsExamples {
     // > True
   }
 
-  private void verify_general_caveats() throws InvalidKeyException, NoSuchAlgorithmException {
+  void verify_general_caveats() throws InvalidKeyException, NoSuchAlgorithmException {
     String location = "http://www.example.org";
     String secretKey = "this is our super secret key; only we should know it";
     String identifier = "we used our secret key";
@@ -125,7 +125,7 @@ public class MacaroonsExamples {
     // > True
   }
 
-  private void with_3rd_party_caveats() {
+  void with_3rd_party_caveats() {
     // create a simple macaroon first
     String location = "http://mybank/";
     String secret = "this is a different super-secret key; never use the same secret twice";
@@ -167,7 +167,7 @@ public class MacaroonsExamples {
         .assertIsValid(secret);
   }
 
-  private void timestamp_verifier() {
+  void timestamp_verifier() {
     String location = "http://www.example.org";
     String secretKey = "this is our super secret key; only we should know it";
     String identifier = "we used our secret key";
@@ -182,7 +182,7 @@ public class MacaroonsExamples {
     // > True
   }
 
-  private void authorities_verifier() {
+  void authorities_verifier() {
     String location = "http://www.example.org";
     String secretKey = "this is our super secret key; only we should know it";
     String identifier = "we used our secret key";
@@ -195,25 +195,6 @@ public class MacaroonsExamples {
         .satisfyGeneral(hasAuthority("DEV_TOOLS_AVAILABLE"))
         .isValid(secretKey);
     // > True
-  }
-
-  public static void main(String[] args) {
-    MacaroonsExamples examples = new MacaroonsExamples();
-    try {
-      examples.create();
-      examples.serialize();
-      examples.deserialize();
-      examples.verify();
-      examples.addCaveat();
-      examples.addCaveat_modify();
-      examples.verify_required_caveats();
-      examples.verify_general_caveats();
-      examples.with_3rd_party_caveats();
-      examples.timestamp_verifier();
-      examples.authorities_verifier();
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
   }
 
 }
