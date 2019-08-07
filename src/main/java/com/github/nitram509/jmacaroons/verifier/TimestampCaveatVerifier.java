@@ -77,12 +77,14 @@ public class TimestampCaveatVerifier implements GeneralCaveatVerifier {
   private SimpleDateFormat ISO_DateFormat_HOUR = new SimpleDateFormat("yyyy-MM-dd'T'HH");
   private SimpleDateFormat ISO_DateFormat_MINUTE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
   private SimpleDateFormat ISO_DateFormat_SECOND = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-  private SimpleDateFormat ISO_DateFormat_TIMEZONE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+  private SimpleDateFormat ISO_DateFormat_TIMEZONE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+  private SimpleDateFormat ISO_DateFormat_MILLIS_TIMEZONE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 
   @Override
   public boolean verifyCaveat(String caveat) {
     if (caveat.startsWith(CAVEAT_PREFIX)) {
-      Date parsedDate = ISO_DateFormat_TIMEZONE.parse(caveat, new ParsePosition(CAVEAT_PREFIX_LEN));
+      Date parsedDate = ISO_DateFormat_MILLIS_TIMEZONE.parse(caveat, new ParsePosition(CAVEAT_PREFIX_LEN));
+      if (parsedDate == null) parsedDate = ISO_DateFormat_TIMEZONE.parse(caveat, new ParsePosition(CAVEAT_PREFIX_LEN));
       if (parsedDate == null) parsedDate = ISO_DateFormat_SECOND.parse(caveat, new ParsePosition(CAVEAT_PREFIX_LEN));
       if (parsedDate == null) parsedDate = ISO_DateFormat_MINUTE.parse(caveat, new ParsePosition(CAVEAT_PREFIX_LEN));
       if (parsedDate == null) parsedDate = ISO_DateFormat_HOUR.parse(caveat, new ParsePosition(CAVEAT_PREFIX_LEN));

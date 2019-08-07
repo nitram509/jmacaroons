@@ -21,8 +21,12 @@ import org.testng.annotations.Test;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Calendar;
 import java.util.Date;
 
+import static java.util.TimeZone.getTimeZone;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class TimestampCaveatVerifierTest {
@@ -39,6 +43,17 @@ public class TimestampCaveatVerifierTest {
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
     String caveat = "time < " + createTimeStamp1DayInFuture(dateFormat);
 
+    assertThat(verifier.verifyCaveat(caveat)).isTrue();
+  }
+
+  @Test
+  public void is_valid_using_full_qualified_timestamp_with_timezone_and_millis() {
+    // this test only fails on local timezone +2 hours ... + 12 hours
+    Calendar.getInstance(getTimeZone("UTC")).getTime();
+    final String oneHourFromNow = Instant.now()
+        .plus(Duration.ofHours(1))
+        .toString();
+    String caveat = "time < " + oneHourFromNow;
     assertThat(verifier.verifyCaveat(caveat)).isTrue();
   }
 
@@ -91,5 +106,9 @@ public class TimestampCaveatVerifierTest {
 
   private String createTimeStamp1DayInFuture(DateFormat dateFormat) {
     return dateFormat.format(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 24)));
+  }
+
+  private String createTimeStamp_1_minute_InFuture(DateFormat dateFormat) {
+    return dateFormat.format(new Date(Calendar.getInstance(getTimeZone("Asia/Oral")).getTimeInMillis() + (1000 * 60)));
   }
 }
