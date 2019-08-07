@@ -23,6 +23,8 @@ import com.github.nitram509.jmacaroons.verifier.TimestampCaveatVerifier;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
+import java.time.Instant;
 
 import static com.github.nitram509.jmacaroons.verifier.AuthoritiesCaveatVerifier.hasAuthority;
 
@@ -143,8 +145,12 @@ public class MacaroonsExamples {
 
     System.out.println(m.inspect());
 
+    final String oneHourFromNow = Instant.now()
+        .plus(Duration.ofHours(1))
+        .toString();
+
     Macaroon d = new MacaroonsBuilder("http://auth.mybank/", caveat_key, identifier)
-        .add_first_party_caveat("time < 2015-01-01T00:00")
+        .add_first_party_caveat("time < " + oneHourFromNow)
         .getMacaroon();
 
     Macaroon dp = MacaroonsBuilder.modify(m)

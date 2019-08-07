@@ -22,6 +22,9 @@ import org.testng.annotations.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+import java.time.Duration;
+import java.time.Instant;
+
 public class MacaroonsPrepareRequestAndVerifyComplexTest {
 
   private String identifier;
@@ -59,10 +62,13 @@ public class MacaroonsPrepareRequestAndVerifyComplexTest {
     caveat_key = "4; guaranteed random by a fair toss of the dice";
     identifier = "this was how we remind auth of key/pred";
 
+    final String oneHourFromNow = Instant.now()
+        .plus(Duration.ofHours(1))
+        .toString();
+
     D = new MacaroonsBuilder("http://auth.mybank/", caveat_key, identifier)
-        .add_first_party_caveat("time < 2025-01-01T00:00")
+        .add_first_party_caveat("time < " + oneHourFromNow)
         .getMacaroon();
-    assertThat(D.signature).isEqualTo("b338d11fb136c4b95c86efe146f77978cd0947585375ba4d4da4ef68be2b3e8b");
 
     DP = new MacaroonsBuilder(M)
         .prepare_for_request(D)

@@ -45,16 +45,12 @@ class CryptoTools {
     }
   }
 
-  private static byte[] generate_derived_key(String variableKey) throws InvalidKeyException, NoSuchAlgorithmException {
-    return macaroon_hmac(MACAROONS_MAGIC_KEY.getBytes(IDENTIFIER_CHARSET), variableKey);
-  }
-
   static byte[] generate_derived_key(byte[] variableKey) throws InvalidKeyException, NoSuchAlgorithmException {
     return macaroon_hmac(MACAROONS_MAGIC_KEY.getBytes(IDENTIFIER_CHARSET), variableKey);
   }
 
   static byte[] macaroon_hmac(byte[] key, String message) throws NoSuchAlgorithmException, InvalidKeyException {
-    return macaroon_hmac(key, string_to_bytes(message));
+    return macaroon_hmac(key, message.getBytes(IDENTIFIER_CHARSET));
   }
 
   static byte[] string_to_bytes(String message) {
@@ -77,15 +73,14 @@ class CryptoTools {
     return macaroon_hmac(key, tmp);
   }
 
-  static ThirdPartyPacket macaroon_add_third_party_caveat_raw(byte[] old_sig, String key, String identifier) throws InvalidKeyException, NoSuchAlgorithmException {
-    byte[] derived_key = generate_derived_key(key);
+  static ThirdPartyPacket macaroon_add_third_party_caveat_raw(byte[] old_sig, byte[] key, String identifier) throws InvalidKeyException, NoSuchAlgorithmException {
 
     byte[] enc_nonce = new byte[MACAROON_SECRET_NONCE_BYTES];
     SECURE_RANDOM.nextBytes(enc_nonce);
     byte[] enc_plaintext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
     byte[] enc_ciphertext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
     /* now encrypt the key to give us vid */
-    arraycopy(derived_key, 0, enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, MACAROON_HASH_BYTES);
+    arraycopy(key, 0, enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, MACAROON_HASH_BYTES);
 
     macaroon_secretbox(old_sig, enc_nonce, enc_plaintext, enc_ciphertext);
 
