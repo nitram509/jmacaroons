@@ -2,7 +2,7 @@
 Changelog jmacaroons
 =====================
 
-Version 0.4.1 (2019-08-04)
+Version 0.4.1 (2019-08-07)
 --------------------------
    ! Fix timezone handling in the TimestampCaveatVerifier, when millis were used
    ! Fix examples
