@@ -75,8 +75,24 @@ public class Macaroon implements Serializable {
     return value != null ? type.name() + KEY_VALUE_SEPARATOR + value + LINE_SEPARATOR : "";
   }
 
+  /**
+   * Serializes the macaroon to a string using {@link MacaroonSerializationFormat#V1}.
+   *
+   * @return the serialized macaroon.
+   * @see #serialize(MacaroonSerializationFormat)
+   */
   public String serialize() {
-    return MacaroonsSerializer.serialize(this);
+    return serialize(MacaroonSerializationFormat.V1);
+  }
+
+  /**
+   * Serializes the macaroon using the given format.
+   *
+   * @param format the serialization format.
+   * @return the serialized macaroon.
+   */
+  public String serialize(MacaroonSerializationFormat format) {
+    return format.serialize(this);
   }
 
   @Override
