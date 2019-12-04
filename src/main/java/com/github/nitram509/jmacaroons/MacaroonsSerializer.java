@@ -16,69 +16,39 @@
 
 package com.github.nitram509.jmacaroons;
 
-import com.github.nitram509.jmacaroons.util.Base64;
+/**
+ * A format for serializing a macaroon to or from a string representation. The supported formats are:
+ * <ul>
+ *     <li>{@link #V1} the original version 1 format. This format is simple but bulkier than the V2 format.</li>
+ *     <li>{@link #V2} the version 2 binary format used by libmacaroons.</li>
+ * </ul>
+ */
+public interface MacaroonsSerializer {
+  /**
+   * The version 1 format of libmacaroons. This format is much bulkier than {@link #V2}, which should be preferred
+   * for new applications unless backwards compatibility with old macaroons libraries is required.
+   */
+  MacaroonsSerializer V1 = new MacaroonsSerializerV1();
+  /**
+   * The version 2 format of libmacaroons. This format uses an efficient binary encoding of macaroons.
+   */
+  MacaroonsSerializer V2 = new MacaroonsSerializerV2();
 
-import java.util.ArrayList;
-import java.util.List;
+  /**
+   * Serializes a macaroon into a string form.
+   *
+   * @param macaroon the macaroon to serialize.
+   * @return the string form of the macaroon.
+   */
+  String serialize(Macaroon macaroon);
 
-import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
-import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
-import static com.github.nitram509.jmacaroons.util.ArrayTools.flattenByteArray;
-
-class MacaroonsSerializer {
-
-  private static final byte[] HEX = new byte[]{
-          '0', '1', '2', '3',
-          '4', '5', '6', '7',
-          '8', '9', 'a', 'b',
-          'c', 'd', 'e', 'f'};
-
-  public static String serialize(Macaroon macaroon) {
-    List<byte[]> packets = new ArrayList<>( 3 + macaroon.caveatPackets.length );
-    packets.add(serialize_packet(Type.location, macaroon.location));
-    packets.add(serialize_packet(Type.identifier, macaroon.identifier));
-    for (CaveatPacket caveatPacket : macaroon.caveatPackets) {
-      packets.add(serialize_packet(caveatPacket.type, caveatPacket.rawValue));
-    }
-    packets.add(serialize_packet(Type.signature, macaroon.signatureBytes));
-    return Base64.encodeUrlSafeToString(flattenByteArray(packets));
-  }
-
-  private static byte[] serialize_packet(Type type, String data) {
-    return serialize_packet(type, data.getBytes(IDENTIFIER_CHARSET));
-  }
-
-  private static byte[] serialize_packet(Type type, byte[] data) {
-    String typname = type.name();
-    int packet_len = PACKET_PREFIX_LENGTH + typname.length() + KEY_VALUE_SEPARATOR_LEN + data.length + LINE_SEPARATOR_LEN;
-    byte[] packet = new byte[packet_len];
-    int offset = 0;
-
-    System.arraycopy(packet_header(packet_len), 0, packet, offset, PACKET_PREFIX_LENGTH);
-    offset += PACKET_PREFIX_LENGTH;
-
-    System.arraycopy(typname.getBytes(), 0, packet, offset, typname.length());
-    offset += typname.length();
-
-    packet[offset] = KEY_VALUE_SEPARATOR;
-    offset += KEY_VALUE_SEPARATOR_LEN;
-
-    System.arraycopy(data, 0, packet, offset, data.length);
-    offset += data.length;
-
-    packet[offset] = LINE_SEPARATOR;
-    return packet;
-  }
-
-  private static byte[] packet_header(int size) {
-    assert (size < 65536);
-    size = (size & 0xffff);
-    byte[] packet = new byte[PACKET_PREFIX_LENGTH];
-    packet[0] = HEX[(size >> 12) & 15];
-    packet[1] = HEX[(size >> 8) & 15];
-    packet[2] = HEX[(size >> 4) & 15];
-    packet[3] = HEX[(size) & 15];
-    return packet;
-  }
-
+  /**
+   * Deserializes a macaroon from a string. Note that this method doesn't validate the macaroon signature or
+   * caveats, for which you should use a {@link MacaroonsVerifier}.
+   *
+   * @param serialized the serialized string form.
+   * @return the deserialized macaroon.
+   * @throws NotDeSerializableException if the macaroon can't be deserialized.
+   */
+  Macaroon deserialize(String serialized);
 }

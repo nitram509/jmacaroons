@@ -76,13 +76,13 @@ public class Macaroon implements Serializable {
   }
 
   /**
-   * Serializes the macaroon to a string using {@link MacaroonSerializationFormat#V1}.
+   * Serializes the macaroon to a string using {@link MacaroonsSerializer#V1}.
    *
    * @return the serialized macaroon.
-   * @see #serialize(MacaroonSerializationFormat)
+   * @see #serialize(MacaroonsSerializer)
    */
   public String serialize() {
-    return serialize(MacaroonSerializationFormat.V1);
+    return serialize(MacaroonsSerializer.V1);
   }
 
   /**
@@ -91,7 +91,7 @@ public class Macaroon implements Serializable {
    * @param format the serialization format.
    * @return the serialized macaroon.
    */
-  public String serialize(MacaroonSerializationFormat format) {
+  public String serialize(MacaroonsSerializer format) {
     return format.serialize(this);
   }
 

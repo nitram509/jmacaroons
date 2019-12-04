@@ -31,7 +31,7 @@ import java.util.Optional;
 
 import com.github.nitram509.jmacaroons.CaveatPacket.Type;
 
-final class SerializationFormatV2 implements MacaroonSerializationFormat {
+final class MacaroonsSerializerV2 implements MacaroonsSerializer {
     private static final Base64.Encoder BASE64_ENCODER = Base64.getUrlEncoder().withoutPadding();
     private static final Base64.Decoder BASE64_DECODER = Base64.getUrlDecoder();
 

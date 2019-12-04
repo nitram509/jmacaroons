@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class MacaroonsDeSerializerTest {
+public class MacaroonsSerializerV1Test {
 
   private String identifier;
   private String secret;
@@ -36,11 +36,44 @@ public class MacaroonsDeSerializerTest {
   }
 
   @Test
+  public void Macaroon_can_be_serialized() {
+    Macaroon m = new MacaroonsBuilder(location, secret, identifier).getMacaroon();
+
+    assertThat(MacaroonsSerializer.V1.serialize(m)).isEqualTo(
+            "MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAyZnNpZ25hdHVyZSDj2eApCFJsTAA5rhURQRXZf91ovyujebNCqvD2F9BVLwo");
+    assertThat(MacaroonsSerializer.V1.serialize(m)).isEqualTo(m.serialize());
+  }
+
+  @Test
+  public void Macaroon_with_caveat_can_be_serialized() {
+    Macaroon m = new MacaroonsBuilder(location, secret, identifier)
+        .add_first_party_caveat("account = 3735928559")
+        .getMacaroon();
+
+    assertThat(MacaroonsSerializer.V1.serialize(m)).isEqualTo(
+            "MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDJmc2lnbmF0dXJlIB7-R2PykNvODB0IR3Nn4R9O7kVqZJM89mLXl3LbuCEoCg");
+    assertThat(MacaroonsSerializer.V1.serialize(m)).isEqualTo(m.serialize());
+  }
+
+  @Test
+  public void Macaroon_with_3rd_party_caveat_can_be_serialized() {
+    Macaroon m = new MacaroonsBuilder(location, secret, identifier)
+        .add_first_party_caveat("account = 3735928559")
+        .add_third_party_caveat("http://auth.mybank/", "SECRET for 3rd party caveat", identifier)
+        .getMacaroon();
+
+    assertThat(MacaroonsSerializer.V1.serialize(m)).startsWith(
+            "MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDFmY2lkIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDA1MXZpZC");
+    assertThat(MacaroonsSerializer.V1.serialize(m)).isEqualTo(m.serialize());
+  }
+
+
+  @Test
   public void Macaroon_can_be_deserialized() {
     m = new MacaroonsBuilder(location, secret, identifier).getMacaroon();
     String serialized = m.serialize();
 
-    Macaroon deserialized = MacaroonsDeSerializer.deserialize(serialized);
+    Macaroon deserialized = MacaroonsSerializer.V1.deserialize(serialized);
 
     assertThat(m).isEqualTo(deserialized);
   }
@@ -52,7 +85,7 @@ public class MacaroonsDeSerializerTest {
             .getMacaroon();
     String serialized = m.serialize();
 
-    Macaroon deserialized = MacaroonsDeSerializer.deserialize(serialized);
+    Macaroon deserialized = MacaroonsSerializer.V1.deserialize(serialized);
 
     assertThat(m).isEqualTo(deserialized);
   }
@@ -65,7 +98,7 @@ public class MacaroonsDeSerializerTest {
             .getMacaroon();
     String serialized = m.serialize();
 
-    Macaroon deserialized = MacaroonsDeSerializer.deserialize(serialized);
+    Macaroon deserialized = MacaroonsSerializer.V1.deserialize(serialized);
 
     assertThat(deserialized.identifier).isEqualTo(m.identifier);
     assertThat(deserialized.location).isEqualTo(m.location);
@@ -78,7 +111,7 @@ public class MacaroonsDeSerializerTest {
   @Test(expectedExceptions = NotDeSerializableException.class, expectedExceptionsMessageRegExp = ".*Not enough bytes for signature found.*")
   public void to_short_base64_throws_NotDeSerializableException() {
     // packet is: "123"
-    MacaroonsDeSerializer.deserialize("MTIzDQo=");
+    MacaroonsSerializer.V1.deserialize("MTIzDQo=");
 
     // expected NotDeSerializableException
   }
@@ -86,14 +119,16 @@ public class MacaroonsDeSerializerTest {
   @Test(expectedExceptions = NotDeSerializableException.class, expectedExceptionsMessageRegExp = ".*Not enough data bytes available.*")
   public void invalid_packet_length_throws_NotDeSerializableException() {
     // packet is: "fffflocation http://mybank12345678901234567890.com"
-    MacaroonsDeSerializer.deserialize("ZmZmZmxvY2F0aW9uIGh0dHA6Ly9teWJhbmsxMjM0NTY3ODkwMTIzNDU2Nzg5MC5jb20=");
+    MacaroonsSerializer.V1.deserialize("ZmZmZmxvY2F0aW9uIGh0dHA6Ly9teWJhbmsxMjM0NTY3ODkwMTIzNDU2Nzg5MC5jb20=");
 
     // expected NotDeSerializableException
   }
 
   @Test
   public void stateful_packet_reader_parses_header_length() throws Exception {
-    MacaroonsDeSerializer.StatefulPacketReader packetReader = new MacaroonsDeSerializer.StatefulPacketReader(new byte[]{'a', 'b', 'c', 'd'});
+    MacaroonsSerializerV1.StatefulPacketReader packetReader =
+            new MacaroonsSerializerV1.StatefulPacketReader(new byte[]{'a', 'b', 'c',
+                    'd'});
     assertThat(packetReader.readPacketHeader()).isEqualTo(0xabcd);
   }
 }

@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 
 import com.github.nitram509.jmacaroons.CaveatPacket.Type;
 
-public class SerializationFormatV2Test {
+public class MacaroonsSerializerV2Test {
     private static final String IDENTIFIER = "test macaroon";
     private static final String LOCATION = "https://example.com/macaroon";
     private static final String FIRST_PARTY_CAVEAT = "time < 2020-01-01T00:00:00Z";
@@ -48,8 +48,8 @@ public class SerializationFormatV2Test {
                 .getMacaroon();
 
         // When
-        String serialized = macaroon.serialize(MacaroonSerializationFormat.V2);
-        Macaroon deserialized = MacaroonsBuilder.deserialize(serialized, MacaroonSerializationFormat.V2);
+        String serialized = macaroon.serialize(MacaroonsSerializer.V2);
+        Macaroon deserialized = MacaroonsBuilder.deserialize(serialized, MacaroonsSerializer.V2);
 
         // Then
         assertThat(deserialized.signature).as("signature").isEqualTo(macaroon.signature);
@@ -75,16 +75,16 @@ public class SerializationFormatV2Test {
              DataInputStream in = new DataInputStream(new PipedInputStream(out))) {
 
             for (long l = 0L; l < 1000000L; ++l) {
-                SerializationFormatV2.writeVarInt(out, l);
-                long read = SerializationFormatV2.readVarInt(in);
+                MacaroonsSerializerV2.writeVarInt(out, l);
+                long read = MacaroonsSerializerV2.readVarInt(in);
                 assertThat(read).isEqualTo(l);
             }
 
-            SerializationFormatV2.writeVarInt(out, Long.MAX_VALUE);
-            assertThat(SerializationFormatV2.readVarInt(in)).isEqualTo(Long.MAX_VALUE);
+            MacaroonsSerializerV2.writeVarInt(out, Long.MAX_VALUE);
+            assertThat(MacaroonsSerializerV2.readVarInt(in)).isEqualTo(Long.MAX_VALUE);
 
-            SerializationFormatV2.writeVarInt(out, Long.MIN_VALUE);
-            assertThat(SerializationFormatV2.readVarInt(in)).isEqualTo(Long.MIN_VALUE);
+            MacaroonsSerializerV2.writeVarInt(out, Long.MIN_VALUE);
+            assertThat(MacaroonsSerializerV2.readVarInt(in)).isEqualTo(Long.MIN_VALUE);
         }
     }
 }
