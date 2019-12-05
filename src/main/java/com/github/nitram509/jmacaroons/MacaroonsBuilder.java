@@ -115,12 +115,28 @@ public class MacaroonsBuilder {
   }
 
   /**
+   * Deserializes a macaroon using the {@link MacaroonsSerializer#V1} format.
+   *
    * @param serializedMacaroon serializedMacaroon
    * @return {@link com.github.nitram509.jmacaroons.Macaroon}
    * @throws com.github.nitram509.jmacaroons.NotDeSerializableException when serialized macaroon is not valid base64, length is to short or contains invalid packet data
+   * @see #deserialize(String, MacaroonsSerializer)
    */
   public static Macaroon deserialize(String serializedMacaroon) throws IllegalArgumentException {
-    return MacaroonsDeSerializer.deserialize(serializedMacaroon);
+    return deserialize(serializedMacaroon, MacaroonsSerializer.V1);
+  }
+
+  /**
+   * Deserializes a macaroon using the given format.
+   *
+   * @param serializedMacaroon serializedMacaroon
+   * @param format the serialization format.
+   * @return {@link com.github.nitram509.jmacaroons.Macaroon}
+   * @throws com.github.nitram509.jmacaroons.NotDeSerializableException when serialized macaroon is not valid, length is to short or contains invalid packet data
+   * @see #deserialize(String, MacaroonsSerializer)
+   */
+  public static Macaroon deserialize(String serializedMacaroon, MacaroonsSerializer format) throws IllegalArgumentException {
+    return format.deserialize(serializedMacaroon);
   }
 
   /**
