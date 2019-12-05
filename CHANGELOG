@@ -2,6 +2,11 @@
 Changelog jmacaroons
 =====================
 
+Version 0.5.0 (20xx-xx-xx)
+--------------------------
+
+   + Add V2 serialization format, thanks to the contribution by Neil Madden
+
 Version 0.4.1 (2019-08-07)
 --------------------------
    ! Fix timezone handling in the TimestampCaveatVerifier, when millis were used
