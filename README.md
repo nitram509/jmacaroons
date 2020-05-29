@@ -401,3 +401,7 @@ o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_string                 thrp
 ````
 
 
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/nitram509/jmacaroons.svg)](https://starchart.cc/nitram509/jmacaroons)
+
