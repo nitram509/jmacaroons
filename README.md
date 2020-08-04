@@ -190,8 +190,8 @@ policy changes; for example, by adding the three following facts,
 the verifier will continue to work even if someone decides to
 self-attenuate itself macaroons to be only usable from IP address and browser:
 ````java
-verifier.satisfyExact("IP = 127.0.0.1')");
-verifier.satisfyExact("browser = Chrome')");
+verifier.satisfyExact("IP = 127.0.0.1");
+verifier.satisfyExact("browser = Chrome");
 verifier.isValid(secretKey);
 // > True
 ````
