@@ -83,10 +83,10 @@ public class MacaroonsPrepareRequestAndVerifyTest {
 
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")
   public void verifying_valid() {
-    boolean valid = new MacaroonsVerifier(M)
-        .satisfyExact("account = 3735928559")
-        .satisfyGeneral(new TimestampCaveatVerifier())
-        .satisfy3rdParty(DP)
+    boolean valid = M.verifier()
+        .satisfy("account = 3735928559")
+        .satisfy(new TimestampCaveatVerifier())
+        .satisfy(DP)
         .isValid(secret);
 
     assertThat(valid).isTrue();
@@ -94,10 +94,10 @@ public class MacaroonsPrepareRequestAndVerifyTest {
 
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")
   public void verifying_unprepared_macaroon__has_to_fail() {
-    boolean valid = new MacaroonsVerifier(M)
-        .satisfyExact("account = 3735928559")
-        .satisfyGeneral(new TimestampCaveatVerifier())
-        .satisfy3rdParty(D)
+    boolean valid = M.verifier()
+        .satisfy("account = 3735928559")
+        .satisfy(new TimestampCaveatVerifier())
+        .satisfy(D)
         .isValid(secret);
 
     assertThat(valid).isFalse();
@@ -105,9 +105,9 @@ public class MacaroonsPrepareRequestAndVerifyTest {
 
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")
   public void verifying_macaroon_without_satisfying_3rd_party__has_to_fail() {
-    boolean valid = new MacaroonsVerifier(M)
-        .satisfyExact("account = 3735928559")
-        .satisfyGeneral(new TimestampCaveatVerifier())
+    boolean valid = M.verifier()
+        .satisfy("account = 3735928559")
+        .satisfy(new TimestampCaveatVerifier())
         .isValid(secret);
 
     assertThat(valid).isFalse();
@@ -125,7 +125,7 @@ public class MacaroonsPrepareRequestAndVerifyTest {
         .addCaveat("authN", new String(caveat_key, StandardCharsets.ISO_8859_1), caveat_id)
         .build();
 
-    assertThat(new MacaroonsVerifier(M)
+    assertThat(M.verifier()
         .isValid(root_key))
         .describedAs("Original should not be valid without discharge macaroon")
         .isFalse();
@@ -134,7 +134,7 @@ public class MacaroonsPrepareRequestAndVerifyTest {
     Macaroon D = Macaroon.builder("authN", caveat_key, caveat_id)
         .build();
 
-    assertThat(new MacaroonsVerifier(D)
+    assertThat(D.verifier()
         .isValid(caveat_key))
         .describedAs("Discharge macaroon should be valid")
         .isTrue();
@@ -144,13 +144,13 @@ public class MacaroonsPrepareRequestAndVerifyTest {
         .prepareForRequest(D)
         .build();
 
-    assertThat(new MacaroonsVerifier(bound)
+    assertThat(bound.verifier()
         .isValid(caveat_key))
         .describedAs("Bound discharge macaroon should not be considered valid on its own")
         .isFalse();
 
-    assertThat(new MacaroonsVerifier(M)
-        .satisfy3rdParty(bound)
+    assertThat(M.verifier()
+        .satisfy(bound)
         .isValid(root_key))
         .describedAs("Original should be valid with third party caveat bound")
         .isTrue();

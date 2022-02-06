@@ -31,31 +31,6 @@ public class ArrayTools {
     return tmp;
   }
 
-  public static String[] appendToArray(String[] elements, String newElement) {
-    assert newElement != null;
-    String[] tmp = new String[elements.length + 1];
-    System.arraycopy(elements, 0, tmp, 0, elements.length);
-    tmp[elements.length] = newElement;
-    return tmp;
-  }
-
-  public static GeneralCaveatVerifier[] appendToArray(GeneralCaveatVerifier[] elements, GeneralCaveatVerifier newElement) {
-    assert newElement != null;
-    GeneralCaveatVerifier[] tmp = new GeneralCaveatVerifier[elements.length + 1];
-    System.arraycopy(elements, 0, tmp, 0, elements.length);
-    tmp[elements.length] = newElement;
-    return tmp;
-  }
-
-  public static boolean containsElement(String[] elements, String anElement) {
-    if (elements != null) {
-      for (String element : elements) {
-        if (element.equals(anElement)) return true;
-      }
-    }
-    return false;
-  }
-
   public static byte[] flattenByteArray(List<byte[]> packets) {
     int size = 0;
     for (byte[] packet : packets) {

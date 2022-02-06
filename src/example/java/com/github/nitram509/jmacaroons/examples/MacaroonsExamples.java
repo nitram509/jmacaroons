@@ -64,7 +64,8 @@ public class MacaroonsExamples {
 
   void verify() throws InvalidKeyException, NoSuchAlgorithmException {
     Macaroon macaroon = create();
-    MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
+
+    MacaroonsVerifier verifier = macaroon.verifier();
     String secret = "this is our super secret key; only we should know it";
     boolean valid = verifier.isValid(secret);
     // > True
@@ -99,17 +100,17 @@ public class MacaroonsExamples {
     Macaroon macaroon = Macaroon.builder(location, secretKey, identifier)
         .addCaveat("account = 3735928559")
         .build();
-    MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
+    MacaroonsVerifier verifier = macaroon.verifier();
     verifier.isValid(secretKey);
     // > False
 
-    verifier.satisfyExact("account = 3735928559");
+    verifier.satisfy("account = 3735928559");
     verifier.isValid(secretKey);
     // > True
 
-    verifier.satisfyExact("IP = 127.0.0.1')");
-    verifier.satisfyExact("browser = Chrome')");
-    verifier.satisfyExact("action = deposit");
+    verifier.satisfy("IP = 127.0.0.1')");
+    verifier.satisfy("browser = Chrome')");
+    verifier.satisfy("action = deposit");
     verifier.isValid(secretKey);
     // > True
   }
@@ -122,11 +123,11 @@ public class MacaroonsExamples {
     Macaroon macaroon = Macaroon.builder(location, secretKey, identifier)
         .addCaveat("time < 2042-01-01T00:00")
         .build();
-    MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
+    MacaroonsVerifier verifier = macaroon.verifier();
     verifier.isValid(secretKey);
     // > False
 
-    verifier.satisfyGeneral(new TimestampCaveatVerifier());
+    verifier.satisfy(new TimestampCaveatVerifier());
     verifier.isValid(secretKey);
     // > True
   }
@@ -175,10 +176,10 @@ public class MacaroonsExamples {
     // > d.signature = 82a80681f9f32d419af12f6a71787a1bac3ab199df934ed950ddf20c25ac8c65
     // > dp.signature = 2eb01d0dd2b4475330739140188648cf25dda0425ea9f661f1574ca0a9eac54e
 
-    new MacaroonsVerifier(m)
-        .satisfyExact("account = 3735928559")
-        .satisfyGeneral(new TimestampCaveatVerifier())
-        .satisfy3rdParty(dp)
+    m.verifier()
+        .satisfy("account = 3735928559")
+        .satisfy(new TimestampCaveatVerifier())
+        .satisfy(dp)
         .assertIsValid(secret);
     // > ok.
   }
@@ -192,8 +193,8 @@ public class MacaroonsExamples {
         .addCaveat("time < 2015-01-01T00:00")
         .build();
 
-    new MacaroonsVerifier(macaroon)
-        .satisfyGeneral(new TimestampCaveatVerifier())
+    macaroon.verifier()
+        .satisfy(new TimestampCaveatVerifier())
         .isValid(secretKey);
     // > True
   }
@@ -207,8 +208,8 @@ public class MacaroonsExamples {
         .addCaveat("authorities = ROLE_USER, DEV_TOOLS_AVAILABLE")
         .build();
 
-    new MacaroonsVerifier(macaroon)
-        .satisfyGeneral(hasAuthority("DEV_TOOLS_AVAILABLE"))
+    macaroon.verifier()
+        .satisfy(hasAuthority("DEV_TOOLS_AVAILABLE"))
         .isValid(secretKey);
     // > True
   }

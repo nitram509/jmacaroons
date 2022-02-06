@@ -24,16 +24,19 @@ import java.util.List;
 import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
 import static com.github.nitram509.jmacaroons.CryptoTools.*;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
-import static com.github.nitram509.jmacaroons.util.ArrayTools.appendToArray;
-import static com.github.nitram509.jmacaroons.util.ArrayTools.containsElement;
 
 public class MacaroonsVerifier {
 
-  private String[] predicates = new String[0];
-  private List<Macaroon> boundMacaroons = new ArrayList<>(3);
-  private GeneralCaveatVerifier[] generalCaveatVerifiers = new GeneralCaveatVerifier[0];
+  private final List<String> predicates = new ArrayList<>();
+  private final List<Macaroon> boundMacaroons = new ArrayList<>();
+  private final List<GeneralCaveatVerifier> generalCaveatVerifiers = new ArrayList<>();
   private final Macaroon macaroon;
 
+  /**
+   * @deprecated {@link Macaroon#verifier()}
+   * @param macaroon macaroon to verify
+   */
+  @Deprecated
   public MacaroonsVerifier(Macaroon macaroon) {
     this.macaroon = macaroon;
   }
@@ -106,7 +109,7 @@ public class MacaroonsVerifier {
         if (caveat == null) continue;
         if (caveat.type == Type.cl) continue;
         if (!(caveat.type == Type.cid && caveatPackets[Math.min(i + 1, caveatPackets.length - 1)].type == Type.vid)) {
-          if (containsElement(predicates, caveat.getValueAsText()) || verifiesGeneral(caveat.getValueAsText())) {
+          if (predicates.contains(caveat.getValueAsText()) || verifiesGeneral(caveat.getValueAsText())) {
             csig = macaroon_hmac(csig, caveat.rawValue);
           }
         } else {
@@ -176,6 +179,16 @@ public class MacaroonsVerifier {
   }
 
   /**
+   * @deprecated {@link #satisfy(String)}
+   * @param caveat caveat
+   * @return this {@link com.github.nitram509.jmacaroons.MacaroonsVerifier}
+   */
+  @Deprecated
+  public MacaroonsVerifier satisfyExact(String caveat) {
+    return satisfy(caveat);
+  }
+
+  /**
    * Caveats like these are called "exact caveats" because there is exactly one way
    * to satisfy them.  Either the given caveat matches, or it doesn't.  At
    * verification time, the verifier will check each caveat in the macaroon against
@@ -186,11 +199,21 @@ public class MacaroonsVerifier {
    * @param caveat caveat
    * @return this {@link com.github.nitram509.jmacaroons.MacaroonsVerifier}
    */
-  public MacaroonsVerifier satisfyExact(String caveat) {
+  public MacaroonsVerifier satisfy(String caveat) {
     if (caveat != null) {
-      this.predicates = appendToArray(this.predicates, caveat);
+      this.predicates.add(caveat);
     }
     return this;
+  }
+
+  /**
+   * @deprecated {@link #satisfy(Macaroon)}
+   * @param preparedMacaroon preparedMacaroon
+   * @return this {@link com.github.nitram509.jmacaroons.MacaroonsVerifier}
+   */
+  @Deprecated
+  public MacaroonsVerifier satisfy3rdParty(Macaroon preparedMacaroon) {
+    return satisfy(preparedMacaroon);
   }
 
   /**
@@ -199,11 +222,21 @@ public class MacaroonsVerifier {
    * @param preparedMacaroon preparedMacaroon
    * @return this {@link com.github.nitram509.jmacaroons.MacaroonsVerifier}
    */
-  public MacaroonsVerifier satisfy3rdParty(Macaroon preparedMacaroon) {
+  public MacaroonsVerifier satisfy(Macaroon preparedMacaroon) {
     if (preparedMacaroon != null) {
       this.boundMacaroons.add(preparedMacaroon);
     }
     return this;
+  }
+
+  /**
+   * @deprecated use {@link #satisfy(GeneralCaveatVerifier)}
+   * @param verifier verifier
+   * @return this {@link com.github.nitram509.jmacaroons.MacaroonsVerifier}
+   */
+  @Deprecated
+  public MacaroonsVerifier satisfyGeneral(GeneralCaveatVerifier verifier) {
+    return satisfy(verifier);
   }
 
   /**
@@ -219,13 +252,14 @@ public class MacaroonsVerifier {
    * @param verifier verifier
    * @return this {@link com.github.nitram509.jmacaroons.MacaroonsVerifier}
    */
-  public MacaroonsVerifier satisfyGeneral(GeneralCaveatVerifier verifier) {
+  public MacaroonsVerifier satisfy(GeneralCaveatVerifier verifier) {
     if (verifier != null) {
-      this.generalCaveatVerifiers = appendToArray(this.generalCaveatVerifiers, verifier);
+      this.generalCaveatVerifiers.add(verifier);
     }
     return this;
   }
 
+  @Deprecated
   public Macaroon getMacaroon() {
     return macaroon;
   }

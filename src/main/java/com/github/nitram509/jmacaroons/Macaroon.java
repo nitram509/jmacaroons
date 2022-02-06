@@ -116,6 +116,10 @@ public class Macaroon implements Serializable {
     return format.serialize(this);
   }
 
+  public MacaroonsVerifier verifier() {
+    return new MacaroonsVerifier(this);
+  }
+
   /**
    * Deserializes a macaroon using the {@link MacaroonsSerializer#V1} format.
    *

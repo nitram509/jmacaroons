@@ -63,8 +63,8 @@ import java.util.Date;
  * Macaroon m = new Macaroon.builder("location", "secret", "identifiert")
  *    .addCaveat("time &lt; 2042-09-23T17:42:35")
  *    .build();
- * new MacaroonsVerifier(m)
- *    .satisfyGeneral(new TimestampCaveatVerifier())
+ * m.verifier()
+ *    .satisfy(new TimestampCaveatVerifier())
  *    .assertIsValid("secret");
  * }</pre>
  */

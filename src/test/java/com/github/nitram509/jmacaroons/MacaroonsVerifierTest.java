@@ -48,7 +48,7 @@ public class MacaroonsVerifierTest {
   public void verification() {
     m = Macaroon.builder(location, secret, identifier).build();
 
-    MacaroonsVerifier verifier = new MacaroonsVerifier(m);
+    MacaroonsVerifier verifier = m.verifier();
     assertThat(verifier.isValid(secret)).isTrue();
   }
 
@@ -56,7 +56,7 @@ public class MacaroonsVerifierTest {
   public void verification_with_byteArray() {
     m = Macaroon.builder(location, secretBytes, identifier).build();
 
-    MacaroonsVerifier verifier = new MacaroonsVerifier(m);
+    MacaroonsVerifier verifier = m.verifier();
     assertThat(verifier.isValid(secretBytes)).isTrue();
   }
 
@@ -64,7 +64,7 @@ public class MacaroonsVerifierTest {
   public void verification_assertion() {
     m = Macaroon.builder(location, secret, identifier).build();
 
-    MacaroonsVerifier verifier = new MacaroonsVerifier(m);
+    MacaroonsVerifier verifier = m.verifier();
     verifier.assertIsValid("wrong secret");
 
     // expect MacaroonValidationException
@@ -76,10 +76,10 @@ public class MacaroonsVerifierTest {
         .addCaveat("account = 3735928559")
         .build();
 
-    MacaroonsVerifier verifier = new MacaroonsVerifier(m);
+    MacaroonsVerifier verifier = m.verifier();
     assertThat(verifier.isValid(secret)).isFalse();
 
-    verifier.satisfyExact("account = 3735928559");
+    verifier.satisfy("account = 3735928559");
     assertThat(verifier.isValid(secret)).isTrue();
   }
 
@@ -90,10 +90,10 @@ public class MacaroonsVerifierTest {
         .addCaveat("credit_allowed = true")
         .build();
 
-    MacaroonsVerifier verifier = new MacaroonsVerifier(m);
+    MacaroonsVerifier verifier = m.verifier();
     assertThat(verifier.isValid(secret)).isFalse();
 
-    verifier.satisfyExact("account = 3735928559");
+    verifier.satisfy("account = 3735928559");
     assertThat(verifier.isValid(secret)).isFalse();
   }
 
@@ -103,13 +103,13 @@ public class MacaroonsVerifierTest {
         .addCaveat("account = 3735928559")
         .build();
 
-    MacaroonsVerifier verifier = new MacaroonsVerifier(m);
+    MacaroonsVerifier verifier = m.verifier();
     assertThat(verifier.isValid(secret)).isFalse();
 
-    verifier.satisfyExact("account = 3735928559");
-    verifier.satisfyExact("IP = 127.0.0.1')");
-    verifier.satisfyExact("browser = Chrome')");
-    verifier.satisfyExact("action = deposit");
+    verifier.satisfy("account = 3735928559");
+    verifier.satisfy("IP = 127.0.0.1')");
+    verifier.satisfy("browser = Chrome')");
+    verifier.satisfy("action = deposit");
     assertThat(verifier.isValid(secret)).isTrue();
   }
 
@@ -119,10 +119,10 @@ public class MacaroonsVerifierTest {
         .addCaveat("time < " + createTimeStamp1WeekInFuture())
         .build();
 
-    MacaroonsVerifier verifier = new MacaroonsVerifier(m);
+    MacaroonsVerifier verifier = m.verifier();
     assertThat(verifier.isValid(secret)).isFalse();
 
-    verifier.satisfyGeneral(new TimestampCaveatVerifier());
+    verifier.satisfy(new TimestampCaveatVerifier());
     assertThat(verifier.isValid(secret)).isTrue();
   }
 

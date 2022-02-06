@@ -77,11 +77,11 @@ public class MacaroonsPrepareRequestAndVerifyComplexTest {
 
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")
   public void verifying_valid() {
-    boolean valid = new MacaroonsVerifier(M)
-        .satisfyExact("account = 3735928559")
-        .satisfyExact("role = admin")
-        .satisfyGeneral(new TimestampCaveatVerifier())
-        .satisfy3rdParty(DP)
+    boolean valid = M.verifier()
+        .satisfy("account = 3735928559")
+        .satisfy("role = admin")
+        .satisfy(new TimestampCaveatVerifier())
+        .satisfy(DP)
         .isValid(secret);
 
     assertThat(valid).isTrue();
@@ -89,11 +89,11 @@ public class MacaroonsPrepareRequestAndVerifyComplexTest {
 
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")
   public void verifying_unprepared_macaroon__has_to_fail() {
-    boolean valid = new MacaroonsVerifier(M)
-        .satisfyExact("account = 3735928559")
-        .satisfyExact("role = admin")
-        .satisfyGeneral(new TimestampCaveatVerifier())
-        .satisfy3rdParty(D)
+    boolean valid = M.verifier()
+        .satisfy("account = 3735928559")
+        .satisfy("role = admin")
+        .satisfy(new TimestampCaveatVerifier())
+        .satisfy(D)
         .isValid(secret);
 
     assertThat(valid).isFalse();
@@ -101,10 +101,10 @@ public class MacaroonsPrepareRequestAndVerifyComplexTest {
 
   @Test(dependsOnMethods = "preparing_a_macaroon_for_request")
   public void verifying_macaroon_without_satisfying_3rd_party__has_to_fail() {
-    boolean valid = new MacaroonsVerifier(M)
-        .satisfyExact("account = 3735928559")
-        .satisfyExact("role = admin")
-        .satisfyGeneral(new TimestampCaveatVerifier())
+    boolean valid = M.verifier()
+        .satisfy("account = 3735928559")
+        .satisfy("role = admin")
+        .satisfy(new TimestampCaveatVerifier())
         .isValid(secret);
 
     assertThat(valid).isFalse();
