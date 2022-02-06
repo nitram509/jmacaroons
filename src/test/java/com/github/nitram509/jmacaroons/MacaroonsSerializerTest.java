@@ -57,8 +57,8 @@ public class MacaroonsSerializerTest {
         // Given
 
         // When
-        Macaroon v1Macaroon = MacaroonsBuilder.deserialize(v1, MacaroonsSerializer.V1);
-        Macaroon v2Macaroon = MacaroonsBuilder.deserialize(v2, MacaroonsSerializer.V2);
+        Macaroon v1Macaroon = Macaroon.deserialize(v1, MacaroonsSerializer.V1);
+        Macaroon v2Macaroon = Macaroon.deserialize(v2, MacaroonsSerializer.V2);
 
         // Then
         assertThat(v1Macaroon).isEqualTo(v2Macaroon);

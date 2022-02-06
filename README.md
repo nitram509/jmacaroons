@@ -66,7 +66,7 @@ Lets create a simple macaroon
 String location = "http://www.example.org";
 String secretKey = "this is our super secret key; only we should know it";
 String identifier = "we used our secret key";
-Macaroon macaroon = MacaroonsBuilder.create(location, secretKey, identifier);
+Macaroon macaroon = Macaroon.create(location, secretKey, identifier);
 ````
 
 Of course, this macaroon can be displayed in a more human-readable form
@@ -102,7 +102,7 @@ De-Serializing
 ----------------------------------
 
 ````java
-Macaroon macaroon = MacaroonsBuilder.deserialize(serialized);
+Macaroon macaroon = Macaroon.deserialize(serialized);
 System.out.println(macaroon.inspect());
 
 // > location http://www.example.org
@@ -134,17 +134,17 @@ restricts it to just the account number 3735928559.
 String location = "http://www.example.org";
 String secretKey = "this is our super secret key; only we should know it";
 String identifier = "we used our secret key";
-Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
-    .add_first_party_caveat("account = 3735928559")
-    .getMacaroon();
+Macaroon macaroon = Macaroon.builder(location, secretKey, identifier)
+    .addCaveat("account = 3735928559")
+    .build();
 ````
 
 Because macaroon objects are immutable, they have to be modified
-via MacaroonsBuilder. Thus, a new macaroon object will be created.
+via Macaroon Builder. Thus, a new macaroon object will be created.
 ````java
-Macaroon macaroon = MacaroonsBuilder.modify(macaroon)
-    .add_first_party_caveat("account = 3735928559")
-    .getMacaroon();
+Macaroon macaroon = Macaroon.builder(macaroon)
+    .addCaveat("account = 3735928559")
+    .build();
 System.out.println(macaroon.inspect());
 
 // > location http://www.example.org
@@ -164,9 +164,9 @@ We can see that it fails just as we would expect.
 String location = "http://www.example.org";
 String secretKey = "this is our super secret key; only we should know it";
 String identifier = "we used our secret key";
-Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
-    .add_first_party_caveat("account = 3735928559")
-    .getMacaroon();
+Macaroon macaroon = Macaroon.builder(location, secretKey, identifier)
+    .addCaveat("account = 3735928559")
+    .build();
 MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
 verifier.isValid(secretKey);
 // > False
@@ -200,9 +200,9 @@ There is also a more general way to check caveats, via callbacks.
 When providing such a callback to the verifier,
 it is able to check if the caveat satisfies special constrains. 
 ````java
-Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
-    .add_first_party_caveat("time < 2042-01-01T00:00")
-    .getMacaroon();
+Macaroon macaroon = Macaroon.builder(location, secretKey, identifier)
+    .addCaveat("time < 2042-01-01T00:00")
+    .build();
 MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
 verifier.isValid(secretKey);
 // > False
@@ -238,8 +238,8 @@ limited to Alice's bank account.
 String location = "http://mybank/";
 String secret = "this is a different super-secret key; never use the same secret twice";
 String publicIdentifier = "we used our other secret key";
-MacaroonsBuilder mb = new MacaroonsBuilder(location, secret, publicIdentifier)
-    .add_first_party_caveat("account = 3735928559");
+MacaroonsBuilder mb = Macaroon.builder(location, secret, publicIdentifier)
+    .addCaveat("account = 3735928559");
 
 // add a 3rd party caveat
 // you'll likely want to use a higher entropy source to generate this key
@@ -248,8 +248,8 @@ String predicate = "user = Alice";
 // send_to_3rd_party_location_and_do_auth(caveat_key, predicate);
 // identifier = recv_from_auth();
 String identifier = "this was how we remind auth of key/pred";
-Macaroon m = mb.add_third_party_caveat("http://auth.mybank/", caveat_key, identifier)
-    .getMacaroon();
+Macaroon m = mb.addCaveat("http://auth.mybank/", caveat_key, identifier)
+    .build();
     
 m.inspect();
 // > location http://mybank/
@@ -268,9 +268,9 @@ the secret used to create the third-party caveat. The server can then generate
 and return a new macaroon that discharges the caveat:
 
 ````java
-Macaroon d = new MacaroonsBuilder("http://auth.mybank/", caveat_key, identifier)
-    .add_first_party_caveat("time < 2015-01-01T00:00")
-    .getMacaroon();
+Macaroon d = Macaroon.builder("http://auth.mybank/", caveat_key, identifier)
+    .addCaveat("time < 2015-01-01T00:00")
+    .build();
 ````
 
 This new macaroon enables the verifier to determine that the third party caveat
@@ -289,9 +289,9 @@ useful only when presented alongside the root macaroon. The root macaroon is
 used to bind the discharge macaroons like this:
 
 ````java
-Macaroon dp = MacaroonsBuilder.modify(m)
-    .prepare_for_request(d)
-    .getMacaroon();
+Macaroon dp = Macaroon.builder(m)
+    .prepareForRequest(d)
+    .build();
 ````
 
 If we were to look at the signatures on these prepared discharge macaroons, we
@@ -330,9 +330,9 @@ Given that all machines have synchronized clocks, a general macaroon verifier is
 for expiration.
 
 ````java
-Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
-    .add_first_party_caveat("time < 2015-01-01T00:00")
-    .getMacaroon();
+Macaroon macaroon = Macaroon.builder(location, secretKey, identifier)
+    .addCaveat("time < 2015-01-01T00:00")
+    .build();
 
 new MacaroonsVerifier(macaroon)
     .satisfyGeneral(new TimestampCaveatVerifier())
@@ -347,9 +347,9 @@ to check for a single authority.
 
 ````java
 // import static com.github.nitram509.jmacaroons.verifier.AuthoritiesCaveatVerifier.hasAuthority;
-Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
-    .add_first_party_caveat("authorities = ROLE_USER, DEV_TOOLS_AVAILABLE")
-    .getMacaroon();
+Macaroon macaroon = Macaroon.builder(location, secretKey, identifier)
+    .addCaveat("authorities = ROLE_USER, DEV_TOOLS_AVAILABLE")
+    .build();
 
 new MacaroonsVerifier(macaroon)
     .satisfyGeneral(hasAuthority("DEV_TOOLS_AVAILABLE"))

@@ -38,7 +38,7 @@ public class MacaroonsExamples {
     String location = "http://www.example.org";
     String secretKey = "this is our super secret key; only we should know it";
     String identifier = "we used our secret key";
-    Macaroon macaroon = MacaroonsBuilder.create(location, secretKey, identifier);
+    Macaroon macaroon = Macaroon.create(location, secretKey, identifier);
     System.out.println(macaroon.inspect());
 
     return macaroon;
@@ -54,7 +54,7 @@ public class MacaroonsExamples {
   void deserialize() {
     String serialized = create().serialize();
 
-    Macaroon macaroon = MacaroonsBuilder.deserialize(serialized);
+    Macaroon macaroon = Macaroon.deserialize(serialized);
     System.out.println(macaroon.inspect());
   }
 
@@ -72,17 +72,17 @@ public class MacaroonsExamples {
     String location = "http://www.example.org";
     String secretKey = "this is our super secret key; only we should know it";
     String identifier = "we used our secret key";
-    Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
-        .add_first_party_caveat("account = 3735928559")
-        .getMacaroon();
+    Macaroon macaroon = Macaroon.builder(location, secretKey, identifier)
+        .addCaveat("account = 3735928559")
+        .build();
     System.out.println(macaroon.inspect());
   }
 
   void addCaveat_modify() throws InvalidKeyException, NoSuchAlgorithmException {
     Macaroon macaroon = create();
-    macaroon = MacaroonsBuilder.modify(macaroon)
-        .add_first_party_caveat("account = 3735928559")
-        .getMacaroon();
+    macaroon = Macaroon.builder(macaroon)
+        .addCaveat("account = 3735928559")
+        .build();
     System.out.println(macaroon.inspect());
   }
 
@@ -90,9 +90,9 @@ public class MacaroonsExamples {
     String location = "http://www.example.org";
     String secretKey = "this is our super secret key; only we should know it";
     String identifier = "we used our secret key";
-    Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
-        .add_first_party_caveat("account = 3735928559")
-        .getMacaroon();
+    Macaroon macaroon = Macaroon.builder(location, secretKey, identifier)
+        .addCaveat("account = 3735928559")
+        .build();
     MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
     verifier.isValid(secretKey);
     // > False
@@ -113,9 +113,9 @@ public class MacaroonsExamples {
     String secretKey = "this is our super secret key; only we should know it";
     String identifier = "we used our secret key";
 
-    Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
-        .add_first_party_caveat("time < 2042-01-01T00:00")
-        .getMacaroon();
+    Macaroon macaroon = Macaroon.builder(location, secretKey, identifier)
+        .addCaveat("time < 2042-01-01T00:00")
+        .build();
     MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
     verifier.isValid(secretKey);
     // > False
@@ -130,8 +130,8 @@ public class MacaroonsExamples {
     String location = "http://mybank/";
     String secret = "this is a different super-secret key; never use the same secret twice";
     String publicIdentifier = "we used our other secret key";
-    MacaroonsBuilder mb = new MacaroonsBuilder(location, secret, publicIdentifier)
-        .add_first_party_caveat("account = 3735928559");
+    MacaroonsBuilder mb = Macaroon.builder(location, secret, publicIdentifier)
+        .addCaveat("account = 3735928559");
 
     // add a 3rd party caveat
     // you'll likely want to use a higher entropy source to generate this key
@@ -140,8 +140,8 @@ public class MacaroonsExamples {
     // send_to_3rd_party_location_and_do_auth(caveat_key, predicate);
     // identifier = recv_from_auth();
     String identifier = "this was how we remind auth of key/pred";
-    Macaroon m = mb.add_third_party_caveat("http://auth.mybank/", caveat_key, identifier)
-        .getMacaroon();
+    Macaroon m = mb.addCaveat("http://auth.mybank/", caveat_key, identifier)
+        .build();
 
     System.out.println(m.inspect());
 
@@ -149,13 +149,13 @@ public class MacaroonsExamples {
         .plus(Duration.ofHours(1))
         .toString();
 
-    Macaroon d = new MacaroonsBuilder("http://auth.mybank/", caveat_key, identifier)
-        .add_first_party_caveat("time < " + oneHourFromNow)
-        .getMacaroon();
+    Macaroon d = Macaroon.builder("http://auth.mybank/", caveat_key, identifier)
+        .addCaveat("time < " + oneHourFromNow)
+        .build();
 
-    Macaroon dp = MacaroonsBuilder.modify(m)
-        .prepare_for_request(d)
-        .getMacaroon();
+    Macaroon dp = Macaroon.builder(m)
+        .prepareForRequest(d)
+        .build();
 
     System.out.println("d.signature = " + d.signature);
     System.out.println("dp.signature = " + dp.signature);
@@ -172,9 +172,9 @@ public class MacaroonsExamples {
     String secretKey = "this is our super secret key; only we should know it";
     String identifier = "we used our secret key";
 
-    Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
-        .add_first_party_caveat("time < 2015-01-01T00:00")
-        .getMacaroon();
+    Macaroon macaroon = Macaroon.builder(location, secretKey, identifier)
+        .addCaveat("time < 2015-01-01T00:00")
+        .build();
 
     new MacaroonsVerifier(macaroon)
         .satisfyGeneral(new TimestampCaveatVerifier())
@@ -187,9 +187,9 @@ public class MacaroonsExamples {
     String secretKey = "this is our super secret key; only we should know it";
     String identifier = "we used our secret key";
 
-    Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
-        .add_first_party_caveat("authorities = ROLE_USER, DEV_TOOLS_AVAILABLE")
-        .getMacaroon();
+    Macaroon macaroon = Macaroon.builder(location, secretKey, identifier)
+        .addCaveat("authorities = ROLE_USER, DEV_TOOLS_AVAILABLE")
+        .build();
 
     new MacaroonsVerifier(macaroon)
         .satisfyGeneral(hasAuthority("DEV_TOOLS_AVAILABLE"))
