@@ -25,6 +25,7 @@ Usage/Import In Your Project
 ----------------------------------
 
 This library jmacaroons is available via Maven Central.
+Requires Java 1.8+
 
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.nitram509/jmacaroons.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.github.nitram509%22%20AND%20a%3A%22jmacaroons%22)
 
