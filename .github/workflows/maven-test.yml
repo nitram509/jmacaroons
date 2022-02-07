@@ -1,0 +1,28 @@
+name: maven test
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ '1.8', '11', '17' ]
+    name: 'Java ${{ matrix.java }} maven test'
+    steps:
+      - name: 'checkout'
+        uses: 'actions/checkout@v2'
+      - name: 'Set up JDK 11'
+        uses: 'actions/setup-java@v2'
+        with:
+          java-version: '${{ matrix.java }}'
+          distribution: 'adopt'
+      - name: 'Build & test with Maven'
+        run: 'mvn test'
+      - name: 'upload code coverage'
+        uses: 'codecov/codecov-action@v2'
+        with:
+          files: 'target/jacoco.exec'
+          name: 'codecov-umbrella'
+          fail_ci_if_error: true # optional (default = false)
+          verbose: true # optional (default = false)
