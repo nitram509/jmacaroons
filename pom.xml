@@ -49,7 +49,7 @@
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
-      <version>6.9.4</version>
+      <version>7.5</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -73,7 +73,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.3</version>
+        <version>3.9.0</version>
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
@@ -83,7 +83,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.9</version>
+        <version>3.3.0</version>
         <executions>
           <execution>
             <id>add-test-source</id>
@@ -104,7 +104,7 @@
         <!-- add support for  https://coveralls.io/r/nitram509/jmacaroons -->
         <groupId>org.eluder.coveralls</groupId>
         <artifactId>coveralls-maven-plugin</artifactId>
-        <version>2.2.0</version>
+        <version>4.3.0</version>
         <configuration>
           <!--<repoToken>yourcoverallsprojectrepositorytoken</repoToken>-->
         </configuration>
@@ -114,7 +114,7 @@
         <!-- add support for  https://coveralls.io/r/nitram509/jmacaroons -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>cobertura-maven-plugin</artifactId>
-        <version>2.6</version>
+        <version>2.7</version>
         <configuration>
           <instrumentation>
             <ignores>
@@ -150,7 +150,7 @@
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.2</version>
+            <version>1.6.8</version>
             <extensions>true</extensions>
             <configuration>
               <serverId>ossrh</serverId>
@@ -162,7 +162,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-release-plugin</artifactId>
-            <version>2.5</version>
+            <version>2.5.3</version>
             <configuration>
               <autoVersionSubmodules>true</autoVersionSubmodules>
               <useReleaseProfile>true</useReleaseProfile>
@@ -174,13 +174,13 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>2.3</version>
+            <version>3.2.1</version>
           </plugin>
 
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.1.1</version>
+            <version>3.3.1</version>
             <configuration>
               <excludePackageNames>com.neilalexander.jnacl</excludePackageNames>
               <source>8</source>
@@ -190,7 +190,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.5</version>
+            <version>3.0.1</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>

@@ -190,8 +190,8 @@ policy changes; for example, by adding the three following facts,
 the verifier will continue to work even if someone decides to
 self-attenuate itself macaroons to be only usable from IP address and browser:
 ````java
-verifier.satisfyExact("IP = 127.0.0.1')");
-verifier.satisfyExact("browser = Chrome')");
+verifier.satisfyExact("IP = 127.0.0.1");
+verifier.satisfyExact("browser = Chrome");
 verifier.isValid(secretKey);
 // > True
 ````
@@ -400,4 +400,8 @@ o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_bytes_and_3_caveats    thrp
 o.s.JMacaroonsBenchmark.benchmark_Serialize_with_key_string                 thrpt        5   252302,839 ±  3277,232  ops/s
 ````
 
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/nitram509/jmacaroons.svg)](https://starchart.cc/nitram509/jmacaroons)
 
