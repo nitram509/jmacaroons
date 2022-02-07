@@ -22,8 +22,6 @@ import org.testng.annotations.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-import java.time.Duration;
-import java.time.Instant;
 
 public class MacaroonsPrepareRequestAndVerifyComplexTest {
 
@@ -42,18 +40,18 @@ public class MacaroonsPrepareRequestAndVerifyComplexTest {
     location = "http://mybank/";
     secret = "this is a different super-secret key; never use the same secret twice";
     publicIdentifier = "we used our other secret key";
-    M = new MacaroonsBuilder(location, secret, publicIdentifier)
-        .add_first_party_caveat("account = 3735928559")
-        .getMacaroon();
+    M = Macaroon.builder(location, secret, publicIdentifier)
+        .addCaveat("account = 3735928559")
+        .build();
     assertThat(M.signature).isEqualTo("1434e674ad84fdfdc9bc1aa00785325c8b6d57341fc7ce200ba4680c80786dda");
 
     caveat_key = "4; guaranteed random by a fair toss of the dice";
     identifier = "this was how we remind auth of key/pred";
 
-    M = new MacaroonsBuilder(M)
-        .add_third_party_caveat("http://auth.mybank/", caveat_key, identifier)
-        .add_first_party_caveat("role = admin")
-        .getMacaroon();
+    M = Macaroon.builder(M)
+        .addCaveat("http://auth.mybank/", caveat_key, identifier)
+        .addCaveat("role = admin")
+        .build();
     // signature can't be asserted to be equal to a constant, because random nonce influences signature
   }
 
@@ -62,17 +60,17 @@ public class MacaroonsPrepareRequestAndVerifyComplexTest {
     caveat_key = "4; guaranteed random by a fair toss of the dice";
     identifier = "this was how we remind auth of key/pred";
 
-    D = new MacaroonsBuilder("http://auth.mybank/", caveat_key, identifier)
-        .add_first_party_caveat("time < 2025-01-01T00:00")
-        .getMacaroon();
+    D = Macaroon.builder("http://auth.mybank/", caveat_key, identifier)
+        .addCaveat("time < 2025-01-01T00:00")
+        .build();
 
     assertThat(D.signature)
         .describedAs("a known caveat always creates a known signature")
         .isEqualTo("b338d11fb136c4b95c86efe146f77978cd0947585375ba4d4da4ef68be2b3e8b");
 
-    DP = new MacaroonsBuilder(M)
-        .prepare_for_request(D)
-        .getMacaroon();
+    DP = Macaroon.builder(M)
+        .prepareForRequest(D)
+        .build();
 
     // signature can't be asserted to be equal to a constant, because random nonce influences signature
   }

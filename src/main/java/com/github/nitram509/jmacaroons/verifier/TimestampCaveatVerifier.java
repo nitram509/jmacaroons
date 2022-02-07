@@ -60,9 +60,9 @@ import java.util.Date;
  * <br>
  * <strong>Applying a time based caveat</strong>
  * <pre>{@code
- * Macaroon m = new MacaroonsBuilder("location", "secret", "identifiert")
- *    .add_first_party_caveat("time &lt; 2042-09-23T17:42:35")
- *    .getMacaroon();
+ * Macaroon m = new Macaroon.builder("location", "secret", "identifiert")
+ *    .addCaveat("time &lt; 2042-09-23T17:42:35")
+ *    .build();
  * new MacaroonsVerifier(m)
  *    .satisfyGeneral(new TimestampCaveatVerifier())
  *    .assertIsValid("secret");

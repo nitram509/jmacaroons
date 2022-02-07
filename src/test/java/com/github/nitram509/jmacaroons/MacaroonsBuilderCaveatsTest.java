@@ -38,9 +38,9 @@ public class MacaroonsBuilderCaveatsTest {
 
   @Test
   public void add_first_party_caveat() {
-    m = new MacaroonsBuilder(location, secret, identifier)
-        .add_first_party_caveat("account = 3735928559")
-        .getMacaroon();
+    m = Macaroon.builder(location, secret, identifier)
+        .addCaveat("account = 3735928559")
+        .build();
 
     assertThat(m.identifier).isEqualTo(m.identifier);
     assertThat(m.location).isEqualTo(m.location);
@@ -51,13 +51,13 @@ public class MacaroonsBuilderCaveatsTest {
   @Test
   public void modify_also_copies_first_party_caveats() {
     // given
-    m = new MacaroonsBuilder(location, secret, identifier)
-        .add_first_party_caveat("account = 3735928559")
-        .getMacaroon();
+    m = Macaroon.builder(location, secret, identifier)
+        .addCaveat("account = 3735928559")
+        .build();
 
     // when
-    m = MacaroonsBuilder.modify(m)
-        .getMacaroon();
+    m = Macaroon.builder(m)
+        .build();
 
     assertThat(m.identifier).isEqualTo(m.identifier);
     assertThat(m.location).isEqualTo(m.location);
@@ -67,11 +67,11 @@ public class MacaroonsBuilderCaveatsTest {
 
   @Test
   public void add_first_party_caveat_3_times() {
-    m = new MacaroonsBuilder(location, secret, identifier)
-        .add_first_party_caveat("account = 3735928559")
-        .add_first_party_caveat("time < 2015-01-01T00:00")
-        .add_first_party_caveat("email = alice@example.org")
-        .getMacaroon();
+    m = Macaroon.builder(location, secret, identifier)
+        .addCaveat("account = 3735928559")
+        .addCaveat("time < 2015-01-01T00:00")
+        .addCaveat("email = alice@example.org")
+        .build();
 
     assertThat(m.identifier).isEqualTo(m.identifier);
     assertThat(m.location).isEqualTo(m.location);
@@ -85,11 +85,11 @@ public class MacaroonsBuilderCaveatsTest {
 
   @Test
   public void add_first_party_caveat_German_umlauts_using_UTF8_encoding() {
-    MacaroonsBuilder mb = new MacaroonsBuilder(location, secret, identifier);
-    mb = mb.add_first_party_caveat("\u00E4");
-    mb = mb.add_first_party_caveat("\u00FC");
-    mb = mb.add_first_party_caveat("\u00F6");
-    m = mb.getMacaroon();
+    MacaroonsBuilder mb = Macaroon.builder(location, secret, identifier);
+    mb = mb.addCaveat("\u00E4");
+    mb = mb.addCaveat("\u00FC");
+    mb = mb.addCaveat("\u00F6");
+    m = mb.build();
 
     assertThat(m.identifier).isEqualTo(m.identifier);
     assertThat(m.location).isEqualTo(m.location);
@@ -103,9 +103,9 @@ public class MacaroonsBuilderCaveatsTest {
 
   @Test
   public void add_first_party_caveat_null_save() {
-    m = new MacaroonsBuilder(location, secret, identifier)
-        .add_first_party_caveat(null)
-        .getMacaroon();
+    m = Macaroon.builder(location, secret, identifier)
+        .addCaveat(null)
+        .build();
 
     assertThat(m.identifier).isEqualTo(m.identifier);
     assertThat(m.location).isEqualTo(m.location);
@@ -114,9 +114,9 @@ public class MacaroonsBuilderCaveatsTest {
 
   @Test
   public void add_first_party_caveat_inspect() {
-    m = new MacaroonsBuilder(location, secret, identifier)
-        .add_first_party_caveat("account = 3735928559")
-        .getMacaroon();
+    m = Macaroon.builder(location, secret, identifier)
+        .addCaveat("account = 3735928559")
+        .build();
 
     String inspect = m.inspect();
 

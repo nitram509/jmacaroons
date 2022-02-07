@@ -20,11 +20,9 @@ import com.github.nitram509.jmacaroons.verifier.TimestampCaveatVerifier;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.time.Duration;
-import java.time.Instant;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -45,18 +43,18 @@ public class MacaroonsPrepareRequestAndVerifyTest {
     secret = "this is a different super-secret key; never use the same secret twice";
     publicIdentifier = "we used our other secret key";
     location = "http://mybank/";
-    M = new MacaroonsBuilder(location, secret, publicIdentifier)
-        .add_first_party_caveat("account = 3735928559")
-        .getMacaroon();
+    M = Macaroon.builder(location, secret, publicIdentifier)
+        .addCaveat("account = 3735928559")
+        .build();
     assertThat(M.signature).isEqualTo("1434e674ad84fdfdc9bc1aa00785325c8b6d57341fc7ce200ba4680c80786dda");
 
     caveat_key = "4; guaranteed random by a fair toss of the dice";
     predicate = "user = Alice";
     identifier = send_to_auth_and_recv_identifier(caveat_key, predicate);
 
-    M = new MacaroonsBuilder(M)
-        .add_third_party_caveat("http://auth.mybank/", caveat_key, identifier)
-        .getMacaroon();
+    M = Macaroon.builder(M)
+        .addCaveat("http://auth.mybank/", caveat_key, identifier)
+        .build();
     // signature can't be asserted to be equal to a constant, because random nonce influences signature
   }
 
@@ -69,16 +67,16 @@ public class MacaroonsPrepareRequestAndVerifyTest {
     caveat_key = "4; guaranteed random by a fair toss of the dice";
     identifier = "this was how we remind auth of key/pred";
 
-    D = new MacaroonsBuilder("http://auth.mybank/", caveat_key, identifier)
-        .add_first_party_caveat("time < 2025-01-01T00:00")
-        .getMacaroon();
+    D = Macaroon.builder("http://auth.mybank/", caveat_key, identifier)
+        .addCaveat("time < 2025-01-01T00:00")
+        .build();
     assertThat(D.signature)
         .describedAs("a known caveat always creates a known signature")
         .isEqualTo("b338d11fb136c4b95c86efe146f77978cd0947585375ba4d4da4ef68be2b3e8b");
 
-    DP = new MacaroonsBuilder(M)
-        .prepare_for_request(D)
-        .getMacaroon();
+    DP = Macaroon.builder(M)
+        .prepareForRequest(D)
+        .build();
 
     // signature can't be asserted to be equal to a constant, because random nonce influences signature
   }
@@ -123,9 +121,9 @@ public class MacaroonsPrepareRequestAndVerifyTest {
     byte[] caveat_key = keyGen();
     String caveat_id = "caveat";
     String macaroon_id = "123456";
-    Macaroon M = new MacaroonsBuilder("some-service", root_key, macaroon_id)
-        .add_third_party_caveat("authN", new String(caveat_key, Charset.forName("ISO-8859-1")), caveat_id)
-        .getMacaroon();
+    Macaroon M = Macaroon.builder("some-service", root_key, macaroon_id)
+        .addCaveat("authN", new String(caveat_key, StandardCharsets.ISO_8859_1), caveat_id)
+        .build();
 
     assertThat(new MacaroonsVerifier(M)
         .isValid(root_key))
@@ -133,8 +131,8 @@ public class MacaroonsPrepareRequestAndVerifyTest {
         .isFalse();
 
     // create discharge macaroon using caveat key as bytes
-    Macaroon D = new MacaroonsBuilder("authN", caveat_key, caveat_id)
-        .getMacaroon();
+    Macaroon D = Macaroon.builder("authN", caveat_key, caveat_id)
+        .build();
 
     assertThat(new MacaroonsVerifier(D)
         .isValid(caveat_key))
@@ -142,9 +140,9 @@ public class MacaroonsPrepareRequestAndVerifyTest {
         .isTrue();
 
     // prepare discharge macaroon by binding to the original macaroon
-    Macaroon bound = new MacaroonsBuilder(M)
-        .prepare_for_request(D)
-        .getMacaroon();
+    Macaroon bound = Macaroon.builder(M)
+        .prepareForRequest(D)
+        .build();
 
     assertThat(new MacaroonsVerifier(bound)
         .isValid(caveat_key))

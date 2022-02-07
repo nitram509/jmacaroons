@@ -17,11 +17,18 @@
 package com.github.nitram509.jmacaroons;
 
 import java.io.Serializable;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Objects;
 
 import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
+import static com.github.nitram509.jmacaroons.CryptoTools.generate_derived_key;
+import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_hmac;
+import static com.github.nitram509.jmacaroons.CryptoTools.string_to_bytes;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.KEY_VALUE_SEPARATOR;
 import static com.github.nitram509.jmacaroons.MacaroonsConstants.LINE_SEPARATOR;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_MAX_STRLEN;
 import static com.github.nitram509.jmacaroons.util.BinHex.bin2hex;
 
 /**
@@ -53,6 +60,20 @@ public class Macaroon implements Serializable {
     this.caveatPackets = caveats;
     this.signature = bin2hex(signature);
     this.signatureBytes = signature;
+  }
+
+  Macaroon(String location, byte[] secretKey, String identifier) throws GeneralSecurityRuntimeException {
+    assert location.length() < MACAROON_MAX_STRLEN;
+    assert identifier.length() < MACAROON_MAX_STRLEN;
+    this.location = location;
+    this.identifier = identifier;
+    this.caveatPackets = new CaveatPacket[0];
+    try {
+      this.signatureBytes = macaroon_hmac(secretKey, identifier);
+      this.signature = bin2hex(this.signatureBytes);
+    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    }
   }
 
   public String inspect() {
@@ -95,6 +116,84 @@ public class Macaroon implements Serializable {
     return format.serialize(this);
   }
 
+  /**
+   * Deserializes a macaroon using the {@link MacaroonsSerializer#V1} format.
+   *
+   * @param serializedMacaroon serializedMacaroon
+   * @return {@link com.github.nitram509.jmacaroons.Macaroon}
+   * @throws com.github.nitram509.jmacaroons.NotDeSerializableException when serialized macaroon is not valid base64, length is to short or contains invalid packet data
+   * @see #deserialize(String, MacaroonsSerializer)
+   */
+  public static Macaroon deserialize(String serializedMacaroon) throws IllegalArgumentException {
+    return deserialize(serializedMacaroon, MacaroonsSerializer.V1);
+  }
+
+  /**
+   * Deserializes a macaroon using the given format.
+   *
+   * @param serializedMacaroon serializedMacaroon
+   * @param format the serialization format.
+   * @return {@link com.github.nitram509.jmacaroons.Macaroon}
+   * @throws com.github.nitram509.jmacaroons.NotDeSerializableException when serialized macaroon is not valid, length is to short or contains invalid packet data
+   * @see #deserialize(String, MacaroonsSerializer)
+   */
+  public static Macaroon deserialize(String serializedMacaroon, MacaroonsSerializer format) throws IllegalArgumentException {
+    return format.deserialize(serializedMacaroon);
+  }
+
+  /**
+   * @param location   location
+   * @param secretKey  secretKey
+   * @param identifier identifier
+   * @return {@link com.github.nitram509.jmacaroons.Macaroon}
+   */
+  public static Macaroon create(String location, String secretKey, String identifier) {
+    return create(location, string_to_bytes(secretKey), identifier);
+  }
+
+  /**
+   * @param location   location
+   * @param secretKey  secretKey
+   * @param identifier identifier
+   * @return {@link com.github.nitram509.jmacaroons.Macaroon}
+   */
+  public static Macaroon create(String location, byte[] secretKey, String identifier) {
+    try {
+      return new Macaroon(location, generate_derived_key(secretKey), identifier);
+    }
+    catch (InvalidKeyException | NoSuchAlgorithmException e) {
+      throw new GeneralSecurityRuntimeException(e);
+    }
+  }
+
+  /**
+   * @param macaroon macaroon
+   * @return {@link com.github.nitram509.jmacaroons.MacaroonsBuilder}
+   */
+  public static MacaroonsBuilder builder(Macaroon macaroon) {
+    return new MacaroonsBuilder(macaroon);
+  }
+
+  /**
+   * @param location   location
+   * @param secretKey  secretKey this secret will be used as it is (be sure that has suggested length {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_SUGGESTED_SECRET_LENGTH})
+   * @param identifier identifier
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException GeneralSecurityRuntimeException
+   */
+  public static MacaroonsBuilder builder(String location, byte[] secretKey, String identifier) throws GeneralSecurityRuntimeException {
+    return new MacaroonsBuilder(location, secretKey, identifier);
+  }
+
+  /**
+   * @param location   location
+   * @param secretKey  secretKey this secret will be enhanced, in case it's shorter than {@link com.github.nitram509.jmacaroons.MacaroonsConstants#MACAROON_SUGGESTED_SECRET_LENGTH}
+   * @param identifier identifier
+   * @throws com.github.nitram509.jmacaroons.GeneralSecurityRuntimeException GeneralSecurityRuntimeException
+   */
+  public static MacaroonsBuilder builder(String location, String secretKey, String identifier) throws GeneralSecurityRuntimeException {
+    return new MacaroonsBuilder(location, secretKey, identifier);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -103,9 +202,9 @@ public class Macaroon implements Serializable {
     Macaroon macaroon = (Macaroon) o;
 
     if (!Arrays.equals(caveatPackets, macaroon.caveatPackets)) return false;
-    if (identifier != null ? !identifier.equals(macaroon.identifier) : macaroon.identifier != null) return false;
-    if (location != null ? !location.equals(macaroon.location) : macaroon.location != null) return false;
-    if (signature != null ? !signature.equals(macaroon.signature) : macaroon.signature != null) return false;
+    if (!Objects.equals(identifier, macaroon.identifier)) return false;
+    if (!Objects.equals(location, macaroon.location)) return false;
+    if (!Objects.equals(signature, macaroon.signature)) return false;
 
     return true;
   }

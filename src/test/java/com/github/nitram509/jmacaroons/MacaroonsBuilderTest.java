@@ -20,6 +20,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -39,7 +40,7 @@ public class MacaroonsBuilderTest {
 
   @Test
   public void create_a_Macaroon_and_verify_signature_location_and_identfier() {
-    m = new MacaroonsBuilder(location, secret, identifier).getMacaroon();
+    m = Macaroon.builder(location, secret, identifier).build();
 
     assertThat(m.location).isEqualTo(location);
     assertThat(m.identifier).isEqualTo(identifier);
@@ -48,7 +49,7 @@ public class MacaroonsBuilderTest {
 
   @Test
   public void create_a_Macaroon_with_static_helper_method() {
-    m = MacaroonsBuilder.create("http://example.org/", "example secret key", "example entifier");
+    m = Macaroon.create("http://example.org/", "example secret key", "example entifier");
 
     assertThat(m.location).isEqualTo("http://example.org/");
     assertThat(m.identifier).isEqualTo("example entifier");
@@ -57,7 +58,7 @@ public class MacaroonsBuilderTest {
 
   @Test
   public void create_a_Macaroon_and_inspect() {
-    m = new MacaroonsBuilder(location, secret, identifier).getMacaroon();
+    m = Macaroon.builder(location, secret, identifier).build();
 
     String inspect = m.inspect();
 
@@ -70,15 +71,15 @@ public class MacaroonsBuilderTest {
 
   @Test
   public void different_locations_doesnt_change_the_signatures() {
-    Macaroon m1 = new MacaroonsBuilder("http://location_ONE", secret, identifier).getMacaroon();
-    Macaroon m2 = new MacaroonsBuilder("http://location_TWO", secret, identifier).getMacaroon();
+    Macaroon m1 = Macaroon.builder("http://location_ONE", secret, identifier).build();
+    Macaroon m2 = Macaroon.builder("http://location_TWO", secret, identifier).build();
 
     assertThat(m1.signature).isEqualTo(m2.signature);
   }
 
   @Test
   public void Macaroon_can_be_serialized() {
-    m = new MacaroonsBuilder(location, secret, identifier).getMacaroon();
+    m = Macaroon.builder(location, secret, identifier).build();
 
     assertThat(m.serialize()).isEqualTo("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAyZnNpZ25hdHVyZSDj2eApCFJsTAA5rhURQRXZf91ovyujebNCqvD2F9BVLwo");
   }
@@ -86,10 +87,10 @@ public class MacaroonsBuilderTest {
   @Test
   public void create_a_Macaroon_from_a_byteArray() throws UnsupportedEncodingException {
     identifier ="we used our secret key";
-    byte[] secretBytes = secret.getBytes("ASCII");
+    byte[] secretBytes = secret.getBytes(StandardCharsets.US_ASCII);
     location ="http://www.example.org";
 
-    m = MacaroonsBuilder.create(location, secretBytes, identifier);
+    m = Macaroon.create(location, secretBytes, identifier);
 
     assertThat(m.signature).isEqualTo("e3d9e02908526c4c0039ae15114115d97fdd68bf2ba379b342aaf0f617d0552f");
   }

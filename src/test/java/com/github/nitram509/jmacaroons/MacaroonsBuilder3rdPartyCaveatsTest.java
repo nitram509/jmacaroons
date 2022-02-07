@@ -33,10 +33,10 @@ public class MacaroonsBuilder3rdPartyCaveatsTest {
     String caveat_key = "4; guaranteed random by a fair toss of the dice";
     String predicate = "user = Alice";
     String identifier = "this was how we remind auth of key/pred";
-    Macaroon m = new MacaroonsBuilder(location, secret, publicIdentifier)
-        .add_first_party_caveat("account = 3735928559")
-        .add_third_party_caveat("http://auth.mybank/", caveat_key, identifier)
-        .getMacaroon();
+    Macaroon m = Macaroon.builder(location, secret, publicIdentifier)
+        .addCaveat("account = 3735928559")
+        .addCaveat("http://auth.mybank/", caveat_key, identifier)
+        .build();
 
     assertThat(m.identifier).isEqualTo(publicIdentifier);
     assertThat(m.location).isEqualTo(location);

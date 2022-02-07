@@ -41,15 +41,15 @@ public class MacaroonsSerializerV2Test {
         byte[] key = new byte[32];
         Arrays.fill(key, (byte) 42);
         String caveatKey = "super secret caveat key";
-        Macaroon macaroon = MacaroonsBuilder.create(LOCATION, key, IDENTIFIER);
-        macaroon = MacaroonsBuilder.modify(macaroon)
-                .add_first_party_caveat(FIRST_PARTY_CAVEAT)
-                .add_third_party_caveat(THIRD_PARTY_LOCATION, caveatKey, THIRD_PARTY_CAVEAT)
-                .getMacaroon();
+        Macaroon macaroon = Macaroon.create(LOCATION, key, IDENTIFIER);
+        macaroon = Macaroon.builder(macaroon)
+                .addCaveat(FIRST_PARTY_CAVEAT)
+                .addCaveat(THIRD_PARTY_LOCATION, caveatKey, THIRD_PARTY_CAVEAT)
+                .build();
 
         // When
         String serialized = macaroon.serialize(MacaroonsSerializer.V2);
-        Macaroon deserialized = MacaroonsBuilder.deserialize(serialized, MacaroonsSerializer.V2);
+        Macaroon deserialized = Macaroon.deserialize(serialized, MacaroonsSerializer.V2);
 
         // Then
         assertThat(deserialized.signature).as("signature").isEqualTo(macaroon.signature);
