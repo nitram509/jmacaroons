@@ -22,7 +22,7 @@ jobs:
       - name: 'upload code coverage'
         uses: 'codecov/codecov-action@v2'
         with:
-          files: 'target/jacoco.exec'
+          files: 'target/site/jacoco/jacoco.xml'
           name: 'codecov-umbrella'
           fail_ci_if_error: true # optional (default = false)
           verbose: true # optional (default = false)
