@@ -109,7 +109,6 @@ Alternatively, the V2 binary serializer format is supported.
     String serialized = macaroon.serialize(V2);
     System.out.println("Serialized: " + serialized);
     // Serialized: AgEWaHR0cDovL3d3dy5leGFtcGxlLm9yZwIWd2UgdXNlZCBvdXIgc2VjcmV0IGtleQAABiDj2eApCFJsTAA5rhURQRXZf91ovyujebNCqvD2F9BVLw
-  }
 ```
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
@@ -146,11 +145,11 @@ when provided with the macaroon and its corresponding secret - no secret, no aut
 ```java
   void verify() throws InvalidKeyException, NoSuchAlgorithmException {
     Macaroon macaroon = create();
-    MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
+
+    MacaroonsVerifier verifier = macaroon.verifier();
     String secret = "this is our super secret key; only we should know it";
     boolean valid = verifier.isValid(secret);
     // > True
-  }
 ```
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
@@ -171,7 +170,6 @@ restricts it to just the account number 3735928559.
         .addCaveat("account = 3735928559")
         .build();
     System.out.println(macaroon.inspect());
-  }
 ```
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
@@ -190,7 +188,6 @@ via Macaroon Builder. Thus, a new macaroon object will be created.
     // > identifier we used our secret key
     // > cid account = 3735928559
     // > signature 1efe4763f290dbce0c1d08477367e11f4eee456a64933cf662d79772dbb82128
-  }
 ```
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
@@ -211,9 +208,8 @@ We can see that it fails just as we would expect.
     Macaroon macaroon = Macaroon.builder(location, secretKey, identifier)
         .addCaveat("account = 3735928559")
         .build();
-    MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
+    MacaroonsVerifier verifier = macaroon.verifier();
     verifier.isValid(secretKey);
-    // > False
 ```
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
@@ -226,9 +222,8 @@ the macaroon.
 <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=./src/example/java/com/github/nitram509/jmacaroons/examples/MacaroonsExamples.java&lines=106-108) -->
 <!-- The below code snippet is automatically added from ./src/example/java/com/github/nitram509/jmacaroons/examples/MacaroonsExamples.java -->
 ```java
-    verifier.satisfyExact("account = 3735928559");
+    verifier.satisfy("account = 3735928559");
     verifier.isValid(secretKey);
-    // > True
 ```
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
@@ -240,12 +235,11 @@ self-attenuate itself macaroons to be only usable from IP address and browser:
 <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=./src/example/java/com/github/nitram509/jmacaroons/examples/MacaroonsExamples.java&lines=110-115) -->
 <!-- The below code snippet is automatically added from ./src/example/java/com/github/nitram509/jmacaroons/examples/MacaroonsExamples.java -->
 ```java
-    verifier.satisfyExact("IP = 127.0.0.1')");
-    verifier.satisfyExact("browser = Chrome')");
-    verifier.satisfyExact("action = deposit");
+    verifier.satisfy("IP = 127.0.0.1')");
+    verifier.satisfy("browser = Chrome')");
+    verifier.satisfy("action = deposit");
     verifier.isValid(secretKey);
     // > True
-  }
 ```
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
@@ -263,14 +257,13 @@ it is able to check if the caveat satisfies special constrains.
     Macaroon macaroon = Macaroon.builder(location, secretKey, identifier)
         .addCaveat("time < 2042-01-01T00:00")
         .build();
-    MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
+    MacaroonsVerifier verifier = macaroon.verifier();
     verifier.isValid(secretKey);
     // > False
 
-    verifier.satisfyGeneral(new TimestampCaveatVerifier());
+    verifier.satisfy(new TimestampCaveatVerifier());
     verifier.isValid(secretKey);
     // > True
-  }
 ```
 <!-- MARKDOWN-AUTO-DOCS:END -->
     
@@ -323,7 +316,6 @@ limited to Alice's bank account.
     // > cid this was how we remind auth of key/pred
     // > vid AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA027FAuBYhtHwJ58FX6UlVNFtFsGxQHS7uD_w_dedwv4Jjw7UorCREw5rXbRqIKhr
     // > cl http://auth.mybank/
-    // > signature d27db2fd1f22760e4c3dae8137e2d8fc1df6c0741c18aed4b97256bf78d1f55c
 ```
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
@@ -342,7 +334,6 @@ and return a new macaroon that discharges the caveat:
 
     Macaroon d = Macaroon.builder("http://auth.mybank/", caveat_key, identifier)
         .addCaveat("time < " + oneHourFromNow)
-        .build();
 ```
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
@@ -366,7 +357,6 @@ used to bind the discharge macaroons like this:
 ```java
     Macaroon dp = Macaroon.builder(m)
         .prepareForRequest(d)
-        .build();
 ```
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
@@ -379,7 +369,6 @@ would see that the binding process has irreversibly altered their signature(s).
     System.out.println("d.signature = " + d.signature);
     System.out.println("dp.signature = " + dp.signature);
     // > d.signature = 82a80681f9f32d419af12f6a71787a1bac3ab199df934ed950ddf20c25ac8c65
-    // > dp.signature = 2eb01d0dd2b4475330739140188648cf25dda0425ea9f661f1574ca0a9eac54e
 ```
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
@@ -392,13 +381,12 @@ argument to the verify call:
 <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=./src/example/java/com/github/nitram509/jmacaroons/examples/MacaroonsExamples.java&lines=178-184) -->
 <!-- The below code snippet is automatically added from ./src/example/java/com/github/nitram509/jmacaroons/examples/MacaroonsExamples.java -->
 ```java
-    new MacaroonsVerifier(m)
-        .satisfyExact("account = 3735928559")
-        .satisfyGeneral(new TimestampCaveatVerifier())
-        .satisfy3rdParty(dp)
+    m.verifier()
+        .satisfy("account = 3735928559")
+        .satisfy(new TimestampCaveatVerifier())
+        .satisfy(dp)
         .assertIsValid(secret);
     // > ok.
-  }
 ```
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
@@ -426,11 +414,10 @@ for expiration.
         .addCaveat("time < 2015-01-01T00:00")
         .build();
 
-    new MacaroonsVerifier(macaroon)
-        .satisfyGeneral(new TimestampCaveatVerifier())
+    macaroon.verifier()
+        .satisfy(new TimestampCaveatVerifier())
         .isValid(secretKey);
     // > True
-  }
 ```
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
@@ -451,11 +438,10 @@ to check for a single authority.
         .addCaveat("authorities = ROLE_USER, DEV_TOOLS_AVAILABLE")
         .build();
 
-    new MacaroonsVerifier(macaroon)
-        .satisfyGeneral(hasAuthority("DEV_TOOLS_AVAILABLE"))
+    macaroon.verifier()
+        .satisfy(hasAuthority("DEV_TOOLS_AVAILABLE"))
         .isValid(secretKey);
     // > True
-  }
 ```
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
