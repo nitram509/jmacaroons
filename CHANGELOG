@@ -2,10 +2,11 @@
 Changelog jmacaroons
 =====================
 
-Version 0.5.0 (20xx-xx-xx)
+Version 0.5.0 (2022-02-07)
 --------------------------
 
-   + Add V2 serialization format, thanks to the contribution by Neil Madden
+   * Add V2 serialization format, thanks to the contribution by Neil Madden
+   * Add new ```Macaroon.builder``` method to replace the separate class (deprecates: MacaroonBuilder), thanks to the contribution by Timothée Peignier
 
 Version 0.4.1 (2019-08-07)
 --------------------------

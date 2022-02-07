@@ -9,4 +9,4 @@ updates:
   ignore:
   - dependency-name: org.testng:testng
     versions:
-    - 7.3.0
+    - 7.5.0

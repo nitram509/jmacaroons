@@ -28,6 +28,7 @@ public class MacaroonsExamplesTest {
     macaroonsExamples.with_3rd_party_caveats();
     macaroonsExamples.timestamp_verifier();
     macaroonsExamples.authorities_verifier();
+    macaroonsExamples.serialize_v2_binary_format();
   }
 
 }

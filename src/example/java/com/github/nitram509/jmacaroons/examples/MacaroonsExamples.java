@@ -16,21 +16,21 @@
 
 package com.github.nitram509.jmacaroons.examples;
 
+import static com.github.nitram509.jmacaroons.MacaroonsSerializer.V2;
+import static com.github.nitram509.jmacaroons.verifier.AuthoritiesCaveatVerifier.hasAuthority;
+
 import com.github.nitram509.jmacaroons.Macaroon;
 import com.github.nitram509.jmacaroons.MacaroonsBuilder;
 import com.github.nitram509.jmacaroons.MacaroonsVerifier;
 import com.github.nitram509.jmacaroons.verifier.TimestampCaveatVerifier;
-
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.Instant;
 
-import static com.github.nitram509.jmacaroons.verifier.AuthoritiesCaveatVerifier.hasAuthority;
-
 /**
- * These are examples, for copy&paste into README.md.
- * They should be correct and compilable.
+ * These are example code snippets, used in documentation.
+ * PLEASE, adjust the line numbers in the README.md if you change this file.
  */
 public class MacaroonsExamples {
 
@@ -40,31 +40,33 @@ public class MacaroonsExamples {
     String identifier = "we used our secret key";
     Macaroon macaroon = Macaroon.create(location, secretKey, identifier);
     System.out.println(macaroon.inspect());
-
+    // > location http://www.example.org
+    // > identifier we used our secret key
+    // > signature e3d9e02908526c4c0039ae15114115d97fdd68bf2ba379b342aaf0f617d0552f
     return macaroon;
   }
 
   void serialize() {
     Macaroon macaroon = create();
-
     String serialized = macaroon.serialize();
     System.out.println("Serialized: " + serialized);
+    // Serialized: MDAyNGxvY2F0aW9uIGh0dHA6Ly93d3cuZXhhbXBsZS5vcmcKMDAyNmlkZW50aWZpZXIgd2UgdXNlZCBvdXIgc2VjcmV0IGtleQowMDJmc2lnbmF0dXJlIOPZ4CkIUmxMADmuFRFBFdl_3Wi_K6N5s0Kq8PYX0FUvCg
   }
 
   void deserialize() {
     String serialized = create().serialize();
-
     Macaroon macaroon = Macaroon.deserialize(serialized);
     System.out.println(macaroon.inspect());
+    // > location http://www.example.org
+    // > identifier we used our secret key
+    // > signature e3d9e02908526c4c0039ae15114115d97fdd68bf2ba379b342aaf0f617d0552f
   }
 
   void verify() throws InvalidKeyException, NoSuchAlgorithmException {
     Macaroon macaroon = create();
-
     MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon);
     String secret = "this is our super secret key; only we should know it";
     boolean valid = verifier.isValid(secret);
-
     // > True
   }
 
@@ -84,6 +86,10 @@ public class MacaroonsExamples {
         .addCaveat("account = 3735928559")
         .build();
     System.out.println(macaroon.inspect());
+    // > location http://www.example.org
+    // > identifier we used our secret key
+    // > cid account = 3735928559
+    // > signature 1efe4763f290dbce0c1d08477367e11f4eee456a64933cf662d79772dbb82128
   }
 
   void verify_required_caveats() throws InvalidKeyException, NoSuchAlgorithmException {
@@ -144,6 +150,13 @@ public class MacaroonsExamples {
         .build();
 
     System.out.println(m.inspect());
+    // > location http://mybank/
+    // > identifier we used our other secret key
+    // > cid account = 3735928559
+    // > cid this was how we remind auth of key/pred
+    // > vid AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA027FAuBYhtHwJ58FX6UlVNFtFsGxQHS7uD_w_dedwv4Jjw7UorCREw5rXbRqIKhr
+    // > cl http://auth.mybank/
+    // > signature d27db2fd1f22760e4c3dae8137e2d8fc1df6c0741c18aed4b97256bf78d1f55c
 
     final String oneHourFromNow = Instant.now()
         .plus(Duration.ofHours(1))
@@ -159,12 +172,15 @@ public class MacaroonsExamples {
 
     System.out.println("d.signature = " + d.signature);
     System.out.println("dp.signature = " + dp.signature);
+    // > d.signature = 82a80681f9f32d419af12f6a71787a1bac3ab199df934ed950ddf20c25ac8c65
+    // > dp.signature = 2eb01d0dd2b4475330739140188648cf25dda0425ea9f661f1574ca0a9eac54e
 
     new MacaroonsVerifier(m)
         .satisfyExact("account = 3735928559")
         .satisfyGeneral(new TimestampCaveatVerifier())
         .satisfy3rdParty(dp)
         .assertIsValid(secret);
+    // > ok.
   }
 
   void timestamp_verifier() {
@@ -195,6 +211,13 @@ public class MacaroonsExamples {
         .satisfyGeneral(hasAuthority("DEV_TOOLS_AVAILABLE"))
         .isValid(secretKey);
     // > True
+  }
+
+  void serialize_v2_binary_format() {
+    Macaroon macaroon = create();
+    String serialized = macaroon.serialize(V2);
+    System.out.println("Serialized: " + serialized);
+    // Serialized: AgEWaHR0cDovL3d3dy5leGFtcGxlLm9yZwIWd2UgdXNlZCBvdXIgc2VjcmV0IGtleQAABiDj2eApCFJsTAA5rhURQRXZf91ovyujebNCqvD2F9BVLw
   }
 
 }
