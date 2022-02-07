@@ -47,10 +47,9 @@ compile 'com.github.nitram509:jmacaroons:0.4.2'
 Build Status
 --------------------
 
-[![Build Status](https://travis-ci.org/nitram509/jmacaroons.svg?branch=master)](https://travis-ci.org/nitram509/jmacaroons)
+[![maven test](https://github.com/nitram509/jmacaroons/actions/workflows/maven-test.yml/badge.svg)](https://github.com/nitram509/jmacaroons/actions/workflows/maven-test.yml)
 
-[![Coverage Status](https://coveralls.io/repos/nitram509/jmacaroons/badge.png?branch=master)](https://coveralls.io/r/nitram509/jmacaroons?branch=master)
-
+[![codecov](https://codecov.io/gh/nitram509/jmacaroons/branch/master/graph/badge.svg?token=G4BT0ayhLV)](https://codecov.io/gh/nitram509/jmacaroons)
 
 Community & Badges
 --------------------
