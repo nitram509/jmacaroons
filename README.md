@@ -102,6 +102,15 @@ This way you can very easily append it to query string within URIs.
 
 Alternatively, the V2 binary serializer format is supported.
 <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=./src/example/java/com/github/nitram509/jmacaroons/examples/MacaroonsExamples.java&lines=216-221) -->
+<!-- The below code snippet is automatically added from ./src/example/java/com/github/nitram509/jmacaroons/examples/MacaroonsExamples.java -->
+```java
+  void serialize_v2_binary_format() {
+    Macaroon macaroon = create();
+    String serialized = macaroon.serialize(V2);
+    System.out.println("Serialized: " + serialized);
+    // Serialized: AgEWaHR0cDovL3d3dy5leGFtcGxlLm9yZwIWd2UgdXNlZCBvdXIgc2VjcmV0IGtleQAABiDj2eApCFJsTAA5rhURQRXZf91ovyujebNCqvD2F9BVLw
+  }
+```
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
 
