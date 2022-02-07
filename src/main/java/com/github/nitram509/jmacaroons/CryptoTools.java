@@ -16,30 +16,26 @@
 
 package com.github.nitram509.jmacaroons;
 
-import com.github.nitram509.jmacaroons.crypto.neilalexander.jnacl.xsalsa20poly1305;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 
-import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
-import static com.github.nitram509.jmacaroons.crypto.neilalexander.jnacl.xsalsa20poly1305.crypto_secretbox_open;
-import static java.lang.System.arraycopy;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.IDENTIFIER_CHARSET;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_HASH_BYTES;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_SECRET_NONCE_BYTES;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.STRING_KEY_CHARSET;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.VID_NONCE_KEY_SZ;
 
 class CryptoTools {
-
   private static final String HMAC_SHA_256_ALGO = "HmacSHA256";
   private static final String MACAROONS_MAGIC_KEY = "macaroons-key-generator";
 
   private static final Mac HMACSHA256_PROTOTYPE;
-  private static final SecureRandom SECURE_RANDOM;
 
   static {
     try {
       HMACSHA256_PROTOTYPE = Mac.getInstance(HMAC_SHA_256_ALGO);
-      SECURE_RANDOM = new SecureRandom();
     } catch (NoSuchAlgorithmException e) {
       throw new GeneralSecurityRuntimeException(e);
     }
@@ -68,25 +64,19 @@ class CryptoTools {
 
   static byte[] macaroon_hash2(byte[] key, byte[] message1, byte[] message2) throws NoSuchAlgorithmException, InvalidKeyException {
     byte[] tmp = new byte[2 * MACAROON_HASH_BYTES];
-    arraycopy(macaroon_hmac(key, message1), 0, tmp, 0, MACAROON_HASH_BYTES);
-    arraycopy(macaroon_hmac(key, message2), 0, tmp, MACAROON_HASH_BYTES, MACAROON_HASH_BYTES);
+    System.arraycopy(macaroon_hmac(key, message1), 0, tmp, 0, MACAROON_HASH_BYTES);
+    System.arraycopy(macaroon_hmac(key, message2), 0, tmp, MACAROON_HASH_BYTES, MACAROON_HASH_BYTES);
     return macaroon_hmac(key, tmp);
   }
 
   static ThirdPartyPacket macaroon_add_third_party_caveat_raw(byte[] old_sig, byte[] key, String identifier) throws InvalidKeyException, NoSuchAlgorithmException {
-
-    byte[] enc_nonce = new byte[MACAROON_SECRET_NONCE_BYTES];
-    SECURE_RANDOM.nextBytes(enc_nonce);
-    byte[] enc_plaintext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
-    byte[] enc_ciphertext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
-    /* now encrypt the key to give us vid */
-    arraycopy(key, 0, enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, MACAROON_HASH_BYTES);
-
-    macaroon_secretbox(old_sig, enc_nonce, enc_plaintext, enc_ciphertext);
+    final SecretBox box = new SecretBox(old_sig);
+    final byte[] nonce = box.nonce(key);
+    final byte[] ciphertext = box.seal(nonce, key);
 
     byte[] vid = new byte[VID_NONCE_KEY_SZ];
-    arraycopy(enc_nonce, 0, vid, 0, MACAROON_SECRET_NONCE_BYTES);
-    arraycopy(enc_ciphertext, MACAROON_SECRET_BOX_ZERO_BYTES, vid, MACAROON_SECRET_NONCE_BYTES, VID_NONCE_KEY_SZ - MACAROON_SECRET_NONCE_BYTES);
+    System.arraycopy(nonce, 0, vid, 0, MACAROON_SECRET_NONCE_BYTES);
+    System.arraycopy(ciphertext, 0, vid, MACAROON_SECRET_NONCE_BYTES, VID_NONCE_KEY_SZ - MACAROON_SECRET_NONCE_BYTES);
 
     byte[] new_sig = macaroon_hash2(old_sig, vid, identifier.getBytes(IDENTIFIER_CHARSET));
     return new ThirdPartyPacket(new_sig, vid);
@@ -95,17 +85,6 @@ class CryptoTools {
   static byte[] macaroon_bind(byte[] Msig, byte[] MPsig) throws InvalidKeyException, NoSuchAlgorithmException {
     byte[] key = new byte[MACAROON_HASH_BYTES];
     return macaroon_hash2(key, Msig, MPsig);
-  }
-
-  private static void macaroon_secretbox(byte[] key, byte[] nonce, byte[] plaintext, byte[] ciphertext) throws GeneralSecurityRuntimeException {
-    int err_code = xsalsa20poly1305.crypto_secretbox(ciphertext, plaintext, plaintext.length, nonce, key);
-    if (err_code != 0) {
-      throw new GeneralSecurityRuntimeException("Error while creating secret box. err_code=" + err_code);
-    }
-  }
-
-  static int macaroon_secretbox_open(byte[] enc_key, byte[] enc_nonce, byte[] ciphertext, byte[] plaintext) {
-    return crypto_secretbox_open(plaintext, ciphertext, ciphertext.length, enc_nonce, enc_key);
   }
 
   private static Mac createNewHmacInstance() throws NoSuchAlgorithmException {

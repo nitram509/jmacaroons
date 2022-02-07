@@ -20,15 +20,23 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.github.nitram509.jmacaroons.CaveatPacket.Type;
-import static com.github.nitram509.jmacaroons.CryptoTools.*;
-import static com.github.nitram509.jmacaroons.MacaroonsConstants.*;
+import static com.github.nitram509.jmacaroons.CryptoTools.generate_derived_key;
+import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_bind;
+import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_hash2;
+import static com.github.nitram509.jmacaroons.CryptoTools.macaroon_hmac;
+import static com.github.nitram509.jmacaroons.CryptoTools.safeEquals;
+import static com.github.nitram509.jmacaroons.CryptoTools.string_to_bytes;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_HASH_BYTES;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.MACAROON_SECRET_NONCE_BYTES;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.SECRET_BOX_OVERHEAD;
+import static com.github.nitram509.jmacaroons.MacaroonsConstants.VID_NONCE_KEY_SZ;
 import static com.github.nitram509.jmacaroons.util.ArrayTools.appendToArray;
 import static com.github.nitram509.jmacaroons.util.ArrayTools.containsElement;
 
 public class MacaroonsVerifier {
-
   private String[] predicates = new String[0];
   private List<Macaroon> boundMacaroons = new ArrayList<>(3);
   private GeneralCaveatVerifier[] generalCaveatVerifiers = new GeneralCaveatVerifier[0];
@@ -130,32 +138,35 @@ public class MacaroonsVerifier {
     return new VerificationResult(csig);
   }
 
-  private boolean macaroon_verify_inner_3rd(Macaroon M, CaveatPacket C, byte[] sig) throws InvalidKeyException, NoSuchAlgorithmException {
-    if (M == null) return false;
-    byte[] enc_plaintext = new byte[MACAROON_SECRET_TEXT_ZERO_BYTES + MACAROON_HASH_BYTES];
-    byte[] enc_ciphertext = new byte[MACAROON_SECRET_BOX_ZERO_BYTES + MACAROON_HASH_BYTES + SECRET_BOX_OVERHEAD];
+  private boolean macaroon_verify_inner_3rd(Macaroon macaroon, CaveatPacket caveatPacket, byte[] sig) throws InvalidKeyException, NoSuchAlgorithmException {
+    if (macaroon == null) return false;
 
-    byte[] vid_data = C.rawValue;
+    final byte[] vid_data = caveatPacket.rawValue;
     assert vid_data.length == VID_NONCE_KEY_SZ;
+
     /*
      * the nonce is in the first MACAROON_SECRET_NONCE_BYTES
      * of the vid; the ciphertext is in the rest of it.
      */
-    byte[] enc_nonce = new byte[MACAROON_SECRET_NONCE_BYTES];
-    System.arraycopy(vid_data, 0, enc_nonce, 0, MACAROON_SECRET_NONCE_BYTES);
+    final byte[] nonce = new byte[MACAROON_SECRET_NONCE_BYTES];
+    System.arraycopy(vid_data, 0, nonce, 0, MACAROON_SECRET_NONCE_BYTES);
 
     /* fill in the ciphertext */
-    System.arraycopy(vid_data, MACAROON_SECRET_NONCE_BYTES, enc_ciphertext, MACAROON_SECRET_BOX_ZERO_BYTES, vid_data.length - MACAROON_SECRET_NONCE_BYTES);
-    boolean valid = 0 == macaroon_secretbox_open(sig, enc_nonce, enc_ciphertext, enc_plaintext);
+    final byte[] ciphertext = new byte[MACAROON_HASH_BYTES + SECRET_BOX_OVERHEAD];
+    System.arraycopy(vid_data, MACAROON_SECRET_NONCE_BYTES, ciphertext, 0, vid_data.length - MACAROON_SECRET_NONCE_BYTES);
 
-    byte[] key = new byte[MACAROON_HASH_BYTES];
-    System.arraycopy(enc_plaintext, MACAROON_SECRET_TEXT_ZERO_BYTES, key, 0, MACAROON_HASH_BYTES);
-    VerificationResult vresult = macaroon_verify_inner(M, key);
+    final SecretBox box = new SecretBox(sig);
+    final Optional<byte[]> plaintext = box.open(nonce, ciphertext);
+    if (plaintext.isPresent()) {
+      VerificationResult result = macaroon_verify_inner(macaroon, plaintext.get());
 
-    byte[] data = getMacaroon().signatureBytes;
-    byte[] csig = macaroon_bind(data, vresult.csig);
+      final byte[] data = this.macaroon.signatureBytes;
+      final byte[] csig = macaroon_bind(data, result.csig);
 
-    return valid && safeEquals(csig, M.signatureBytes);
+      return safeEquals(csig, macaroon.signatureBytes);
+    } else {
+      return false;
+    }
   }
 
   private Macaroon findBoundMacaroon(String identifier) {

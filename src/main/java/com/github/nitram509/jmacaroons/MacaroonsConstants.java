@@ -45,7 +45,6 @@ public interface MacaroonsConstants {
   int PACKET_PREFIX_LENGTH = 4;
   int PACKET_MAX_SIZE = 65535;
 
-  int MACAROON_SECRET_KEY_BYTES = 32;
   int MACAROON_SECRET_NONCE_BYTES = 24;
 
   /**
