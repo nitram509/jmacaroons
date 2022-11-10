@@ -176,7 +176,7 @@ restricts it to just the account number 3735928559.
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
 Because macaroon objects are immutable, they have to be modified
-via Macaroon Builder. Thus, a new macaroon object will be created.
+via ```Macaroon.builder()```. Thus, a new macaroon object will be created.
 <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=./src/example/java/com/github/nitram509/jmacaroons/examples/MacaroonsExamples.java&lines=83-93) -->
 <!-- The below code snippet is automatically added from ./src/example/java/com/github/nitram509/jmacaroons/examples/MacaroonsExamples.java -->
 ```java
