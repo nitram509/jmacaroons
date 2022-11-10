@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ '8', '11', '17', '19' ]
+        java: [ '11', '17', '19' ]
     name: 'Java ${{ matrix.java }} maven test'
     steps:
       - name: 'checkout'
@@ -20,7 +20,7 @@ jobs:
       - name: 'Build & test with Maven'
         run: 'mvn test'
       - name: 'upload code coverage'
-        if: ${{ matrix.java == '8' }}
+        if: ${{ matrix.java == '11' }}
         uses: 'codecov/codecov-action@v3'
         with:
           files: 'target/site/jacoco/jacoco.xml'
