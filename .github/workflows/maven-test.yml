@@ -20,7 +20,7 @@ jobs:
       - name: 'Build & test with Maven'
         run: 'mvn test'
       - name: 'upload code coverage'
-        uses: 'codecov/codecov-action@v2'
+        uses: 'codecov/codecov-action@v3'
         with:
           files: 'target/site/jacoco/jacoco.xml'
           name: 'codecov-umbrella'
