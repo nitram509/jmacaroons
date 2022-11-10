@@ -5,9 +5,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Markdown autodocs
-        uses: dineshsonachalam/markdown-autodocs@v1.0.4
+        uses: dineshsonachalam/markdown-autodocs@v1.0.7
         with:
           # Optional, defaults to author of the commit that triggered the run
           commit_author: Author <actions@github.com>
