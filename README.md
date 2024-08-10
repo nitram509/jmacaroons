@@ -14,9 +14,6 @@ The primary goals are
    * focus on binary serialization format (currently, JSON format isn't supported)
    * being the reference implementation in the Java community ;-)
 
-There is a [playground](http://www.macaroons.io/) (testing environment) available,
-where you can build and verify macaroons online.
-
 ##### License
 
 [![License](https://img.shields.io/:license-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
