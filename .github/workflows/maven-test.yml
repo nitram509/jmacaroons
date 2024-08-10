@@ -21,9 +21,10 @@ jobs:
         run: 'mvn test'
       - name: 'upload code coverage'
         if: ${{ matrix.java == '11' }}
-        uses: 'codecov/codecov-action@v3'
+        uses: 'codecov/codecov-action@v4'
         with:
+          token: ${{ secrets.CODECOV_TOKEN }} # required
           files: 'target/site/jacoco/jacoco.xml'
           name: 'codecov-umbrella'
-          fail_ci_if_error: true # optional (default = false)
+          flags: unittests # optional
           verbose: true # optional (default = false)
